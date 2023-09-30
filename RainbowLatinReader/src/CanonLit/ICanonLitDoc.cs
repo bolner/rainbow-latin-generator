@@ -1,0 +1,5 @@
+namespace RainbowLatinReader;
+
+interface ICanonLitDoc {
+    
+}

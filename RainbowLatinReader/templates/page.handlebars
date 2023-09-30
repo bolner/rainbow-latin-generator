@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{title}}</title>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                font-size: 1.2vw;
+                color: white;
+                background-color: black;
+            }
+
+            table.section {
+                border-collapse: collapse;
+                border: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            table.section tr {
+                border: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            table.section td.margin {
+                width: 3.5em;
+                background-color: rgb(15, 40, 64);
+                border: 0;
+                padding: 0.5em;
+                padding-top: 0.7em;
+                vertical-align: top;
+                text-align: right;
+            }
+
+            table.section td.content {
+                width: 50em;
+                background-color: rgb(0, 0, 0);
+                border: 0;
+                padding: 0.5em;
+                vertical-align: top;
+            }
+
+            table.section td.dual {
+                width: 50em;
+                background-color: rgb(28, 56, 83);
+                border: 0;
+                padding: 0.5em;
+                vertical-align: top;
+            }
+
+            table.section td.title {
+                border: 0;
+                padding: 0.5em;
+                padding-top: 2em;
+            }
+
+            table.section td.title div.author {
+                float: right;
+            }
+
+            h1, h2 {
+                background-color: transparent;
+            }
+
+            td.title h2 {
+                margin-bottom: 0;
+            }
+
+            div.word {
+                display: inline;
+                background-color: transparent;
+                line-height: 1.5em;
+                padding: 0.1em;
+                margin-left: -0.2em;
+            }
+
+            /*
+                Top bar
+            */
+            .topbar {
+                overflow: hidden;
+                background-color: rgb(13, 24, 40);
+                position: fixed;
+                top: 0;
+                width: 100%;
+                padding: 0.4em;
+
+                border-bottom: 0.1em;
+                border-bottom-color: rgb(60, 87, 126);
+                border-bottom-style: solid;
+            }
+
+            .topbar div.rainbow {
+                background: linear-gradient(in hsl longer hue 45deg, red 0 0);
+                text-shadow: 0.15em 0.15em 0.2em #000, -0.15em -0.15em 0.2em #000, 0.15em -0.15em 0.2em #000, -0.15em 0.15em 0.2em #000;
+                float: right;
+                margin-right: 1em;
+                padding-left: 1em;
+                padding-right: 1em;
+            }
+
+            .topbar div.word.sample {
+                font-size: 0.9em;
+                padding-left: 0.2em;
+                padding-right: 0.2em;
+            }
+
+            .topbar div.word.title {
+                margin-left: 0.5em;
+            }
+
+            /*
+                Cases
+            */
+            div.nom { /* Nominative */
+                background-color: rgb(4 57 4);
+            }
+
+            div.acc { /* Accusative */
+                background-color: rgb(131 87 0);
+                color: white;
+            }
+
+            div.gen { /* Genitive */
+                background-color: rgb(112 0 0);
+            }
+
+            div.dat { /* Dative */
+                background-color: rgb(26 41 141);
+            }
+
+            div.abl { /* Ablative */
+                background-color: rgb(182 0 167);
+                color: white;
+            }
+
+            div.voc { /* Vocative */
+                background-color: rgb(237, 237, 145);
+                color: black;
+            }
+
+            div.loc { /* Locative */
+                background-color: rgb(144, 220, 219);
+                color: black;
+            }
+
+            div.pas { /* Voice = Passive */
+                text-decoration: underline;
+                text-underline-offset: 0.2em;
+            }
+
+            div.dep { /* Voice = Deponent */
+                text-decoration: underline;
+                text-decoration-style: dotted;
+                text-underline-offset: 0.2em;
+            }
+
+            div.grey {
+                background-color: rgb(83 83 83);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="topbar">
+            <div class="word sample nom">Nominative</div>
+            <div class="word sample acc">Accusative</div>
+            <div class="word sample dat">Dative</div>
+            <div class="word sample abl">Ablative</div>
+            <div class="word sample gen">Genitive</div>
+            <div class="word sample voc">Vocative</div>
+            <div class="word sample loc">Locative</div>
+            <div class="word sample pas grey">Passive</div>
+            <div class="word sample dep grey">Deponent</div>
+
+            <div class="word title">{{title}} ({{author}})</div>
+
+            <div class="word rainbow">Rainbow Latin Reader</div>
+        </div>
+
+        <table class="section">
+            <tr>
+                <td class="margin">&nbsp;</td>
+
+                <td class="title">
+                    <h2>{{full_title}}</h2>
+                    <div class="author"><i>Author: {{full_author}}</i></div>
+                </td>
+
+                <td class="dual">&nbsp;</td>
+            </tr>
+
+        {{#each sections}}
+            <tr id="s{{id}}">
+                <td class="margin">{{number}}</td>
+
+                <td class="content">
+                    {{#each words}}<div {{#if id}}id="w{{id}}" {{/if}}class="{{class}}">{{value}}</div>{{#if space_after}} {{/if}}{{/each}}
+                </td>
+
+                <td class="dual">
+                    {{{dual}}}
+                </td>
+            </tr>
+        {{/each}}
+        </table>
+    </body>
+</html>
