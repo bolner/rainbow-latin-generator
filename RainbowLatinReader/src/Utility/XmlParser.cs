@@ -3,6 +3,7 @@ namespace RainbowLatinReader;
 using System.IO;
 using System.Xml;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// This parser has some very specific design choices:
@@ -16,9 +17,13 @@ sealed class XmlParser : IXmlParser, IDisposable {
     private readonly XmlReader reader;
     private readonly List<string> traps = new();
     private readonly Dictionary<string, List<string>> captures = new();
-    private readonly Dictionary<string, string> properties = new();
+    private readonly Dictionary<string, string> attributes = new();
     private string? content = null;
     private readonly Stack<string> trace = new();
+    private readonly Regex whitespaceRegEx = new(
+        @"[\s]+",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
 
     /// <summary>
     /// Create an XmlParser object.
@@ -46,8 +51,8 @@ sealed class XmlParser : IXmlParser, IDisposable {
         return new Dictionary<string, List<string>>(captures);
     }
 
-    public Dictionary<string, string> GetProperties() {
-        return new Dictionary<string, string>(properties);
+    public Dictionary<string, string> GetAttributes() {
+        return new Dictionary<string, string>(attributes);
     }
 
     public string? GetContent() {
@@ -62,6 +67,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
     /// <exception cref="RainbowLatinException"></exception>
     public bool Next(string destination) {
         captures.Clear();
+        attributes.Clear();
         content = null;
 
         while(!reader.EOF) {
@@ -69,9 +75,9 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 if (!reader.Read()) {
                     break;
                 }
+            } else {
+                prefetched = false;
             }
-
-            prefetched = false;
 
             /*
                 Element
@@ -105,6 +111,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 */
                 string path = string.Join(".", trace.Reverse());
                 if (MatchesTheEnding(path, destination)) {
+                    ReadProperties();
                     ReadText();
 
                     return true;
@@ -133,34 +140,64 @@ sealed class XmlParser : IXmlParser, IDisposable {
     }
 
     /// <summary>
-    /// Read all text from a one deeper level,
-    /// and ignore the text contents of embedded elements.
+    /// Read all text from a one deeper level.
+    /// Ignore the 'note' elements, but get the text
+    /// from other nodes.
     /// </summary>
     /// <returns>True if any text was found, False otherwise.</returns>
     private bool ReadText() {
         List<string> parts = new();
+        int baseDepth = reader.Depth;
 
-        while(reader.Read()) {
-            if (reader.Depth < trace.Count) {
+        while(!reader.EOF) {
+            if (!prefetched) {
+                if (!reader.Read()) {
+                    break;
+                }
+            } else {
+                prefetched = false;
+            }
+
+            if (reader.Depth <= baseDepth) {
                 prefetched = true;
                 break;
             }
 
             if (reader.NodeType == XmlNodeType.Text) {
-                string text = reader.Value.Trim();
-                
-                if (text != "") {
-                    parts.Add(text);
+                if (reader.Value != "") {
+                    parts.Add(reader.Value);
+                }
+            }
+            else if (reader.NodeType == XmlNodeType.Element) {
+                if (reader.Name.ToLower() == "note") {
+                    reader.Skip();
+                    prefetched = true;
+                    continue;
                 }
             }
         }
 
         if (parts.Count > 0) {
-            content = string.Join(" ", parts);
+            content = string.Join("", parts);
+            content = whitespaceRegEx.Replace(content, " ").Trim();
+
             return true;
         }
 
         return false;
+    }
+
+    private bool ReadProperties() {
+        if (reader.NodeType != XmlNodeType.Element) {
+            return false;
+        }
+
+        for (int i = 0; i < reader.AttributeCount; i++){
+            reader.MoveToAttribute(i);
+            attributes[reader.Name] = reader.Value;
+        }
+
+        return attributes.Count > 0;
     }
 
     private bool MatchesTheEnding(string path, string ending) {

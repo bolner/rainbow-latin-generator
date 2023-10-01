@@ -5,6 +5,6 @@ interface IXmlParser {
     public void SetTrap(string path);
     public void ClearTraps();
     public Dictionary<string, List<string>> GetCaptures();
-    public Dictionary<string, string> GetProperties();
+    public Dictionary<string, string> GetAttributes();
     public string? GetContent();
 }
