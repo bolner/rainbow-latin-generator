@@ -70,7 +70,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
         attributes.Clear();
         content = null;
 
-        while(!reader.EOF) {
+        while(!reader.EOF || prefetched) {
             if (!prefetched) {
                 if (!reader.Read()) {
                     break;
@@ -93,15 +93,12 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 /*
                     Update trace
                 */
+                // TODO: check if duplicates in trace
                 if (reader.Depth < trace.Count) {
                     // Step out
                     for(int i = trace.Count; i > reader.Depth; i--) {
                         trace.Pop();
                     }
-                }
-                else if (reader.Depth > trace.Count && trace.Count > 0) {
-                    // Same level AND not the root node => Step over
-                    trace.Pop();
                 }
 
                 trace.Push(reader.Name);
@@ -112,7 +109,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 string path = string.Join(".", trace.Reverse());
                 if (MatchesTheEnding(path, destination)) {
                     ReadProperties();
-                    ReadText();
+                    content = ReadText();
 
                     return true;
                 }
@@ -122,14 +119,18 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 */
                 foreach(string trap in traps) {
                     if (MatchesTheEnding(path, trap)) {
-                        ReadText();
+                        var trapContent = ReadText();
 
-                        if (content != null) {
-                            if (!captures.ContainsKey(trap)) {
-                                captures[trap] = new List<string>();
+                        if (trapContent != null) {
+                            trapContent = trapContent.Trim();
+
+                            if (trapContent != "") {
+                                if (!captures.ContainsKey(trap)) {
+                                    captures[trap] = new List<string>();
+                                }
+
+                                captures[trap].Add(trapContent);
                             }
-
-                            captures[trap].Add(content);
                         }
                     }
                 }
@@ -144,12 +145,12 @@ sealed class XmlParser : IXmlParser, IDisposable {
     /// Ignore the 'note' elements, but get the text
     /// from other nodes.
     /// </summary>
-    /// <returns>True if any text was found, False otherwise.</returns>
-    private bool ReadText() {
+    /// <returns>The text if any was found, null otherwise.</returns>
+    private string? ReadText() {
         List<string> parts = new();
         int baseDepth = reader.Depth;
 
-        while(!reader.EOF) {
+        while(!reader.EOF || prefetched) {
             if (!prefetched) {
                 if (!reader.Read()) {
                     break;
@@ -181,10 +182,10 @@ sealed class XmlParser : IXmlParser, IDisposable {
             content = string.Join("", parts);
             content = whitespaceRegEx.Replace(content, " ").Trim();
 
-            return true;
+            return content;
         }
 
-        return false;
+        return null;
     }
 
     private bool ReadProperties() {

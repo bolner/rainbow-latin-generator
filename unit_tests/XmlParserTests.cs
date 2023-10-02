@@ -73,7 +73,7 @@ public class XmlParserTests
             "Did not find capture for trap 'root.header.title'.");
         Assert.True(captures.ContainsKey("header.author"),
             "Did not find capture for trap 'header.author'.");
-        Assert.True(captures["root.header.title"][0] == "The secret life of cats",
+        Assert.True(captures["root.header.title"][0] == "How to properly feed a cat",
             "The capatured title is invalid.");
         Assert.True(captures["header.author"].Count == 2,
             "Didn't find both authors.");
