@@ -1,19 +1,23 @@
 namespace RainbowLatinReader;
 
 class CanonLitDoc : ICanonLitDoc {
-    private readonly string documentID;
+    private readonly ICanonFile latinFile;
+    private readonly ICanonFile englishFile;
     private readonly Dictionary<string, ICanonLitSection> sections = new();
 
-    public CanonLitDoc(string documentID, Stream latinStream, string latinPath,
-        Stream englishStream, string englishPath)
+    public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile)
     {
-        this.documentID = documentID;
+        if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
+            throw new Exception("CanonLitDoc constructor: The latin and the english "
+                + "files have different document IDs.");
+        }
 
-        
+        this.latinFile = latinFile;
+        this.englishFile = englishFile;
     }
 
     public string GetDocumentID() {
-        return documentID;
+        return latinFile.GetDocumentID();
     }
 
     public ICanonLitSection? GetSection(string sectionNumber) {

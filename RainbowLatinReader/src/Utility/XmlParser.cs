@@ -1,9 +1,7 @@
-namespace RainbowLatinReader;
-
-using System.IO;
 using System.Xml;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
+
+namespace RainbowLatinReader;
 
 /// <summary>
 /// This parser has some very specific design choices:
@@ -13,7 +11,8 @@ using System.Text.RegularExpressions;
 sealed class XmlParser : IXmlParser, IDisposable {
     private bool isDisposed = false;
     private bool prefetched = false;
-    private readonly string filePath;
+    private readonly ICanonFile file;
+    private readonly Stream stream;
     private readonly XmlReader reader;
     private readonly List<string> traps = new();
     private readonly Dictionary<string, List<string>> captures = new();
@@ -28,15 +27,14 @@ sealed class XmlParser : IXmlParser, IDisposable {
     /// <summary>
     /// Create an XmlParser object.
     /// </summary>
-    /// <param name="stream">The XML will be read from this stream.</param>
-    /// <param name="filePath">This is only used for error messages.
-    ///     Should contain the full path to the xml file.</param>
-    public XmlParser(Stream stream, string filePath) {
+    /// <param name="file">The file to be parsed.</param>
+    public XmlParser(ICanonFile file) {
+        this.file = file;
+        stream = file.Open();
+
         reader = XmlReader.Create(stream, new XmlReaderSettings() {
             DtdProcessing = DtdProcessing.Parse
         });
-
-        this.filePath = filePath;
     }
 
     public void SetTrap(string path) {
@@ -87,7 +85,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
                     IXmlLineInfo xmlInfo = (IXmlLineInfo)reader;
                     throw new RainbowLatinException("Invalid XML document. Period characters"
                         + $" are not allowed in element names. LINE {xmlInfo.LineNumber} in "
-                        + $"FILE '{filePath}'.");
+                        + $"FILE '{file.GetPath()}'.");
                 }
 
                 /*
@@ -221,6 +219,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
     public void Dispose() {
         if (!isDisposed) {
             reader.Dispose();
+            stream.Dispose();
             isDisposed = true;
         }
     }

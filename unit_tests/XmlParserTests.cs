@@ -49,8 +49,9 @@ public class XmlParserTests
     [Fact]
     public void TestNext1()
     {
-        using var stream = new MemoryStream(xmlData1);
-        using XmlParser xml = new(stream, "/tmp/example.xml");
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, xmlData1);
+        using XmlParser xml = new(canonFile);
         bool found = xml.Next("body.section.p");
 
         Assert.True(found, "Wasn't able to find 'body.section.p'.");
@@ -62,8 +63,9 @@ public class XmlParserTests
     [Fact]
     public void TestCaptures1()
     {
-        using var stream = new MemoryStream(xmlData1);
-        using XmlParser xml = new(stream, "/tmp/example.xml");
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, xmlData1);
+        using XmlParser xml = new(canonFile);
         xml.SetTrap("root.header.title");
         xml.SetTrap("header.author");
         xml.Next("root.body");
@@ -84,8 +86,9 @@ public class XmlParserTests
     [Fact]
     public void TestAttributes1()
     {
-        using var stream = new MemoryStream(xmlData1);
-        using XmlParser xml = new(stream, "/tmp/example.xml");
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, xmlData1);
+        using XmlParser xml = new(canonFile);
 
         xml.Next("body.section");
         var attributes = xml.GetAttributes();
@@ -100,8 +103,9 @@ public class XmlParserTests
     [Fact]
     public void TestInvalidNames1()
     {
-        using var stream = new MemoryStream(xmlData2);
-        using XmlParser xml = new(stream, "/tmp/example.xml");
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, xmlData2);
+        using XmlParser xml = new(canonFile);
 
         var ex = Assert.Throws<RainbowLatinException>(() => { xml.Next("p"); });
         Assert.True(
@@ -113,8 +117,9 @@ public class XmlParserTests
     [Fact]
     public void TestTextWithElements1()
     {
-        using var stream = new MemoryStream(xmlData3);
-        using XmlParser xml = new(stream, "/tmp/example.xml");
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, xmlData3);
+        using XmlParser xml = new(canonFile);
         string expected = "JULIUS CAESAR, the divine, lost his father when he was in the sixteenth year of his age; and the year following, being nominated to the office of high-priest of Jupiter, he repudiated Cossutia, who was very wealthy, although her family belonged only to the equestrian order, and to whom he had been contracted when he was a mere boy. He then married Cornelia, the daughter of Cinna, who was four times consul; and had by her, shortly afterwards, a daughter named Julia. Resisting all the efforts of the dictator Sylla to induce him to divorce Cornelia, he suffered the penalty of being stripped of his sacerdotal office, his wife's dowry, and his own patrimonial estates; and, being identified with the adverse faction, was compelled to withdraw from Rome. After changing his place of concealment nearly every night, although he was suffering from a quartan ague, and having effected his release by bribing the officers who had tracked his footsteps, he at length obtained a pardon through the intercession of the vestal virgins, and of Mamercus AEmilius and Aurelius Cotta, his near relatives. We are assured that when Sylla, having withstood for a while the entreaties of his own best friends, persons of distinguished rank, at last yielded to their importunity, he exclaimed-either by a divine impulse, or from a shrewd conjecture: \"Your suit is granted, and you may take him among you; but know,\" he added, \" that this man, for whose safety you are so extremely anxious, will, some day or other, be the ruin of the party of the nobles, in defence of which you are leagued with me; for in this one Caesar, you will find many a Marius.\"";
 
         xml.Next("root.text");

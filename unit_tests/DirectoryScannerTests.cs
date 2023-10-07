@@ -3,7 +3,7 @@ using RainbowLatinReader;
 
 namespace unit_tests;
 
-public class DirectoryScannerTest
+public class DirectoryScannerTests
 {
     [Fact]
     public void TestNext1()

@@ -1,7 +1,6 @@
-namespace RainbowLatinReader;
-
-using System.IO;
 using Microsoft.Extensions.Configuration;
+
+namespace RainbowLatinReader;
 
 class Config : IConfig {
     private readonly string latinLemmatizedTextsDir;
