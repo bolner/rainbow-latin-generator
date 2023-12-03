@@ -1,5 +1,6 @@
 using System.Xml;
 using System.Text.RegularExpressions;
+using System.Text;
 
 namespace RainbowLatinReader;
 
@@ -14,59 +15,67 @@ sealed class XmlParser : IXmlParser, IDisposable {
     private readonly ICanonFile file;
     private readonly Stream stream;
     private readonly XmlReader reader;
-    private readonly List<string> traps = new();
-    private readonly Dictionary<string, List<string>> captures = new();
     private readonly Dictionary<string, string> attributes = new();
-    private string? content = null;
+    private StringBuilder content = new();
     private readonly Stack<string> trace = new();
     private readonly Regex whitespaceRegEx = new(
         @"[\s]+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
+    private readonly List<Regex> destinations = new();
 
     /// <summary>
     /// Create an XmlParser object.
     /// </summary>
     /// <param name="file">The file to be parsed.</param>
-    public XmlParser(ICanonFile file) {
+    /// <param name="destinations">List of regular expressions that
+    /// are matched against element paths, used by the Next() method.</param>
+    public XmlParser(ICanonFile file, List<string> destinations) {
         this.file = file;
         stream = file.Open();
 
         reader = XmlReader.Create(stream, new XmlReaderSettings() {
             DtdProcessing = DtdProcessing.Parse
         });
-    }
 
-    public void SetTrap(string path) {
-        traps.Add(path);
-    }
-
-    public void ClearTraps() {
-        traps.Clear();
-    }
-
-    public Dictionary<string, List<string>> GetCaptures() {
-        return new Dictionary<string, List<string>>(captures);
+        foreach(string destination in destinations) {
+            this.destinations.Add(
+                new Regex(destination, RegexOptions.Compiled | RegexOptions.IgnoreCase)
+            );
+        }
     }
 
     public Dictionary<string, string> GetAttributes() {
         return new Dictionary<string, string>(attributes);
     }
 
-    public string? GetContent() {
-        return content;
+    public string? GetText() {
+        if (content.Length < 1) {
+            return null;
+        }
+        
+        return whitespaceRegEx.Replace(content.ToString(), " ");
     }
 
     /// <summary>
-    /// 
+    /// Starts parsing the document starting from the current location
+    /// until the destination is found, then stops and reads to attributes.
+    /// You'll have to make an additional call to ReadContent() in order
+    /// to get the text contents of the element.
+    /// All "note" elements are skipped / ignored.
+    /// Returns false if no matching element found and the end of
+    /// the document is reached, true otherwise.
     /// </summary>
-    /// <param name="destination"></param>
-    /// <returns></returns>
+    /// <param name="destinations">A path pattern to search for.
+    /// Stop when it is reached.</param>
+    /// <returns>Returns true if the destination was found.
+    /// False otherwise.</returns>
     /// <exception cref="RainbowLatinException"></exception>
-    public bool Next(string destination) {
-        captures.Clear();
+    public bool GoTo(string destination) {
+        Regex dest = new(destination);
+
         attributes.Clear();
-        content = null;
+        content.Clear();
 
         while(!reader.EOF || prefetched) {
             if (!prefetched) {
@@ -81,17 +90,15 @@ sealed class XmlParser : IXmlParser, IDisposable {
                 Element
             */
             if (reader.NodeType == XmlNodeType.Element) {
-                if (reader.Name.Contains(".")) {
-                    IXmlLineInfo xmlInfo = (IXmlLineInfo)reader;
-                    throw new RainbowLatinException("Invalid XML document. Period characters"
-                        + $" are not allowed in element names. LINE {xmlInfo.LineNumber} in "
-                        + $"FILE '{file.GetPath()}'.");
+                if (reader.Name.ToLower() == "note") {
+                    reader.Skip();
+                    prefetched = true;
+                    continue;
                 }
 
                 /*
                     Update trace
                 */
-                // TODO: check if duplicates in trace
                 if (reader.Depth < trace.Count) {
                     // Step out
                     for(int i = trace.Count; i > reader.Depth; i--) {
@@ -105,32 +112,15 @@ sealed class XmlParser : IXmlParser, IDisposable {
                     Test for destination
                 */
                 string path = string.Join(".", trace.Reverse());
-                if (MatchesTheEnding(path, destination)) {
+                if (dest.IsMatch(path)) {
                     ReadProperties();
-                    content = ReadText();
-
+                    
                     return true;
                 }
-
-                /*
-                    Test for traps
-                */
-                foreach(string trap in traps) {
-                    if (MatchesTheEnding(path, trap)) {
-                        var trapContent = ReadText();
-
-                        if (trapContent != null) {
-                            trapContent = trapContent.Trim();
-
-                            if (trapContent != "") {
-                                if (!captures.ContainsKey(trap)) {
-                                    captures[trap] = new List<string>();
-                                }
-
-                                captures[trap].Add(trapContent);
-                            }
-                        }
-                    }
+            }
+            else if (reader.NodeType == XmlNodeType.Text) {
+                if (reader.Value != "") {
+                    content.Append(reader.Value);
                 }
             }
         }
@@ -139,15 +129,91 @@ sealed class XmlParser : IXmlParser, IDisposable {
     }
 
     /// <summary>
+    /// Stops at the next destination and pre-fetches all text
+    /// after it until either the next destination or until
+    /// the end of the document.
+    /// </summary>
+    /// <exception cref="RainbowLatinException"></exception>
+    public bool Next() {
+        attributes.Clear();
+        content.Clear();
+
+        while(!reader.EOF || prefetched) {
+            if (!prefetched) {
+                if (!reader.Read()) {
+                    break;
+                }
+            } else {
+                prefetched = false;
+            }
+
+            /*
+                Element
+            */
+            if (reader.NodeType == XmlNodeType.Element) {
+                if (reader.Name.ToLower() == "note") {
+                    reader.Skip();
+                    prefetched = true;
+                    continue;
+                }
+
+                /*
+                    Update trace
+                */
+                if (reader.Depth < trace.Count) {
+                    // Step out
+                    for(int i = trace.Count; i > reader.Depth; i--) {
+                        trace.Pop();
+                    }
+                }
+
+                trace.Push(reader.Name);
+
+                /*
+                    Test for destination
+                */
+                string path = string.Join(".", trace.Reverse());
+                foreach(Regex destination in destinations) {
+                    if (destination.IsMatch(path)) {
+                        ReadProperties();
+                        
+                        return true;
+                    }
+                }
+            }
+            else if (reader.NodeType == XmlNodeType.Text) {
+                if (reader.Value != "") {
+                    content.Append(reader.Value);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private bool ReadProperties() {
+        if (reader.NodeType != XmlNodeType.Element) {
+            return false;
+        }
+
+        for (int i = 0; i < reader.AttributeCount; i++){
+            reader.MoveToAttribute(i);
+            attributes[reader.Name] = reader.Value;
+        }
+
+        return attributes.Count > 0;
+    }
+
+    /// <summary>
     /// Read all text from a one deeper level.
     /// Ignore the 'note' elements, but get the text
     /// from other nodes.
+    /// Stop when the same level is reached again.
     /// </summary>
-    /// <returns>The text if any was found, null otherwise.</returns>
-    private string? ReadText() {
-        List<string> parts = new();
+    public string? ReadContent() {
         int baseDepth = reader.Depth;
-
+        StringBuilder parts = new();
+        
         while(!reader.EOF || prefetched) {
             if (!prefetched) {
                 if (!reader.Read()) {
@@ -164,7 +230,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
 
             if (reader.NodeType == XmlNodeType.Text) {
                 if (reader.Value != "") {
-                    parts.Add(reader.Value);
+                    parts.Append(reader.Value);
                 }
             }
             else if (reader.NodeType == XmlNodeType.Element) {
@@ -176,38 +242,10 @@ sealed class XmlParser : IXmlParser, IDisposable {
             }
         }
 
-        if (parts.Count > 0) {
-            content = string.Join("", parts);
-            content = whitespaceRegEx.Replace(content, " ").Trim();
+        content.Clear();
+        content.Append(whitespaceRegEx.Replace(parts.ToString(), " ").Trim());
 
-            return content;
-        }
-
-        return null;
-    }
-
-    private bool ReadProperties() {
-        if (reader.NodeType != XmlNodeType.Element) {
-            return false;
-        }
-
-        for (int i = 0; i < reader.AttributeCount; i++){
-            reader.MoveToAttribute(i);
-            attributes[reader.Name] = reader.Value;
-        }
-
-        return attributes.Count > 0;
-    }
-
-    private bool MatchesTheEnding(string path, string ending) {
-        if (ending.Length > path.Length) {
-            return false;
-        }
-        else if (ending.Length < path.Length) {
-            return ("." + path).EndsWith("." + ending);
-        }
-
-        return path == ending;
+        return GetText();
     }
 
     /// <summary>

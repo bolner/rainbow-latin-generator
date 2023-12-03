@@ -3,7 +3,10 @@ namespace RainbowLatinReader;
 class CanonLitManager : ICanonLitManager {
     private readonly Dictionary<string, ICanonLitDoc> library = new();
 
-    public CanonLitManager(DirectoryScanner scanner) {
+    public CanonLitManager(DirectoryScanner scanner,
+        IScheduler<ICanonFile, CanonLitDoc> scheduler,
+        Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
+    {
         ICanonFile? file;
         Dictionary<string, ICanonFile> englishTracker = new();
         Dictionary<string, ICanonFile> latinTracker = new();
@@ -34,8 +37,6 @@ class CanonLitManager : ICanonLitManager {
         /*
             Find pairs and schedule them
         */
-        var scheduler = new Scheduler<ICanonFile, CanonLitDoc>(8);
-
         foreach(var docID in latinTracker.Keys) {
             if (!englishTracker.ContainsKey(docID)) {
                 continue;
@@ -45,7 +46,8 @@ class CanonLitManager : ICanonLitManager {
                 () => {
                     return new CanonLitDoc(
                         latinTracker[docID],
-                        englishTracker[docID]
+                        englishTracker[docID],
+                        xmlParserFactory
                     );
                 }
             ));

@@ -1,6 +1,12 @@
 Rainbow Latin Reader
 ====================
 
+- [Rainbow Latin Reader](#rainbow-latin-reader)
+- [Sources](#sources)
+- [Usage](#usage)
+- [Unit tests](#unit-tests)
+- [Development setup](#development-setup)
+
 # Sources
 
 - Lemmatized Latin texts:
@@ -35,19 +41,3 @@ dotnet test
 - Plugins:
   - [C# - Base language support for C#](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) (Microsoft)
   - [Handlebars](https://marketplace.visualstudio.com/items?itemName=andrejunges.Handlebars) (André Junges)
-
-
----------------------------------
-
-data/phi1348/abo015/phi1348.abo015.perseus-eng2.xml
-
-LINE 71:
-<p>>LIVIA having married Augustus when she
-
-
--------------------
-
-Use sample:
-
-phi1348.abo011
-Julius Caesar - Divus Julius (Suetonius)
