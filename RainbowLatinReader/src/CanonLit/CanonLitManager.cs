@@ -3,8 +3,8 @@ namespace RainbowLatinReader;
 class CanonLitManager : ICanonLitManager {
     private readonly Dictionary<string, ICanonLitDoc> library = new();
 
-    public CanonLitManager(DirectoryScanner scanner,
-        IScheduler<ICanonFile, CanonLitDoc> scheduler,
+    public CanonLitManager(IDirectoryScanner scanner,
+        IScheduler<ICanonFile, ICanonLitDoc> scheduler,
         Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
     {
         ICanonFile? file;
@@ -42,7 +42,7 @@ class CanonLitManager : ICanonLitManager {
                 continue;
             }
 
-            scheduler.AddTask(new SchedulerTask<CanonLitDoc>(
+            scheduler.AddTask(new SchedulerTask<ICanonLitDoc>(
                 () => {
                     return new CanonLitDoc(
                         latinTracker[docID],
@@ -61,5 +61,15 @@ class CanonLitManager : ICanonLitManager {
         foreach(var doc in scheduler.GetResults()) {
             library[doc.GetDocumentID()] = doc;
         }
+    }
+
+    public ICanonLitDoc GetDocument(string documentID) {
+        ICanonLitDoc? value = null;
+        library.TryGetValue(documentID, out value);
+        if (value == null) {
+            throw new RainbowLatinException($"Cannot find CanonLit document with ID '{documentID}'.");
+        }
+
+        return value;
     }
 }

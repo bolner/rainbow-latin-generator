@@ -8,7 +8,8 @@
   - `<hi rend="italics">T</hi>`
   - `<hi rend="sup">2</hi>`
   - `<reg>consulatum</reg>` ???
-- Typos: `<p>>LIVIA having married Augustus when she`
+- Typos:
+  - `<p>>LIVIA having married Augustus when she`
 - Milestones:
   - `<milestone unit="loebline" n="10"/>`
   - `<milestone n="7" unit="section"/>`

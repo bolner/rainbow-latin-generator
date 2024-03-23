@@ -23,6 +23,9 @@ sealed class XmlParser : IXmlParser, IDisposable {
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
     private readonly List<Regex> destinations = new();
+    private string? nodeName = null;
+    private XmlNodeType? nodeType = null;
+    private int lineNumber = 0;
 
     /// <summary>
     /// Create an XmlParser object.
@@ -194,12 +197,15 @@ sealed class XmlParser : IXmlParser, IDisposable {
     }
 
     private bool ReadProperties() {
+        nodeType = reader.NodeType;
+        nodeName = reader.Name;
+        lineNumber = ((IXmlLineInfo)reader).LineNumber;
+
         if (reader.NodeType != XmlNodeType.Element) {
             return false;
         }
 
-        for (int i = 0; i < reader.AttributeCount; i++){
-            reader.MoveToAttribute(i);
+        while (reader.MoveToNextAttribute()) {
             attributes[reader.Name] = reader.Value;
         }
 
@@ -214,6 +220,14 @@ sealed class XmlParser : IXmlParser, IDisposable {
     /// </summary>
     public string? ReadContent() {
         int baseDepth = reader.Depth;
+        if (reader.NodeType == XmlNodeType.Attribute) {
+            /*
+                We are on the last attribute of a node
+                and attributes are also a level lower
+                than the node, just like the content.
+            */
+            baseDepth--;
+        }
         StringBuilder parts = new();
         
         while(!reader.EOF || prefetched) {
@@ -262,5 +276,17 @@ sealed class XmlParser : IXmlParser, IDisposable {
             stream.Dispose();
             isDisposed = true;
         }
+    }
+
+    public string? GetNodeName() {
+        return nodeName;
+    }
+
+    public XmlNodeType? GetNodeType() {
+        return nodeType;
+    }
+
+    public string GetDebugInfo() {
+        return $"FILE '{file.GetPath()}', LINE {lineNumber}.";
     }
 }

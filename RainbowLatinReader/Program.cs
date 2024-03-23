@@ -23,7 +23,7 @@ var canonPaths = Directory.EnumerateFiles(
 ).Where(filter);
 
 var canonScanner = new DirectoryScanner(canonPaths);
-var canonScheduler = new Scheduler<ICanonFile, CanonLitDoc>(8);
+var canonScheduler = new Scheduler<ICanonFile, ICanonLitDoc>(8);
 var canonParserFactory = (ICanonFile file, List<string> destinations) => { return new XmlParser(file, destinations); };
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory);
 

@@ -1,3 +1,5 @@
+using System.Xml;
+
 namespace RainbowLatinReader;
 
 interface IXmlParser {
@@ -12,8 +14,8 @@ interface IXmlParser {
     /// </summary>
     /// <param name="destinations">A path pattern to search for.
     /// Stop when it is reached.</param>
-    /// <returns>Returns true if the destination was found.
-    /// False otherwise.</returns>
+    /// <returns>Returns false if no matching element found and the end of
+    /// the document is reached, true otherwise.</returns>
     /// <exception cref="RainbowLatinException"></exception>
     public bool GoTo(string destination);
 
@@ -22,6 +24,8 @@ interface IXmlParser {
     /// after it until either the next destination or until
     /// the end of the document.
     /// </summary>
+    /// <returns>Returns false if no matching element found and the end of
+    /// the document is reached, true otherwise.</returns>
     /// <exception cref="RainbowLatinException"></exception>
     public bool Next();
     public Dictionary<string, string> GetAttributes();
@@ -34,4 +38,8 @@ interface IXmlParser {
     /// Stop when the same level is reached again.
     /// </summary>
     public string? ReadContent();
+
+    public string? GetNodeName();
+    public XmlNodeType? GetNodeType();
+    public string GetDebugInfo();
 }

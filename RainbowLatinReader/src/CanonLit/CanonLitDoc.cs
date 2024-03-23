@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace RainbowLatinReader;
 
 class CanonLitDoc : ICanonLitDoc {
