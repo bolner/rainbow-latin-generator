@@ -4,8 +4,8 @@ class LemmatizedManager : ILemmatizedManager {
     private readonly Dictionary<string, ILemmatizedDoc> library = new();
 
     public LemmatizedManager(IDirectoryScanner scanner,
-        IScheduler<ICanonFile, ILemmatizedDoc> scheduler,
-        Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
+        IScheduler<ILemmatizedDoc> scheduler,
+        IXmlParserFactory xmlParserFactory)
     {
         ICanonFile? file;
 
@@ -13,11 +13,7 @@ class LemmatizedManager : ILemmatizedManager {
             Schedule all parsing tasks
         */
         while((file = scanner.Next()) != null) {
-            scheduler.AddTask(new SchedulerTask<ILemmatizedDoc>(
-                () => {
-                    return new LemmatizedDoc(file, xmlParserFactory);
-                }
-            ));
+            scheduler.AddTask(new LemmatizedDoc(file, xmlParserFactory));
         }
 
         /*

@@ -1,6 +1,6 @@
 namespace RainbowLatinReader;
 
-interface ICanonLitDoc {
+interface ICanonLitDoc : IProcessable {
     public string GetDocumentID();
     public ICanonLitSection? GetSection(string sectionNumber);
 

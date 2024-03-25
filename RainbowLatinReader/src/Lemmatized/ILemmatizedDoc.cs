@@ -1,6 +1,6 @@
 namespace RainbowLatinReader;
 
-interface ILemmatizedDoc {
+interface ILemmatizedDoc : IProcessable {
     public string GetDocumentID();
     public ILemmatizedSection? GetSection(string sectionNumber);
 

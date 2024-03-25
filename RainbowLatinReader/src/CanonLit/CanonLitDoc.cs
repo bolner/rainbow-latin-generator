@@ -3,23 +3,14 @@ namespace RainbowLatinReader;
 class CanonLitDoc : ICanonLitDoc {
     private readonly ICanonFile latinFile;
     private readonly ICanonFile englishFile;
+    private readonly IXmlParserFactory xmlParserFactory;
     private readonly Dictionary<string, ICanonLitSection> sections = new();
-    private readonly string latinTitle;
-    private readonly string englishTitle;
-    private readonly string latinAuthor;
-    private readonly string englishAuthor;
+    private string latinTitle = "";
+    private string englishTitle = "";
+    private string latinAuthor = "";
+    private string englishAuthor = "";
 
-    public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
-        Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
-    {
-        if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
-            throw new Exception("CanonLitDoc constructor: The latin and the english "
-                + "files have different document IDs.");
-        }
-
-        this.latinFile = latinFile;
-        this.englishFile = englishFile;
-
+    public void Process() {
         /*
             Parse English
         */
@@ -58,6 +49,19 @@ class CanonLitDoc : ICanonLitDoc {
         }
     }
 
+    public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
+        IXmlParserFactory xmlParserFactory)
+    {
+        if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
+            throw new Exception("CanonLitDoc constructor: The latin and the english "
+                + "files have different document IDs.");
+        }
+
+        this.latinFile = latinFile;
+        this.englishFile = englishFile;
+        this.xmlParserFactory = xmlParserFactory;
+    }
+
     public string GetDocumentID() {
         return latinFile.GetDocumentID();
     }
@@ -86,13 +90,14 @@ class CanonLitDoc : ICanonLitDoc {
         return latinAuthor;
     }
 
-    private void ParseDocument(ICanonFile file, Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory,
+    private void ParseDocument(ICanonFile file, IXmlParserFactory xmlParserFactory,
         out string title, out string author, out Dictionary<string, string> lookup)
     {
         lookup = new Dictionary<string, string>();
 
-        var parser = xmlParserFactory(englishFile, new List<string> {
+        var parser = xmlParserFactory.GetXmlParser(file, new List<string> {
             "text.body.div",
+            "text.body.div1",
             "text.body.milestone"
         });
         if (!parser.GoTo("teiHeader.fileDesc.titleStmt.title")) {
@@ -113,11 +118,12 @@ class CanonLitDoc : ICanonLitDoc {
                 + $"'{file.GetPath()}'.");
         }
 
-        if (!parser.GoTo("TEI.text.body")) {
+        if (!parser.GoTo("text.body")) {
             throw new RainbowLatinException("Can't find 'TEI.text.body' in FILE "
                 + $"'{file.GetPath()}'.");
         }
 
+        var skipSections = new string[]{"note", "intro", "praef"};
         string? prevSection = null;
         bool eof;
 
@@ -126,6 +132,17 @@ class CanonLitDoc : ICanonLitDoc {
             var attributes = parser.GetAttributes();
 
             if (!attributes.ContainsKey("n")) {
+                continue;
+            }
+
+            if (skipSections.Any(attributes["n"].Contains)) {
+                continue;
+            }
+
+            attributes.TryGetValue("subtype", out string? divSubType);
+            attributes.TryGetValue("type", out string? divType);
+
+            if (divSubType != "chapter" && divType != "book") {
                 continue;
             }
 

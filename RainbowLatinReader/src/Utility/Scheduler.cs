@@ -1,20 +1,20 @@
 namespace RainbowLatinReader;
 
-class Scheduler<INPUT_TYPE, RESULT_TYPE> : IScheduler<INPUT_TYPE, RESULT_TYPE> {
+class Scheduler<PAYLOAD_TYPE> : IScheduler<PAYLOAD_TYPE> where PAYLOAD_TYPE: IProcessable {
     private readonly int threadCount;
     private int taskCount = 0;
-    private readonly List<List<ISchedulerTask<RESULT_TYPE>>> taskBuckets = new();
-    private readonly List<RESULT_TYPE> results = new();
+    private readonly List<List<PAYLOAD_TYPE>> taskBuckets = new();
+    private readonly List<PAYLOAD_TYPE> results = new();
 
     public Scheduler(int threadCount) {
         this.threadCount = threadCount;
 
         for(int i = 0; i < threadCount; i++) {
-            taskBuckets.Add(new List<ISchedulerTask<RESULT_TYPE>>());
+            taskBuckets.Add(new List<PAYLOAD_TYPE>());
         }
     }
 
-    public void AddTask(ISchedulerTask<RESULT_TYPE> task) {
+    public void AddTask(PAYLOAD_TYPE task) {
         taskBuckets[taskCount % threadCount].Add(task);
         taskCount++;
     }
@@ -42,10 +42,8 @@ class Scheduler<INPUT_TYPE, RESULT_TYPE> : IScheduler<INPUT_TYPE, RESULT_TYPE> {
             }
 
             foreach(var task in bucket) {
-                RESULT_TYPE? output = task.GetResult();
-
-                if (output != null) {
-                    results.Add(output);
+                if (task != null) {
+                    results.Add(task);
                 }
             }
         }
@@ -57,14 +55,14 @@ class Scheduler<INPUT_TYPE, RESULT_TYPE> : IScheduler<INPUT_TYPE, RESULT_TYPE> {
             return;
         }
 
-        List<ISchedulerTask<RESULT_TYPE>> tasks = (List<ISchedulerTask<RESULT_TYPE>>)param;
+        List<PAYLOAD_TYPE> tasks = (List<PAYLOAD_TYPE>)param;
 
         foreach(var task in tasks) {
-            task.Run();
+            task.Process();
         }
     }
 
-    public List<RESULT_TYPE> GetResults() {
+    public List<PAYLOAD_TYPE> GetResults() {
         return results;
     }
 }

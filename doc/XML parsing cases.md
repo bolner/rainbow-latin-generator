@@ -29,5 +29,6 @@
   - `<div type="textpart" subtype="book" n="2">`
   - `<div type="textpart" n="1" subtype="chapter">`
   - `<div type="textpart" n="1" subtype="letter">`
+  - `<div1 type="book" n="1"><p>`
 - Other section markers:
   - Segment: `<seg type="section" n="12">...</seg>`

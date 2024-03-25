@@ -16,12 +16,30 @@ class LemmatizedToken : ILemmatizedToken {
 
         var parts = msd.Split('|');
         foreach(var part in parts) {
+            if (part == "_") {
+                /*
+                    Example:
+                    <w rend="chapter" n="1.pr" pos="_" msd="_" lemma="_">Διαιτητικήνsecundam</w>
+                */
+                continue;
+            }
+
             var keyValue = part.Split('=');
             if (keyValue.Length != 2) {
-                throw new RainbowLatinException($"Error while parsing token. Invalid msd: '${msd}'.");
+                throw new RainbowLatinException($"Error while parsing token. Invalid msd: '{msd}'. ");
             }
 
             this.msd[keyValue[0]] = keyValue[1];
+        }
+
+        /*
+            Example:
+            <w rend="unknown" n="1" pos="CONcoo" msd="MORPH=empty" lemma="sed">sed</w>
+        */
+        if (this.msd.ContainsKey("MORPH")) {
+            if (this.msd["MORPH"] == "empty") {
+                this.msd.Remove("MORPH");
+            }
         }
     }
 

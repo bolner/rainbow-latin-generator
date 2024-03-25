@@ -62,6 +62,7 @@ public class CanonLitDocTests
           clienti suo. reliqua militia secundiore fama fuit et a Thermo in expugnatione Mytilenarum
           corona ciuica donatus est.</p>
       </div></div>
+	  </div>
     </body>
   </text>
 </TEI>
@@ -189,10 +190,10 @@ public class CanonLitDocTests
             ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
-        var canonParserFactory = (ICanonFile file, List<string> destinations) =>
-            { return new XmlParser(file, destinations); };
+        var canonParserFactory = new XmlParserFactory();
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory);
+		doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
         Assert.True(doc.GetEnglishTitle() == "Julius Caesar", "No valid title found in English document.");
@@ -206,10 +207,10 @@ public class CanonLitDocTests
             ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
-        var canonParserFactory = (ICanonFile file, List<string> destinations) =>
-            { return new XmlParser(file, destinations); };
+        var canonParserFactory = new XmlParserFactory();
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory);
+		doc.Process();
 
 		var s1 = doc.GetSection("2");
         Assert.True(s1 != null, "Section '2' not found.");

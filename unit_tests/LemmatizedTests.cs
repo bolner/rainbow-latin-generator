@@ -287,9 +287,9 @@ public class LemmatizedTests
     {
         var file = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData);
-        var xmlParserFactory = (ICanonFile file, List<string> destinations) =>
-            { return new XmlParser(file, destinations); };
+        var xmlParserFactory = new XmlParserFactory();
         var doc = new LemmatizedDoc(file, xmlParserFactory);
+        doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
         Assert.True(doc.GetTitle() == "Divus Julius", "No valid title found in English document.");
@@ -301,9 +301,9 @@ public class LemmatizedTests
     {
         var file = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData);
-        var xmlParserFactory = (ICanonFile file, List<string> destinations) =>
-            { return new XmlParser(file, destinations); };
+        var xmlParserFactory = new XmlParserFactory();
         var doc = new LemmatizedDoc(file, xmlParserFactory);
+        doc.Process();
 
         var section = doc.GetSection("2");
         Assert.True(section != null, "Cannot find section '2'.");

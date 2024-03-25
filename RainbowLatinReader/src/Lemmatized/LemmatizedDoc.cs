@@ -2,9 +2,10 @@ namespace RainbowLatinReader;
 
 class LemmatizedDoc : ILemmatizedDoc {
     private readonly ICanonFile file;
-    private readonly string title;
-    private readonly string author;
-    private readonly string documentID;
+    private IXmlParserFactory xmlParserFactory;
+    private string title = "";
+    private string author = "";
+    private string documentID = "";
     private readonly Dictionary<string, ILemmatizedSection> sectionLookup = new();
     private readonly List<ILemmatizedSection> sections = new();
     
@@ -50,9 +51,7 @@ class LemmatizedDoc : ILemmatizedDoc {
         { "Numb", "Number" },
         { "Person", "Person" },
         { "Tense", "Tense" },
-        { "Voice", "Voice" },
-        
-        { "", "" },
+        { "Voice", "Voice" }
     };
 
     private readonly Dictionary<string, string> msdValues = new() {
@@ -60,32 +59,56 @@ class LemmatizedDoc : ILemmatizedDoc {
         { "2", "2nd" },
         { "3", "3rd" },
         { "Act", "Active" },
+        { "Acc", "Accusative" },
+        { "Adj", "Participle" }, // "Mood=Adj" Participles are verbal adjectives.
         { "Abl", "Ablative" },
         { "Com", "Common" },
+        { "Comp", "Comparative" },
         { "Dep", "Deponent" },
+        { "Dat", "Dative" },
+        { "Imp", "Imperative" },
         { "Impa", "Imperfect" },
         { "Ind", "Indicative" },
+        { "Inf", "Infinitive" },
         { "Fem", "Feminine" },
+        { "Fut", "Future" },
+        { "FutAnt", "Future indicative /OR/ Perfect subjunctive" },
         { "Gen", "Genitive" },
+        { "Ger", "Participle" }, // Example: "Mood=Ger" for word "dicendi".
+        { "Loc", "Locative" },
         { "Masc", "Masculine" },
         { "MascFem", "Masculine / Feminine" },
         { "MascNeut", "Masculine / Neutral" },
+        { "Neut", "Neutral" },
         { "Nom", "Nominative" },
         { "Par", "Participle" },
+        { "Pass", "Passive" },
         { "Perf", "Perfect" },
+        { "PeriFut", "Future participle" },
+        { "PeriPerf", "Perfect participle" },
         { "Plur", "Plural" },
         { "Pos", "Positive" },
         { "Pqp", "Pluperfect" },
+        { "Pres", "Present" },
+        { "SemDep", "Semi-deponent" },
         { "Sing", "Singular" },
-        
-        { "", "" },
+        { "Sub", "Subjunctive" },
+        { "Sup", "Superlative" },
+        { "SupUm", "Supine" }, // Example: "Mood=SupUm" for word "memoratu".
+        { "SupU", "Supine" }, // Example: "Mood=SupU" for word "placitum".
+        { "Voc", "Vocative" },
     };
 
-    public LemmatizedDoc(ICanonFile file, Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
+    public LemmatizedDoc(ICanonFile file, IXmlParserFactory xmlParserFactory)
     {
         this.file = file;
+        this.xmlParserFactory = xmlParserFactory;
+    }
+
+    public void Process()
+    {
         documentID = file.GetDocumentID();
-        var parser = xmlParserFactory(file, [
+        var parser = xmlParserFactory.GetXmlParser(file, [
             "text.body.ab",
             "text.body.ab.w"
         ]);
@@ -165,8 +188,27 @@ class LemmatizedDoc : ILemmatizedDoc {
                 throw new RainbowLatinException($"Empty 'w' element. " + parser.GetDebugInfo());
             }
 
-            var token = new LemmatizedToken(attributes["pos"], value, attributes["msd"], attributes["lemma"]);
-            section.AddToken(token);
+            try {
+                var token = new LemmatizedToken(attributes["pos"], value, attributes["msd"], attributes["lemma"]);
+
+                /*
+                    Validate attributes first
+                */
+                var msd = token.GetMsd();
+                foreach(var pair in msd) {
+                    if (!msdKeys.ContainsKey(pair.Key)) {
+                        throw new RainbowLatinException($"Unknown 'msd' key: '{pair.Key}'.");
+                    }
+
+                    if (!msdValues.ContainsKey(pair.Value)) {
+                        throw new RainbowLatinException($"Unknown 'msd' value: '{pair.Value}'.");
+                    }
+                }
+
+                section.AddToken(token);
+            } catch (Exception ex) {
+                throw new RainbowLatinException(ex.Message + " " + parser.GetDebugInfo(), ex);
+            }
         }
 
         if (section != null) {

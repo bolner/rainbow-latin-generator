@@ -4,8 +4,8 @@ class CanonLitManager : ICanonLitManager {
     private readonly Dictionary<string, ICanonLitDoc> library = new();
 
     public CanonLitManager(IDirectoryScanner scanner,
-        IScheduler<ICanonFile, ICanonLitDoc> scheduler,
-        Func<ICanonFile, List<string>, IXmlParser> xmlParserFactory)
+        IScheduler<ICanonLitDoc> scheduler,
+        IXmlParserFactory xmlParserFactory)
     {
         ICanonFile? file;
         Dictionary<string, ICanonFile> englishTracker = new();
@@ -42,15 +42,13 @@ class CanonLitManager : ICanonLitManager {
                 continue;
             }
 
-            scheduler.AddTask(new SchedulerTask<ICanonLitDoc>(
-                () => {
-                    return new CanonLitDoc(
-                        latinTracker[docID],
-                        englishTracker[docID],
-                        xmlParserFactory
-                    );
-                }
-            ));
+            scheduler.AddTask(
+                new CanonLitDoc(
+                    latinTracker[docID],
+                    englishTracker[docID],
+                    xmlParserFactory
+                )
+            );
         }
 
         /*

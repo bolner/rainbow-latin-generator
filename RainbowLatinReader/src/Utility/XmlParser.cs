@@ -38,7 +38,7 @@ sealed class XmlParser : IXmlParser, IDisposable {
         stream = file.Open();
 
         reader = XmlReader.Create(stream, new XmlReaderSettings() {
-            DtdProcessing = DtdProcessing.Parse
+            DtdProcessing = DtdProcessing.Ignore
         });
 
         foreach(string destination in destinations) {
@@ -80,52 +80,56 @@ sealed class XmlParser : IXmlParser, IDisposable {
         attributes.Clear();
         content.Clear();
 
-        while(!reader.EOF || prefetched) {
-            if (!prefetched) {
-                if (!reader.Read()) {
-                    break;
-                }
-            } else {
-                prefetched = false;
-            }
-
-            /*
-                Element
-            */
-            if (reader.NodeType == XmlNodeType.Element) {
-                if (reader.Name.ToLower() == "note") {
-                    reader.Skip();
-                    prefetched = true;
-                    continue;
+        try {
+            while(!reader.EOF || prefetched) {
+                if (!prefetched) {
+                    if (!reader.Read()) {
+                        break;
+                    }
+                } else {
+                    prefetched = false;
                 }
 
                 /*
-                    Update trace
+                    Element
                 */
-                if (reader.Depth < trace.Count) {
-                    // Step out
-                    for(int i = trace.Count; i > reader.Depth; i--) {
-                        trace.Pop();
+                if (reader.NodeType == XmlNodeType.Element) {
+                    if (reader.Name.ToLower() == "note") {
+                        reader.Skip();
+                        prefetched = true;
+                        continue;
+                    }
+
+                    /*
+                        Update trace
+                    */
+                    if (reader.Depth < trace.Count) {
+                        // Step out
+                        for(int i = trace.Count; i > reader.Depth; i--) {
+                            trace.Pop();
+                        }
+                    }
+
+                    trace.Push(reader.Name);
+
+                    /*
+                        Test for destination
+                    */
+                    string path = string.Join(".", trace.Reverse());
+                    if (dest.IsMatch(path)) {
+                        ReadProperties();
+                        
+                        return true;
                     }
                 }
-
-                trace.Push(reader.Name);
-
-                /*
-                    Test for destination
-                */
-                string path = string.Join(".", trace.Reverse());
-                if (dest.IsMatch(path)) {
-                    ReadProperties();
-                    
-                    return true;
+                else if (reader.NodeType == XmlNodeType.Text) {
+                    if (reader.Value != "") {
+                        content.Append(reader.Value);
+                    }
                 }
             }
-            else if (reader.NodeType == XmlNodeType.Text) {
-                if (reader.Value != "") {
-                    content.Append(reader.Value);
-                }
-            }
+        } catch (Exception ex) {
+            throw new RainbowLatinException("XmlParser.Next(): " + ex.Message + "\n" + GetDebugInfo(), ex);
         }
 
         return false;
@@ -143,54 +147,58 @@ sealed class XmlParser : IXmlParser, IDisposable {
         attributes.Clear();
         content.Clear();
 
-        while(!reader.EOF || prefetched) {
-            if (!prefetched) {
-                if (!reader.Read()) {
-                    break;
-                }
-            } else {
-                prefetched = false;
-            }
-
-            /*
-                Element
-            */
-            if (reader.NodeType == XmlNodeType.Element) {
-                if (reader.Name.ToLower() == "note") {
-                    reader.Skip();
-                    prefetched = true;
-                    continue;
+        try {
+            while(!reader.EOF || prefetched) {
+                if (!prefetched) {
+                    if (!reader.Read()) {
+                        break;
+                    }
+                } else {
+                    prefetched = false;
                 }
 
                 /*
-                    Update trace
+                    Element
                 */
-                if (reader.Depth < trace.Count) {
-                    // Step out
-                    for(int i = trace.Count; i > reader.Depth; i--) {
-                        trace.Pop();
+                if (reader.NodeType == XmlNodeType.Element) {
+                    if (reader.Name.ToLower() == "note") {
+                        reader.Skip();
+                        prefetched = true;
+                        continue;
+                    }
+
+                    /*
+                        Update trace
+                    */
+                    if (reader.Depth < trace.Count) {
+                        // Step out
+                        for(int i = trace.Count; i > reader.Depth; i--) {
+                            trace.Pop();
+                        }
+                    }
+
+                    trace.Push(reader.Name);
+
+                    /*
+                        Test for destination
+                    */
+                    string path = string.Join(".", trace.Reverse());
+                    foreach(Regex destination in destinations) {
+                        if (destination.IsMatch(path)) {
+                            ReadProperties();
+                            
+                            return true;
+                        }
                     }
                 }
-
-                trace.Push(reader.Name);
-
-                /*
-                    Test for destination
-                */
-                string path = string.Join(".", trace.Reverse());
-                foreach(Regex destination in destinations) {
-                    if (destination.IsMatch(path)) {
-                        ReadProperties();
-                        
-                        return true;
+                else if (reader.NodeType == XmlNodeType.Text) {
+                    if (reader.Value != "") {
+                        content.Append(reader.Value);
                     }
                 }
             }
-            else if (reader.NodeType == XmlNodeType.Text) {
-                if (reader.Value != "") {
-                    content.Append(reader.Value);
-                }
-            }
+        } catch (Exception ex) {
+            throw new RainbowLatinException("XmlParser.Next(): " + ex.Message + "\n" + GetDebugInfo(), ex);
         }
 
         return false;
