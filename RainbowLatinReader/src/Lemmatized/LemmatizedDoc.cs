@@ -74,7 +74,7 @@ class LemmatizedDoc : ILemmatizedDoc {
         { "Fut", "Future" },
         { "FutAnt", "Future indicative /OR/ Perfect subjunctive" },
         { "Gen", "Genitive" },
-        { "Ger", "Participle" }, // Example: "Mood=Ger" for word "dicendi".
+        { "Ger", "Gerund / Participle" }, // Example: "Mood=Ger" for word "dicendi".
         { "Loc", "Locative" },
         { "Masc", "Masculine" },
         { "MascFem", "Masculine / Feminine" },
