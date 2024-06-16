@@ -15,8 +15,10 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface IScheduler<PAYLOAD_TYPE> where PAYLOAD_TYPE: IProcessable {
-    public void AddTask(PAYLOAD_TYPE task);
-    public void Run();
-    public List<PAYLOAD_TYPE> GetResults();
+interface IBookWorm<ELEMENT_TYPE> {
+    public void IncomingSection(string sectionType, string sectionName);
+    public void AddElement(ELEMENT_TYPE element);
+    public List<string> GetSectionKeyList();
+    public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey);
+    public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey);
 }

@@ -17,6 +17,7 @@
         corona ciuica donatus est.</p>
     </div></div>
   ```
+- Remove CanonLitSection and LemmatizedSection. Because the Librarian handles the grouping of elements.
 
 Find all XML/HTML entities:
 
