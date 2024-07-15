@@ -201,13 +201,18 @@ public class CanonLitDocTests
     [Fact]
     public void TestMetaFields1()
     {
-        var latinFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
-            ICanonFile.Language.Latin, 2, xmlDataLatin);
-        var englishFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
-            ICanonFile.Language.English, 2, xmlDataEnglish);
+        var latinFile = new MockCanonFile("/tmp/example_latin.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2,
+			File.ReadAllBytes("/mnt/nvme/projects/canonical-latinLit-mine/data/phi1348/abo011/phi1348.abo011.perseus-lat2.xml")
+			/*xmlDataLatin*/);
+        var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
+            ICanonFile.Language.English, 2,
+			File.ReadAllBytes("/mnt/nvme/projects/canonical-latinLit-mine/data/phi1348/abo011/phi1348.abo011.perseus-eng2.xml")
+			/*xmlDataEnglish*/);
         var canonParserFactory = new XmlParserFactory();
         
-        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory);
+        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),
+			new BookWorm<string>());
 		doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
@@ -218,16 +223,19 @@ public class CanonLitDocTests
 	[Fact]
     public void TestSections1()
     {
-        var latinFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+        var latinFile = new MockCanonFile("/tmp/example_latin.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlDataLatin);
-        var englishFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+        var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
         
-        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory);
+		var latin = new BookWorm<string>();
+		var english = new BookWorm<string>();
+        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin, english);
 		doc.Process();
 
-		var s1 = doc.GetSection("2");
-        Assert.True(s1 != null, "Section '2' not found.");
+		var s1 = doc.GetEnglishSection("chapter=2");
+        Assert.True(s1 != null, "Chapter '2' not found");
+
     }
 }

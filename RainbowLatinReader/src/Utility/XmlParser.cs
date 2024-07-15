@@ -24,7 +24,7 @@ namespace RainbowLatinReader;
 /// - Minimal interface for this application, so unit testing is easy.
 /// - The element names in the XML files cannot contain "." (period) characters.
 /// </summary>
-sealed class XmlParser : IXmlParser, IDisposable {
+sealed class XmlParser : IXmlParser {
     private bool isDisposed = false;
     private bool prefetched = false;
     private readonly ICanonFile file;
@@ -274,9 +274,9 @@ sealed class XmlParser : IXmlParser, IDisposable {
             }
             else if (reader.NodeType == XmlNodeType.Element) {
                 if (reader.Name.ToLower() == "note") {
-                    reader.Skip();
-                    prefetched = true;
-                    continue;
+                        reader.Skip();
+                        prefetched = true;
+                        continue;
                 }
             }
         }

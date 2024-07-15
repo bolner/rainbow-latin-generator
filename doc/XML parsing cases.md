@@ -32,3 +32,10 @@
   - `<div1 type="book" n="1"><p>`
 - Other section markers:
   - Segment: `<seg type="section" n="12">...</seg>`
+- Weirdest sections in data/phi0448/phi002/phi0448.phi002.perseus-eng2.xml:
+  ```
+    <pb id="p.3"/>
+    <div1 type="book" n="1"><p>
+  ```
+  So the paragraph comes first, then the book. And the paragraph is by a `pb` tag.
+  Also the English starts with `p.3` while the Latin by `p.2`.

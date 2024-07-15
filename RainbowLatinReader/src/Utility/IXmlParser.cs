@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace RainbowLatinReader;
 
-interface IXmlParser {
+interface IXmlParser : IDisposable {
     /// <summary>
     /// Starts parsing the document starting from the current location
     /// until the destination is found, then stops and reads to attributes.

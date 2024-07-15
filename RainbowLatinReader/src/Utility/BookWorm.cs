@@ -14,16 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+using System.Reflection;
+
 namespace RainbowLatinReader;
 
 class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
-    private readonly List<string> trace = []; // Section types
-    private readonly Dictionary<string, string> traceValues = []; // Section names for each type
+    private readonly Dictionary<string, string> sections = [];
     private string currentSectionKey = "na";
     private readonly List<string> sectionList = [];
     private readonly LinkedList<ELEMENT_TYPE> elementChain = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> first = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> last = [];
+    private readonly Dictionary<string, Dictionary<string, string>> traceKeyToValues = [];
 
     /// <summary>
     /// Constructor.
@@ -48,23 +50,15 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
                 + $"characters: '=', '|'. Received: '{sectionName}'");
         }
 
-        // Detect if 'sectionType' is on trace, if yes, then rewind only.
-        if (trace.Contains(sectionType)) {
-            while(trace.Count > 0 && trace.Last() != sectionType) {
-                traceValues.Remove(trace.Last());
-                trace.RemoveAt(trace.Count - 1);
-            }
-        } else {
-            trace.Add(sectionType);
-        }
-
-        traceValues[sectionType] = sectionName;
+        sections[sectionType] = sectionName;
         currentSectionKey = GetSectionKey();
 
         if (first.ContainsKey(currentSectionKey)) {
             throw new RainbowLatinException("Invalid section structure. Section trace found twice: "
                 + currentSectionKey);
         }
+
+        traceKeyToValues[currentSectionKey] = new Dictionary<string, string>(sections);
     }
 
     public void AddElement(ELEMENT_TYPE element) {
@@ -87,15 +81,17 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     private string GetSectionKey() {
         List<string> parts = [];
 
-        foreach(string section in trace) {
-            parts.Add($"{section}={traceValues[section]}");
+        foreach(var item in sections) {
+            parts.Add($"{item.Key}={item.Value}");
         }
+
+        parts.Sort();
 
         return string.Join('|', parts);
     }
 
     public List<string> GetSectionKeyList() {
-        return new List<string>(sectionList);
+        return new List<string>(first.Keys);
     }
 
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey) {
@@ -108,6 +104,14 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
 
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey) {
         if (!last.TryGetValue(sectionKey, out LinkedListNode<ELEMENT_TYPE>? value)) {
+            return null;
+        }
+
+        return value;
+    }
+
+    public Dictionary<string, string>? GetSectionValuesForTraceKey(string sectionKey) {
+        if (!traceKeyToValues.TryGetValue(sectionKey, out Dictionary<string, string>? value)) {
             return null;
         }
 

@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using Xunit.Sdk;
+
 namespace RainbowLatinReader;
 
 interface IBookWorm<ELEMENT_TYPE> {
@@ -21,4 +23,5 @@ interface IBookWorm<ELEMENT_TYPE> {
     public List<string> GetSectionKeyList();
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey);
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey);
+    public Dictionary<string, string>? GetSectionValuesForTraceKey(string sectionKey);
 }

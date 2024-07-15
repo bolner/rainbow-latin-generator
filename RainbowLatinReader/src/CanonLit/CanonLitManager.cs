@@ -16,7 +16,7 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 class CanonLitManager : ICanonLitManager {
-    private readonly Dictionary<string, ICanonLitDoc> library = new();
+    private readonly Dictionary<string, ICanonLitDoc> library = [];
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
@@ -61,7 +61,9 @@ class CanonLitManager : ICanonLitManager {
                 new CanonLitDoc(
                     latinTracker[docID],
                     englishTracker[docID],
-                    xmlParserFactory
+                    xmlParserFactory,
+                    new BookWorm<string>(),
+                    new BookWorm<string>()
                 )
             );
         }

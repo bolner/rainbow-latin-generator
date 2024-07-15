@@ -17,17 +17,16 @@ using RainbowLatinReader;
 
 var config = new Config(File.Open(Path.Join(Directory.GetCurrentDirectory(),
     "config.ini"), FileMode.Open));
-var allowlist = new List<string> { "phi1348.abo011" };
+var allowlist = new List<string> { "phi1348.abo011" }; // phi0448.phi002
 var filter = (string x) => {
-    return true;
-    /*foreach(string allow in allowlist) {
+    foreach(string allow in allowlist) {
         if (x.Contains(allow)) {
             Console.WriteLine(" - " + x);
             return true;
         }
     }
     
-    return false;*/
+    return false;
 };
 
 /*
