@@ -95,6 +95,7 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     }
 
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey) {
+        sectionKey = CanonizeSectionKey(sectionKey);
         if (!first.TryGetValue(sectionKey, out LinkedListNode<ELEMENT_TYPE>? value)) {
             return null;
         }
@@ -103,6 +104,7 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     }
 
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey) {
+        sectionKey = CanonizeSectionKey(sectionKey);
         if (!last.TryGetValue(sectionKey, out LinkedListNode<ELEMENT_TYPE>? value)) {
             return null;
         }
@@ -111,10 +113,18 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     }
 
     public Dictionary<string, string>? GetSectionValuesForTraceKey(string sectionKey) {
+        sectionKey = CanonizeSectionKey(sectionKey);
         if (!traceKeyToValues.TryGetValue(sectionKey, out Dictionary<string, string>? value)) {
             return null;
         }
 
         return value;
+    }
+
+    private static string CanonizeSectionKey(string sectionKey) {
+        var parts = sectionKey.Split('|').ToList();
+        parts.Sort();
+
+        return String.Join('|', parts);
     }
 }

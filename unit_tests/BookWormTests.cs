@@ -56,7 +56,7 @@ public class BookWormTests
         var keys = b.GetSectionKeyList();
 
         Assert.True(keys.Count == 8, "Invalid number of section keys found. Expected 8.");
-        Assert.True(keys[5] == "book=1|section=2|paragraph=3", "As the fifth key expected: book=1|section=2|paragraph=3");
+        Assert.True(keys[5] == "book=1|paragraph=3|section=2", "As the fifth key expected: book=1|section=2|paragraph=3");
 
         var first = b.GetFirstNodeBySectionKey("book=1|section=2|paragraph=3");
         Assert.True(first != null, "Cannot find first node: 'This is a sentence. 1.2.3. A'.");
