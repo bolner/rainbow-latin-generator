@@ -202,13 +202,9 @@ public class CanonLitDocTests
     public void TestMetaFields1()
     {
         var latinFile = new MockCanonFile("/tmp/example_latin.xml", "phi1348.abo011",
-            ICanonFile.Language.Latin, 2,
-			File.ReadAllBytes("/mnt/nvme/projects/canonical-latinLit-mine/data/phi1348/abo011/phi1348.abo011.perseus-lat2.xml")
-			/*xmlDataLatin*/);
+            ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
-            ICanonFile.Language.English, 2,
-			File.ReadAllBytes("/mnt/nvme/projects/canonical-latinLit-mine/data/phi1348/abo011/phi1348.abo011.perseus-eng2.xml")
-			/*xmlDataEnglish*/);
+            ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),

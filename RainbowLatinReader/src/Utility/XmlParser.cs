@@ -20,9 +20,7 @@ using System.Text;
 namespace RainbowLatinReader;
 
 /// <summary>
-/// This parser has some very specific design choices:
-/// - Minimal interface for this application, so unit testing is easy.
-/// - The element names in the XML files cannot contain "." (period) characters.
+/// This parser is for the "canonical literature" documents.
 /// </summary>
 sealed class XmlParser : IXmlParser {
     private bool isDisposed = false;
