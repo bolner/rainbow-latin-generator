@@ -29,6 +29,9 @@ var filter = (string x) => {
     return false;
 };
 
+var canonLitChanges = new CanonLitChanges(File.Open(Path.Join(Directory.GetCurrentDirectory(),
+    "data", "canonLit_changes.xml"), FileMode.Open));
+
 /*
     Perseus Canonical Literature
 */
@@ -41,7 +44,7 @@ var canonPaths = Directory.EnumerateFiles(
 var canonScanner = new DirectoryScanner(canonPaths);
 var canonScheduler = new Scheduler<ICanonLitDoc>(1);
 var canonParserFactory = new XmlParserFactory();
-var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory);
+var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory, canonLitChanges);
 
 /*
     Lemmatized Latin documents

@@ -21,7 +21,7 @@ namespace unit_tests;
 
 public class CanonLitChangesTests
 {
-    private readonly byte[] xmlDataLatin = Encoding.ASCII.GetBytes(@"
+    private readonly byte[] canonLitChangesXML = Encoding.ASCII.GetBytes(@"
 <changes>
     <add
         documentID=""phi1348.abo011""
@@ -38,7 +38,7 @@ public class CanonLitChangesTests
     [Fact]
     public void TestParsing1()
     {
-        var changes = new CanonLitChanges(new MemoryStream(xmlDataLatin));
+        var changes = new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         var list = changes.Find(ICanonLitChangeEntry.Language.English, "phi1348.abo011");
 
         Assert.True(list.Count > 0, "Cannot find change for document 'phi1348.abo011'.");

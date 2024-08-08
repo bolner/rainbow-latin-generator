@@ -17,12 +17,12 @@ namespace RainbowLatinReader;
 
 class LemmatizedDoc : ILemmatizedDoc {
     private readonly ICanonFile file;
-    private IXmlParserFactory xmlParserFactory;
+    private readonly IXmlParserFactory xmlParserFactory;
     private string title = "";
     private string author = "";
     private string documentID = "";
-    private readonly Dictionary<string, ILemmatizedSection> sectionLookup = new();
-    private readonly List<ILemmatizedSection> sections = new();
+    private readonly Dictionary<string, ILemmatizedSection> sectionLookup = [];
+    private readonly List<ILemmatizedSection> sections = [];
     
     private readonly Dictionary<string, string> tokenTypes = new() {
         { "ADJadv.mul", "Multiplicative numeral adverbial" },
@@ -151,7 +151,7 @@ class LemmatizedDoc : ILemmatizedDoc {
                 + $"'{file.GetPath()}'.");
         }
 
-        ILemmatizedSection? section = null;
+        LemmatizedSection? section = null;
 
         while (parser.Next()) {
             // TODO: XmlParser.ReadProperties not working

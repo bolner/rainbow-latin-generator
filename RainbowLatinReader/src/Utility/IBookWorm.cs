@@ -13,15 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-using Xunit.Sdk;
-
 namespace RainbowLatinReader;
 
 interface IBookWorm<ELEMENT_TYPE> {
+    public enum ChangeType {
+        Add, Remove
+    }
+
     public void IncomingSection(string sectionType, string sectionName);
     public void AddElement(ELEMENT_TYPE element);
     public List<string> GetSectionKeyList();
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey);
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey);
     public Dictionary<string, string>? GetSectionValuesForTraceKey(string sectionKey);
+    public void ApplyChange(ChangeType changeType, string key, ELEMENT_TYPE content,
+        string? after = null, string? before = null);
 }

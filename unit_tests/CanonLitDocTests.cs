@@ -198,6 +198,20 @@ public class CanonLitDocTests
 </TEI>
     ");
 
+	private readonly byte[] canonLitChangesXML = Encoding.ASCII.GetBytes(@"
+<changes>
+    <add
+        documentID=""phi1348.abo011""
+        language=""english""
+        after=""chapter=48""
+        key=""chapter=49""
+        before=""chapter=50""
+    >
+    (Thomson has omitted this chapter.)
+    </add>
+</changes>
+    ");
+
     [Fact]
     public void TestMetaFields1()
     {
@@ -206,9 +220,10 @@ public class CanonLitDocTests
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
+		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),
-			new BookWorm<string>());
+			new BookWorm<string>(), canonLitChanges);
 		doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
@@ -224,10 +239,12 @@ public class CanonLitDocTests
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
+		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();
-        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin, english);
+        var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin,
+			english, canonLitChanges);
 		doc.Process();
 
 		var s1 = doc.GetEnglishSection("chapter=2");

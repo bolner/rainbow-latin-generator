@@ -21,6 +21,6 @@ interface ICanonLitDoc : IProcessable {
     public string GetEnglishAuthor();
     public string GetLatinTitle();
     public string GetLatinAuthor();
-    public List<string> GetEnglishSection(string sectionKey);
-    public List<string> GetLatinSection(string sectionKey);
+    public string GetEnglishSection(string sectionKey);
+    public string GetLatinSection(string sectionKey);
 }

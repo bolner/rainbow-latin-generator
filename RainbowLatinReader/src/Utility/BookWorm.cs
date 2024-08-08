@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Reflection;
-
 namespace RainbowLatinReader;
 
 class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
@@ -125,6 +123,94 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
         var parts = sectionKey.Split('|').ToList();
         parts.Sort();
 
-        return String.Join('|', parts);
+        return string.Join('|', parts);
+    }
+
+    public void ApplyChange(IBookWorm<ELEMENT_TYPE>.ChangeType changeType, string key,
+        ELEMENT_TYPE content, string? after = null, string? before = null)
+    {
+        key = key.Trim();
+        if (key == "") {
+            throw new RainbowLatinException("A change has empty 'key' value.");
+        }
+
+        if (changeType == IBookWorm<ELEMENT_TYPE>.ChangeType.Add) {
+            first.TryGetValue(key, out LinkedListNode<ELEMENT_TYPE>? firstNode);
+            if (firstNode != null) {
+                /*
+                    If there are nodes with the given key, then remove them first and
+                    insert a single node with the new content.
+                */
+                last.TryGetValue(key, out LinkedListNode<ELEMENT_TYPE>? lastNode);
+                if (lastNode == null) {
+                    throw new RainbowLatinException($"BookWorm::ApplyChange(): Missing closing node for key '{key}'.");
+                }
+
+                /*
+                    Remove sequence from first to last.
+                */
+                LinkedListNode<ELEMENT_TYPE>? cursor = firstNode;
+                LinkedListNode<ELEMENT_TYPE>? next;
+                LinkedListNode<ELEMENT_TYPE>? afterLast = lastNode.Next;
+
+                while(cursor != null && cursor != afterLast) {
+                    next = cursor.Next;
+                    elementChain.Remove(cursor);
+                    cursor = next;
+                }
+
+                /*
+                    Insert new node
+                */
+                if (afterLast == null) {
+                    var node = new LinkedListNode<ELEMENT_TYPE>(content);
+                    elementChain.AddLast(node);
+                    first[key] = node;
+                    last[key] = node;
+                } else {
+                    var node = new LinkedListNode<ELEMENT_TYPE>(content);
+                    elementChain.AddBefore(afterLast, node);
+                    first[key] = node;
+                    last[key] = node;
+                }
+
+                return;
+            }
+
+            /*
+                If there are no nodes, then insert between the "after"
+                and the "before" nodes.
+            */
+            if (after != null) {
+                last.TryGetValue(after, out LinkedListNode<ELEMENT_TYPE>? afterNode);
+                if (afterNode == null) {
+                    throw new RainbowLatinException($"A change references key '{after}' in an 'after' field. "
+                        + "But that key cannot be found in the document.");
+                }
+
+                var node = new LinkedListNode<ELEMENT_TYPE>(content);
+                elementChain.AddAfter(afterNode, node);
+                first[key] = node;
+                last[key] = node;
+            } else if (before != null) {
+                first.TryGetValue(before, out LinkedListNode<ELEMENT_TYPE>? beforeNode);
+                if (beforeNode == null) {
+                    throw new RainbowLatinException($"A change references key '{before}' in a 'before' field. "
+                        + "But that key cannot be found in the document.");
+                }
+
+                var node = new LinkedListNode<ELEMENT_TYPE>(content);
+                elementChain.AddBefore(beforeNode, node);
+                first[key] = node;
+                last[key] = node;
+            } else {
+                throw new RainbowLatinException("Both the 'after' and 'before' fields are unset for a change "
+                    + "for which the 'key' was not found in the document.");
+            }
+
+            return;
+        }
+
+        // TODO: remove
     }
 }

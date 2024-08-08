@@ -21,6 +21,7 @@ class CanonLitDoc : ICanonLitDoc {
     private readonly IXmlParserFactory xmlParserFactory;
     private readonly IBookWorm<string> latinText;
     private readonly IBookWorm<string> englishText;
+    private readonly ICanonLitChanges canonLitChanges;
     private string latinTitle = "";
     private string englishTitle = "";
     private string latinAuthor = "";
@@ -33,7 +34,7 @@ class CanonLitDoc : ICanonLitDoc {
 
     public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
         IXmlParserFactory xmlParserFactory, IBookWorm<string> latinText,
-        IBookWorm<string> englishText)
+        IBookWorm<string> englishText, ICanonLitChanges canonLitChanges)
     {
         if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
             throw new Exception("CanonLitDoc constructor: The latin and the english "
@@ -45,6 +46,7 @@ class CanonLitDoc : ICanonLitDoc {
         this.xmlParserFactory = xmlParserFactory;
         this.latinText = latinText;
         this.englishText = englishText;
+        this.canonLitChanges = canonLitChanges;
     }
 
     public void Process() {
@@ -76,17 +78,26 @@ class CanonLitDoc : ICanonLitDoc {
         ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
 
         /*
-            Add missing
+            Apply document changes
         */
-        // TODO
+        var engChangeList = canonLitChanges.Find(ICanonLitChangeEntry.Language.English,
+            englishFile.GetDocumentID());
+        
+        foreach(CanonLitChangeEntry change in engChangeList) {
+            if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Add) {
+                englishText.ApplyChange(IBookWorm<string>.ChangeType.Add, change.GetKey(),
+                    change.GetContent(), change.GetAfter(), change.GetBefore());
+            } else if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Remove) {
+                englishText.ApplyChange(IBookWorm<string>.ChangeType.Remove, change.GetKey(),
+                    change.GetContent(), change.GetAfter(), change.GetBefore());
+            }
+        }
 
         /*
             Pair sections
         */
         var englishSections = englishText.GetSectionKeyList();
         var latinSections = latinText.GetSectionKeyList();
-
-        Console.WriteLine(englishText.GetFirstNodeBySectionKey("chapter=49")?.Value);
 
         var missing = from x in englishSections.Except(latinSections) select x;
         if (missing.Any()) {
@@ -250,35 +261,37 @@ class CanonLitDoc : ICanonLitDoc {
         }
     }
 
-    public List<string> GetEnglishSection(string sectionKey) {
-        List<string> paragraphs = [];
+    public string GetEnglishSection(string sectionKey) {
+        List<string> parts = [];
         var cursor = englishText.GetFirstNodeBySectionKey(sectionKey);
+        var last = englishText.GetLastNodeBySectionKey(sectionKey);
 
         if (cursor == null) {
             throw new RainbowLatinException($"Cannot find section '{sectionKey}' in file '{englishFile.GetPath()}'.");
         }
 
         do {
-            paragraphs.Add(cursor.Value);
+            parts.Add(cursor.Value.Trim());
             cursor = cursor.Next;
-        } while(cursor != null);
+        } while(cursor != null && cursor != last);
 
-        return paragraphs;
+        return string.Join(' ', parts);
     }
 
-    public List<string> GetLatinSection(string sectionKey) {
-        List<string> paragraphs = [];
+    public string GetLatinSection(string sectionKey) {
+        List<string> parts = [];
         var cursor = latinText.GetFirstNodeBySectionKey(sectionKey);
+        var last = englishText.GetLastNodeBySectionKey(sectionKey);
 
         if (cursor == null) {
             throw new RainbowLatinException($"Cannot find section '{sectionKey}' in file '{latinFile.GetPath()}'.");
         }
 
         do {
-            paragraphs.Add(cursor.Value);
+            parts.Add(cursor.Value.Trim());
             cursor = cursor.Next;
-        } while(cursor != null);
+        } while(cursor != null && cursor != last);
 
-        return paragraphs;
+        return string.Join(' ', parts);
     }
 }

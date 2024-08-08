@@ -20,11 +20,12 @@ class CanonLitManager : ICanonLitManager {
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
-        IXmlParserFactory xmlParserFactory)
+        IXmlParserFactory xmlParserFactory,
+        ICanonLitChanges canonLitChanges)
     {
         ICanonFile? file;
-        Dictionary<string, ICanonFile> englishTracker = new();
-        Dictionary<string, ICanonFile> latinTracker = new();
+        Dictionary<string, ICanonFile> englishTracker = [];
+        Dictionary<string, ICanonFile> latinTracker = [];
 
         /*
             Find highest versions
@@ -63,7 +64,8 @@ class CanonLitManager : ICanonLitManager {
                     englishTracker[docID],
                     xmlParserFactory,
                     new BookWorm<string>(),
-                    new BookWorm<string>()
+                    new BookWorm<string>(),
+                    canonLitChanges
                 )
             );
         }
