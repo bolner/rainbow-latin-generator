@@ -24,12 +24,15 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> first = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> last = [];
     private readonly Dictionary<string, Dictionary<string, string>> traceKeyToValues = [];
+    private readonly List<string> sectionHierarchy = ["book", "letter", "chapter", "poem", "section",
+        "card", "paragraph", "para"];
+    private readonly bool clearLowerLevels;
 
     /// <summary>
     /// Constructor.
     /// </summary>
-    public BookWorm() {
-        
+    public BookWorm(bool clearLowerLevels = false) {
+        this.clearLowerLevels = clearLowerLevels;
     }
 
     /// <summary>
@@ -48,6 +51,33 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
                 + $"characters: '=', '|'. Received: '{sectionName}'");
         }
 
+        sections.TryGetValue(sectionType, out string? oldName);
+        if (oldName == sectionName) {
+            // No change (Mostly a repetition of a section mark.)
+            return;
+        }
+
+        /*
+            If a higher level is encountered, then clear the lower levels.
+        */
+        if (clearLowerLevels) {
+            bool clear = false;
+
+            foreach(var level in sectionHierarchy) {
+                if (level == sectionType) {
+                    clear = true;
+                    continue;
+                }
+
+                if (clear) {
+                    sections.Remove(level);
+                }
+            }
+        }
+
+        /*
+            Register and validate new section.
+        */
         sections[sectionType] = sectionName;
         currentSectionKey = GetSectionKey();
 
@@ -60,6 +90,10 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     }
 
     public void AddElement(ELEMENT_TYPE element) {
+        if (currentSectionKey == "na") {
+            return;
+        }
+
         var node = new LinkedListNode<ELEMENT_TYPE>(element);
 
         // is it the first element after a new section?
@@ -212,5 +246,40 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
         }
 
         // TODO: remove
+    }
+
+    public void RemoveSections(List<string> sectionKeys) {
+        foreach(string key in sectionKeys) {
+            first.TryGetValue(key, out LinkedListNode<ELEMENT_TYPE>? firstNode);
+            if (firstNode != null) {
+                /*
+                    If there are nodes with the given key, then remove them first and
+                    insert a single node with the new content.
+                */
+                last.TryGetValue(key, out LinkedListNode<ELEMENT_TYPE>? lastNode);
+                if (lastNode == null) {
+                    throw new RainbowLatinException($"BookWorm::ApplyChange(): Missing closing node for key '{key}'.");
+                }
+
+                /*
+                    Remove sequence from first to last.
+                */
+                LinkedListNode<ELEMENT_TYPE>? cursor = firstNode;
+                LinkedListNode<ELEMENT_TYPE>? next;
+                LinkedListNode<ELEMENT_TYPE>? afterLast = lastNode.Next;
+
+                while(cursor != null && cursor != afterLast) {
+                    next = cursor.Next;
+                    elementChain.Remove(cursor);
+                    cursor = next;
+                }
+
+                /*
+                    Remove references
+                */
+                first.Remove(key);
+                last.Remove(key);
+            }
+        }
     }
 }

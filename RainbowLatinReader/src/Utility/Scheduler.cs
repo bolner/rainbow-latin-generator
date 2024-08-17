@@ -25,7 +25,7 @@ class Scheduler<PAYLOAD_TYPE> : IScheduler<PAYLOAD_TYPE> where PAYLOAD_TYPE: IPr
         this.threadCount = threadCount;
 
         for(int i = 0; i < threadCount; i++) {
-            taskBuckets.Add(new List<PAYLOAD_TYPE>());
+            taskBuckets.Add([]);
         }
     }
 

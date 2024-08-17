@@ -22,19 +22,28 @@ class CanonLitDoc : ICanonLitDoc {
     private readonly IBookWorm<string> latinText;
     private readonly IBookWorm<string> englishText;
     private readonly ICanonLitChanges canonLitChanges;
+    private readonly ILogging logging;
     private string latinTitle = "";
     private string englishTitle = "";
     private string latinAuthor = "";
     private string englishAuthor = "";
+    private bool isExcluded = false;
 
-    private readonly string[] skipSections = ["note", "intro", "praef"];
+    private readonly List<string> stops = [
+        "text.body.div",
+        "text.body.div1",
+        "text.body.div2",
+        "text.body.div3",
+        "text.body.milestone"
+    ];
+    private readonly string[] skipSections = ["note", "intro", "chronology"];
     private readonly string[] skipText = ["", "* * *"];
-    private readonly string[] skipTypes = ["", "translation", "edition", "section"];
-    private int pbIndex = 1;
+    private readonly string[] skipTypes = ["", "translation", "edition"];
 
     public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
         IXmlParserFactory xmlParserFactory, IBookWorm<string> latinText,
-        IBookWorm<string> englishText, ICanonLitChanges canonLitChanges)
+        IBookWorm<string> englishText, ICanonLitChanges canonLitChanges,
+        ILogging logging)
     {
         if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
             throw new Exception("CanonLitDoc constructor: The latin and the english "
@@ -47,6 +56,7 @@ class CanonLitDoc : ICanonLitDoc {
         this.latinText = latinText;
         this.englishText = englishText;
         this.canonLitChanges = canonLitChanges;
+        this.logging = logging;
     }
 
     public void Process() {
@@ -59,22 +69,31 @@ class CanonLitDoc : ICanonLitDoc {
             (Find all section types and select the ones
             that are present in both the English and Latin document.)
         */
-        pbIndex = 1;
         var engSecTypes = FindSectionTypes(englishFile);
-
-        pbIndex = 1;
         var latSecTypes = FindSectionTypes(latinFile);
 
         HashSet<string> common = new(engSecTypes.Intersect(latSecTypes) ?? []);
 
         /*
+            Check for exclusion
+        */
+        if (engSecTypes.Count == 1 && engSecTypes.Contains("book")) {
+            isExcluded = true;
+            logging.Warning($"Document '{englishFile.GetPath()}' is excluded because it has only book level sections.");
+            return;
+        }
+
+        if (latSecTypes.Count == 1 && latSecTypes.Contains("book")) {
+            isExcluded = true;
+            logging.Warning($"Document '{latinFile.GetPath()}' is excluded because it has only book level sections.");
+            return;
+        }
+
+        /*
             Second pass
             (Partition the text by the selected section types.)
         */
-        pbIndex = 1;
         ParseDocument(englishFile, common, out englishTitle, out englishAuthor, englishText);
-
-        pbIndex = 1;
         ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
 
         /*
@@ -95,25 +114,29 @@ class CanonLitDoc : ICanonLitDoc {
 
         /*
             Pair sections
+            - Display warning
+            - Keep only the common ones
         */
         var englishSections = englishText.GetSectionKeyList();
         var latinSections = latinText.GetSectionKeyList();
 
         var missing = from x in englishSections.Except(latinSections) select x;
         if (missing.Any()) {
-            throw new RainbowLatinException($"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
+            logging.Warning($"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
                 + $"contains section(s) '{String.Join(", ", missing)}' "
                 + $"which are not present in the Latin document '{latinFile.GetPath()}'. "
                 + $"First text: {englishText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
         }
+        englishText.RemoveSections(missing.ToList());
 
         missing = from x in latinSections.Except(englishSections) select x;
         if (missing.Any()) {
-            throw new RainbowLatinException($"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
+            logging.Warning($"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
                 + $"contains section(s) '{String.Join(", ", missing)}' "
                 + $"which are not present in the English document '{englishFile.GetPath()}'. "
                 + $"First text: {latinText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
         }
+        latinText.RemoveSections(missing.ToList());
     }
 
     public string GetDocumentID() {
@@ -140,20 +163,18 @@ class CanonLitDoc : ICanonLitDoc {
         HashSet<string> result = [];
         bool eof;
 
-        using var parser = xmlParserFactory.GetXmlParser(file, [
-            "text.body.div",
-            "text.body.div1",
-            "text.body.div2",
-            "text.body.pb",
-            "text.body.milestone"
-        ]);
+        using var parser = xmlParserFactory.GetXmlParser(file, stops);
         
         do {
             eof = !parser.Next();
             
-            ParseForSection(parser, null, out string? sectionType, out string? sectionName);
-            if (sectionType != null) {
-                result.Add(sectionType);
+            try {
+                ParseForSection(parser, null, out string? sectionType, out string? sectionName);
+                if (sectionType != null) {
+                    result.Add(sectionType);
+                }
+            } catch (Exception ex) {
+                throw new RainbowLatinException($"FILE '{file.GetPath()}': {ex.Message}", ex);
             }
         } while (!eof);
 
@@ -164,13 +185,7 @@ class CanonLitDoc : ICanonLitDoc {
         out string title, out string author, IBookWorm<string> bookworm)
     {
         bool eof;
-        using var parser = xmlParserFactory.GetXmlParser(file, [
-            "text.body.div",
-            "text.body.div1",
-            "text.body.div2",
-            "text.body.pb",
-            "text.body.milestone"
-        ]);
+        using var parser = xmlParserFactory.GetXmlParser(file, stops);
 
         if (!parser.GoTo("teiHeader.fileDesc.titleStmt.title")) {
             throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.title' in FILE "
@@ -197,7 +212,7 @@ class CanonLitDoc : ICanonLitDoc {
 
         do {
             eof = !parser.Next();
-            
+
             var text = parser.GetText() ?? "";
             if (!skipText.Any(text.Trim().Equals)) {
                 bookworm.AddElement(text);
@@ -205,7 +220,11 @@ class CanonLitDoc : ICanonLitDoc {
 
             ParseForSection(parser, allowedSectionTypes, out string? sectionType, out string? sectionName);
             if (sectionType != null && sectionName != null) {
-                bookworm.IncomingSection(sectionType, sectionName);
+                try {
+                    bookworm.IncomingSection(sectionType, sectionName);
+                } catch (Exception ex) {
+                    throw new RainbowLatinException($"{parser.GetDebugInfo()}: {ex.Message}", ex);
+                }
             }
         } while (!eof);
     }
@@ -216,6 +235,13 @@ class CanonLitDoc : ICanonLitDoc {
         sectionType = null;
         sectionName = null;
         var attributes = parser.GetAttributes();
+        attributes.TryGetValue("type", out string? divType);
+        
+        // Example: phi0917.phi001.perseus-lat2.xml
+        if (divType == "commentary") {
+            parser.Skip();
+            return;
+        }
 
         attributes.TryGetValue("n", out sectionName);
         if (skipSections.Any((sectionName ?? "").Equals)) {
@@ -223,30 +249,23 @@ class CanonLitDoc : ICanonLitDoc {
             return;
         }
 
-        if (parser.GetNodeName() == "pb") {
-            sectionName = pbIndex.ToString();
-            pbIndex++;
-            sectionType = "pb";
-        }
-
         if (sectionType == null) {
             attributes.TryGetValue("subtype", out string? divSubType);
-            attributes.TryGetValue("type", out string? divType);
+            attributes.TryGetValue("unit", out string? unit);
 
             if (divSubType != null) {
                 sectionType = divSubType;
+            } else if (unit != null) {
+                sectionType = unit;
             } else {
                 sectionType = divType;
             }
         }
 
-        // Skip these: <div2 type="chapter" n="2">
-        if (parser.GetNodeName() == "div2" && sectionType == "chapter") {
-            sectionType = null;
-            sectionName = null;
-            return;
+        if (sectionType == "chapter" && sectionName == "pr") {
+            sectionName = "praef";
         }
-        
+
         if (sectionType != null) {
             if (allowedSectionTypes != null) {
                 if (!allowedSectionTypes.Contains(sectionType)) {
@@ -293,5 +312,9 @@ class CanonLitDoc : ICanonLitDoc {
         } while(cursor != null && cursor != last);
 
         return string.Join(' ', parts);
+    }
+
+    public bool IsExcluded() {
+        return isExcluded;
     }
 }

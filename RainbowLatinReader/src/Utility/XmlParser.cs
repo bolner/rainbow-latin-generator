@@ -28,14 +28,14 @@ sealed class XmlParser : IXmlParser {
     private readonly ICanonFile file;
     private readonly Stream stream;
     private readonly XmlReader reader;
-    private readonly Dictionary<string, string> attributes = new();
-    private StringBuilder content = new();
+    private readonly Dictionary<string, string> attributes = [];
+    private readonly StringBuilder content = new();
     private readonly Stack<string> trace = new();
     private readonly Regex whitespaceRegEx = new(
         @"[\s]+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
-    private readonly List<Regex> destinations = new();
+    private readonly List<Regex> destinations = [];
     private string? nodeName = null;
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
@@ -309,5 +309,10 @@ sealed class XmlParser : IXmlParser {
 
     public string GetDebugInfo() {
         return $"FILE '{file.GetPath()}', LINE {lineNumber}.";
+    }
+
+    public void Skip() {
+        reader.Skip();
+        prefetched = true;
     }
 }

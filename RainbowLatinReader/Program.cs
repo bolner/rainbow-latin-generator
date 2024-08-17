@@ -13,20 +13,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using System.Text.RegularExpressions;
 using RainbowLatinReader;
 
 var config = new Config(File.Open(Path.Join(Directory.GetCurrentDirectory(),
     "config.ini"), FileMode.Open));
-var allowlist = new List<string> { "phi1348.abo011" }; // phi0448.phi002
+HashSet<string> blocklist = [
+    "stoa0054.stoa006", // https://github.com/PerseusDL/canonical-latinLit/issues/572
+    "stoa0040.stoa011", // Weird structure in stoa0040.stoa011.perseus-eng1.xml
+    "phi0914.phi0011", // Issue with chapters: phi0914.phi0011.perseus-eng2.xml
+];
+var rg = new Regex(@"(stoa|phi)[0-9]{3,5}\.(stoa|phi|abo)[0-9]{3,5}");
+
 var filter = (string x) => {
-    foreach(string allow in allowlist) {
-        if (x.Contains(allow)) {
-            Console.WriteLine(" - " + x);
-            return true;
-        }
-    }
+    var m = rg.Match(x);
     
-    return false;
+    return !blocklist.Contains(m.Value);
 };
 
 var canonLitChanges = new CanonLitChanges(File.Open(Path.Join(Directory.GetCurrentDirectory(),

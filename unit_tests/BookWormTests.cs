@@ -49,6 +49,35 @@ public class BookWormTests
         return b;
     }
 
+    private static BookWorm<string> GetSampleClearingObject() {
+        var b = new BookWorm<string>(true);
+        b.IncomingSection("book", "1");
+        b.IncomingSection("section", "1");
+        b.IncomingSection("paragraph", "1");
+        b.AddElement("This is a sentence. 1.1.1.");
+        b.IncomingSection("paragraph", "2");
+        b.AddElement("This is a sentence. 1.1.2.");
+        b.IncomingSection("paragraph", "3");
+        b.AddElement("This is a sentence. 1.1.3.");
+        b.IncomingSection("section", "2");
+        b.IncomingSection("paragraph", "1");
+        b.AddElement("This is a sentence. 1.2.1.");
+        b.IncomingSection("paragraph", "2");
+        b.AddElement("This is a sentence. 1.2.2.");
+        b.IncomingSection("paragraph", "3");
+        b.AddElement("This is a sentence. 1.2.3. A");
+        b.AddElement("This is a sentence. 1.2.3. B");
+        b.AddElement("This is a sentence. 1.2.3. C");
+        b.IncomingSection("paragraph", "4");
+        b.AddElement("This is a sentence. 1.2.4.");
+        b.IncomingSection("book", "2");
+        b.IncomingSection("section", "1");
+        b.IncomingSection("paragraph", "1");
+        b.AddElement("This is a sentence. 2.1.1.");
+
+        return b;
+    }
+
     [Fact]
     public void TestSectionKeys1()
     {
@@ -82,6 +111,16 @@ public class BookWormTests
     [Fact]
     public void TestLastKey1() {
         var b = GetSampleObject();
+        var first = b.GetFirstNodeBySectionKey("book=2|section=1|paragraph=1");
+
+        Assert.True(first != null, "Cannot find first node in section book=2|section=1|paragraph=1.");
+        Assert.True(first.Value == "This is a sentence. 2.1.1.", $"First node has value '{first.Value}' "
+            + " instead of 'This is a sentence. 2.1.1.'.");
+    }
+
+    [Fact]
+    public void TestClearing() {
+        var b = GetSampleClearingObject();
         var first = b.GetFirstNodeBySectionKey("book=2|section=1|paragraph=1");
 
         Assert.True(first != null, "Cannot find first node in section book=2|section=1|paragraph=1.");

@@ -57,4 +57,5 @@ interface IXmlParser : IDisposable {
     public string? GetNodeName();
     public XmlNodeType? GetNodeType();
     public string GetDebugInfo();
+    public void Skip();
 }

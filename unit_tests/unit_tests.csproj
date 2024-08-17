@@ -7,6 +7,7 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <NoWarn>IDE0130;IDE0018;IDE0270;CA1854;IDE0290;CA1862;IDE0074;SYSLIB1045</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

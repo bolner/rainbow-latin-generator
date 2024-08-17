@@ -17,6 +17,10 @@ namespace RainbowLatinReader;
 
 class CanonLitManager : ICanonLitManager {
     private readonly Dictionary<string, ICanonLitDoc> library = [];
+    private readonly HashSet<string> documentsRequireLevelClear = [
+        "phi0975.phi001", "phi0845.phi002", "stoa0054.stoa006", "phi0448.phi001", "phi0914.phi001",
+        "phi1056.phi001"
+    ];
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
@@ -58,14 +62,17 @@ class CanonLitManager : ICanonLitManager {
                 continue;
             }
 
+            bool levelClear = documentsRequireLevelClear.Contains(docID);
+
             scheduler.AddTask(
                 new CanonLitDoc(
                     latinTracker[docID],
                     englishTracker[docID],
                     xmlParserFactory,
-                    new BookWorm<string>(),
-                    new BookWorm<string>(),
-                    canonLitChanges
+                    new BookWorm<string>(levelClear),
+                    new BookWorm<string>(levelClear),
+                    canonLitChanges,
+                    new Logging()
                 )
             );
         }
@@ -76,6 +83,10 @@ class CanonLitManager : ICanonLitManager {
         scheduler.Run();
 
         foreach(var doc in scheduler.GetResults()) {
+            if (doc.IsExcluded()) {
+                continue;
+            }
+            
             library[doc.GetDocumentID()] = doc;
         }
     }

@@ -13,15 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-namespace RainbowLatinReader;
 
-interface ICanonLitDoc : IProcessable {
-    public string GetDocumentID();
-    public string GetEnglishTitle();
-    public string GetEnglishAuthor();
-    public string GetLatinTitle();
-    public string GetLatinAuthor();
-    public string GetEnglishSection(string sectionKey);
-    public string GetLatinSection(string sectionKey);
-    public bool IsExcluded();
+using RainbowLatinReader;
+
+namespace unit_tests;
+
+class MockLogging : ILogging {
+    public void Warning(string warning) {
+        // TODO
+    }
 }

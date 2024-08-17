@@ -223,7 +223,7 @@ public class CanonLitDocTests
 		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),
-			new BookWorm<string>(), canonLitChanges);
+			new BookWorm<string>(), canonLitChanges, new MockLogging());
 		doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
@@ -244,7 +244,7 @@ public class CanonLitDocTests
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin,
-			english, canonLitChanges);
+			english, canonLitChanges, new MockLogging());
 		doc.Process();
 
 		var s1 = doc.GetEnglishSection("chapter=2");
