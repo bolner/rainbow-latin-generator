@@ -23,6 +23,8 @@ class LemmatizedDoc : ILemmatizedDoc {
     private string documentID = "";
     private readonly Dictionary<string, ILemmatizedSection> sectionLookup = [];
     private readonly List<ILemmatizedSection> sections = [];
+    private readonly ILogging logging;
+    private Exception? lastError = null;
     
     private readonly Dictionary<string, string> tokenTypes = new() {
         { "ADJadv.mul", "Multiplicative numeral adverbial" },
@@ -114,121 +116,130 @@ class LemmatizedDoc : ILemmatizedDoc {
         { "Voc", "Vocative" },
     };
 
-    public LemmatizedDoc(ICanonFile file, IXmlParserFactory xmlParserFactory)
+    public LemmatizedDoc(ICanonFile file, IXmlParserFactory xmlParserFactory,
+        ILogging logging)
     {
         this.file = file;
         this.xmlParserFactory = xmlParserFactory;
+        this.logging = logging;
     }
 
     public void Process()
     {
-        documentID = file.GetDocumentID();
-        var parser = xmlParserFactory.GetXmlParser(file, [
-            "text.body.ab",
-            "text.body.ab.w"
-        ]);
+        try {
+            documentID = file.GetDocumentID();
+            var parser = xmlParserFactory.GetXmlParser(file, [
+                "text.body.ab",
+                "text.body.ab.w"
+            ]);
 
-        if (!parser.GoTo("teiHeader.fileDesc.titleStmt.title")) {
-            throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.title' in FILE "
-                + $"'{file.GetPath()}'.");
-        }
-        
-        title = (parser.ReadContent() ?? "").Trim();
-        if (title == "") {
-            throw new RainbowLatinException("Empty 'teiHeader.fileDesc.titleStmt.title' in FILE "
-                + $"'{file.GetPath()}'.");
-        }
-
-        parser.GoTo("teiHeader.fileDesc.titleStmt.author");
-        author = (parser.ReadContent() ?? "").Trim();
-        if (author == "") {
-            throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.author' in FILE "
-                + $"'{file.GetPath()}'.");
-        }
-
-        if (!parser.GoTo("TEI.text.body")) {
-            throw new RainbowLatinException("Can't find 'TEI.text.body' in FILE "
-                + $"'{file.GetPath()}'.");
-        }
-
-        LemmatizedSection? section = null;
-
-        while (parser.Next()) {
-            // TODO: XmlParser.ReadProperties not working
-            var attributes = parser.GetAttributes();
-
-            if (parser.GetNodeName() == "ab") {
-                if (!attributes.ContainsKey("n")) {
-                    throw new RainbowLatinException("Missing property 'n' on an 'ab' element. "
-                        + parser.GetDebugInfo());
-                }
-                
-                if (section != null) {
-                    sections.Add(section);
-                    sectionLookup[section.GetSectionNumber()] = section;
-                }
-
-                section = new LemmatizedSection(attributes["n"]);
-                continue;
-            }
-
-            if (section == null) {
-                continue;
+            if (!parser.GoTo("teiHeader.fileDesc.titleStmt.title")) {
+                throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.title' in FILE "
+                    + $"'{file.GetPath()}'.");
             }
             
-            if (parser.GetNodeName() != "w") {
-                continue;
+            title = (parser.ReadContent() ?? "").Trim();
+            if (title == "") {
+                throw new RainbowLatinException("Empty 'teiHeader.fileDesc.titleStmt.title' in FILE "
+                    + $"'{file.GetPath()}'.");
             }
 
-            foreach(string field in new string[]{"pos", "msd", "lemma"}) {
-                if (!attributes.ContainsKey(field)) {
-                    throw new RainbowLatinException($"Missing property '{field}' on a 'w' element. "
-                        + parser.GetDebugInfo());
+            parser.GoTo("teiHeader.fileDesc.titleStmt.author");
+            author = (parser.ReadContent() ?? "").Trim();
+            if (author == "") {
+                throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.author' in FILE "
+                    + $"'{file.GetPath()}'.");
+            }
+
+            if (!parser.GoTo("TEI.text.body")) {
+                throw new RainbowLatinException("Can't find 'TEI.text.body' in FILE "
+                    + $"'{file.GetPath()}'.");
+            }
+
+            LemmatizedSection? section = null;
+
+            while (parser.Next()) {
+                // TODO: XmlParser.ReadProperties not working
+                var attributes = parser.GetAttributes();
+
+                if (parser.GetNodeName() == "ab") {
+                    if (!attributes.ContainsKey("n")) {
+                        throw new RainbowLatinException("Missing property 'n' on an 'ab' element. "
+                            + parser.GetDebugInfo());
+                    }
+                    
+                    if (section != null) {
+                        sections.Add(section);
+                        sectionLookup[section.GetSectionNumber()] = section;
+                    }
+
+                    section = new LemmatizedSection(attributes["n"]);
+                    continue;
                 }
-            }
 
-            /*
-                Skip punctuation characters and redundant tokens for conjunctions
+                if (section == null) {
+                    continue;
+                }
+                
+                if (parser.GetNodeName() != "w") {
+                    continue;
+                }
 
-                Example for the later:
-                <w rend="unknown" n="4" pos="NOMcom" msd="Case=Acc|Numb=Plur" lemma="seruus">seruosque</w>
-                <w rend="unknown" n="4" pos="CON" msd="MORPH=empty" lemma="que">{seruosque}</w>
-            */
-            if (attributes["pos"] == "PUNC" || attributes["pos"] == "CON") {
-                continue;
-            }
-
-            var value = (parser.ReadContent() ?? "").Trim();
-            if (value == "") {
-                throw new RainbowLatinException($"Empty 'w' element. " + parser.GetDebugInfo());
-            }
-
-            try {
-                var token = new LemmatizedToken(attributes["pos"], value, attributes["msd"], attributes["lemma"]);
+                foreach(string field in new string[]{"pos", "msd", "lemma"}) {
+                    if (!attributes.ContainsKey(field)) {
+                        throw new RainbowLatinException($"Missing property '{field}' on a 'w' element. "
+                            + parser.GetDebugInfo());
+                    }
+                }
 
                 /*
-                    Validate attributes first
-                */
-                var msd = token.GetMsd();
-                foreach(var pair in msd) {
-                    if (!msdKeys.ContainsKey(pair.Key)) {
-                        throw new RainbowLatinException($"Unknown 'msd' key: '{pair.Key}'.");
-                    }
+                    Skip punctuation characters and redundant tokens for conjunctions
 
-                    if (!msdValues.ContainsKey(pair.Value)) {
-                        throw new RainbowLatinException($"Unknown 'msd' value: '{pair.Value}'.");
-                    }
+                    Example for the later:
+                    <w rend="unknown" n="4" pos="NOMcom" msd="Case=Acc|Numb=Plur" lemma="seruus">seruosque</w>
+                    <w rend="unknown" n="4" pos="CON" msd="MORPH=empty" lemma="que">{seruosque}</w>
+                */
+                if (attributes["pos"] == "PUNC" || attributes["pos"] == "CON") {
+                    continue;
                 }
 
-                section.AddToken(token);
-            } catch (Exception ex) {
-                throw new RainbowLatinException(ex.Message + " " + parser.GetDebugInfo(), ex);
-            }
-        }
+                var value = (parser.ReadContent() ?? "").Trim();
+                if (value == "") {
+                    throw new RainbowLatinException($"Empty 'w' element. " + parser.GetDebugInfo());
+                }
 
-        if (section != null) {
-            sections.Add(section);
-            sectionLookup[section.GetSectionNumber()] = section;
+                try {
+                    var token = new LemmatizedToken(attributes["pos"], value, attributes["msd"], attributes["lemma"]);
+
+                    /*
+                        Validate attributes first
+                    */
+                    var msd = token.GetMsd();
+                    foreach(var pair in msd) {
+                        if (!msdKeys.ContainsKey(pair.Key)) {
+                            throw new RainbowLatinException($"Unknown 'msd' key: '{pair.Key}'.");
+                        }
+
+                        if (!msdValues.ContainsKey(pair.Value)) {
+                            throw new RainbowLatinException($"Unknown 'msd' value: '{pair.Value}'.");
+                        }
+                    }
+
+                    section.AddToken(token);
+                } catch (Exception ex) {
+                    throw new RainbowLatinException(ex.Message + " " + parser.GetDebugInfo(), ex);
+                }
+            }
+
+            if (section != null) {
+                sections.Add(section);
+                sectionLookup[section.GetSectionNumber()] = section;
+            }
+
+            logging.Text("complete", $"{documentID}. Sections: {sectionLookup.Count}");
+        } catch (Exception ex) {
+            lastError = ex;
+            logging.Exception(ex);
         }
     }
 
@@ -250,5 +261,9 @@ class LemmatizedDoc : ILemmatizedDoc {
 
     public string GetAuthor() {
         return author;
+    }
+
+    public Exception? GetLastError() {
+        return lastError;
     }
 }

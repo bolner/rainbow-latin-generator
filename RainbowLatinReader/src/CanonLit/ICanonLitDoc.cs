@@ -24,4 +24,5 @@ interface ICanonLitDoc : IProcessable {
     public string GetEnglishSection(string sectionKey);
     public string GetLatinSection(string sectionKey);
     public bool IsExcluded();
+    public Exception? GetLastError();
 }

@@ -18,6 +18,13 @@
     </div></div>
   ```
 - Remove CanonLitSection and LemmatizedSection. Because the Librarian handles the grouping of elements.
+- Handle nested sections (book/chapter, no "/>" at the end):
+  ```
+  <text><body>
+  <pb id="p.129"/>
+  <div1 type="book" n="1">
+  <div2 type="chapter" n="praef"><p>
+  ```
 
 Find all XML/HTML entities:
 

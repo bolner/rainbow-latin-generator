@@ -21,4 +21,5 @@ interface ILemmatizedDoc : IProcessable {
 
     public string GetTitle();
     public string GetAuthor();
+    public Exception? GetLastError();
 }

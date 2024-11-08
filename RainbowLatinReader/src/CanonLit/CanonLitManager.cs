@@ -19,13 +19,14 @@ class CanonLitManager : ICanonLitManager {
     private readonly Dictionary<string, ICanonLitDoc> library = [];
     private readonly HashSet<string> documentsRequireLevelClear = [
         "phi0975.phi001", "phi0845.phi002", "stoa0054.stoa006", "phi0448.phi001", "phi0914.phi001",
-        "phi1056.phi001"
+        "phi1056.phi001", "phi0914.phi0015", "phi0959.phi006", "phi0959.phi001", "phi0474.phi011"
     ];
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         IXmlParserFactory xmlParserFactory,
-        ICanonLitChanges canonLitChanges)
+        ICanonLitChanges canonLitChanges,
+        ILogging logging)
     {
         ICanonFile? file;
         Dictionary<string, ICanonFile> englishTracker = [];
@@ -72,7 +73,7 @@ class CanonLitManager : ICanonLitManager {
                     new BookWorm<string>(levelClear),
                     new BookWorm<string>(levelClear),
                     canonLitChanges,
-                    new Logging()
+                    logging
                 )
             );
         }
@@ -83,6 +84,10 @@ class CanonLitManager : ICanonLitManager {
         scheduler.Run();
 
         foreach(var doc in scheduler.GetResults()) {
+            if (doc.GetLastError() != null) {
+                continue;
+            }
+
             if (doc.IsExcluded()) {
                 continue;
             }
@@ -92,12 +97,16 @@ class CanonLitManager : ICanonLitManager {
     }
 
     public ICanonLitDoc GetDocument(string documentID) {
-        ICanonLitDoc? value = null;
+        ICanonLitDoc? value;
         library.TryGetValue(documentID, out value);
         if (value == null) {
             throw new RainbowLatinException($"Cannot find CanonLit document with ID '{documentID}'.");
         }
 
         return value;
+    }
+
+    public List<string> GetDocumentIDs() {
+        return library.Keys.ToList();
     }
 }

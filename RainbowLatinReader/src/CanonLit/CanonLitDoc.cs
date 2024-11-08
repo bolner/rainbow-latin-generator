@@ -28,13 +28,15 @@ class CanonLitDoc : ICanonLitDoc {
     private string latinAuthor = "";
     private string englishAuthor = "";
     private bool isExcluded = false;
-
+    private Exception? lastError = null;
+    
     private readonly List<string> stops = [
         "text.body.div",
         "text.body.div1",
         "text.body.div2",
         "text.body.div3",
-        "text.body.milestone"
+        "text.body.milestone",
+        "text.body.seg"
     ];
     private readonly string[] skipSections = ["note", "intro", "chronology"];
     private readonly string[] skipText = ["", "* * *"];
@@ -64,79 +66,104 @@ class CanonLitDoc : ICanonLitDoc {
             Parse English and Latin
         */
 
-        /*
-            First pass
-            (Find all section types and select the ones
-            that are present in both the English and Latin document.)
-        */
-        var engSecTypes = FindSectionTypes(englishFile);
-        var latSecTypes = FindSectionTypes(latinFile);
+        try {
+            /*
+                First pass
+                (Find all section types and select the ones
+                that are present in both the English and Latin document.)
+            */
+            var engSecTypes = FindSectionTypes(englishFile);
+            var latSecTypes = FindSectionTypes(latinFile);
 
-        HashSet<string> common = new(engSecTypes.Intersect(latSecTypes) ?? []);
+            HashSet<string> common = new(engSecTypes.Intersect(latSecTypes) ?? []);
 
-        /*
-            Check for exclusion
-        */
-        if (engSecTypes.Count == 1 && engSecTypes.Contains("book")) {
-            isExcluded = true;
-            logging.Warning($"Document '{englishFile.GetPath()}' is excluded because it has only book level sections.");
-            return;
-        }
-
-        if (latSecTypes.Count == 1 && latSecTypes.Contains("book")) {
-            isExcluded = true;
-            logging.Warning($"Document '{latinFile.GetPath()}' is excluded because it has only book level sections.");
-            return;
-        }
-
-        /*
-            Second pass
-            (Partition the text by the selected section types.)
-        */
-        ParseDocument(englishFile, common, out englishTitle, out englishAuthor, englishText);
-        ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
-
-        /*
-            Apply document changes
-        */
-        var engChangeList = canonLitChanges.Find(ICanonLitChangeEntry.Language.English,
-            englishFile.GetDocumentID());
-        
-        foreach(CanonLitChangeEntry change in engChangeList) {
-            if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Add) {
-                englishText.ApplyChange(IBookWorm<string>.ChangeType.Add, change.GetKey(),
-                    change.GetContent(), change.GetAfter(), change.GetBefore());
-            } else if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Remove) {
-                englishText.ApplyChange(IBookWorm<string>.ChangeType.Remove, change.GetKey(),
-                    change.GetContent(), change.GetAfter(), change.GetBefore());
+            /*
+                Check for exclusion
+            */
+            if (common.Count == 0) {
+                isExcluded = true;
+                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because the English "
+                    + "and the Latin versions have no matching sections.");
+                return;
             }
-        }
 
-        /*
-            Pair sections
-            - Display warning
-            - Keep only the common ones
-        */
-        var englishSections = englishText.GetSectionKeyList();
-        var latinSections = latinText.GetSectionKeyList();
+            if (common.Count == 1 && common.Contains("book")) {
+                isExcluded = true;
+                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because only the book "
+                    + "level is common between the English and the Latin versions.");
+                return;
+            }
 
-        var missing = from x in englishSections.Except(latinSections) select x;
-        if (missing.Any()) {
-            logging.Warning($"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
-                + $"contains section(s) '{String.Join(", ", missing)}' "
-                + $"which are not present in the Latin document '{latinFile.GetPath()}'. "
-                + $"First text: {englishText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
-        }
-        englishText.RemoveSections(missing.ToList());
+            /*
+                Second pass
+                (Partition the text by the selected section types.)
+            */
+            ParseDocument(englishFile, common, out englishTitle, out englishAuthor, englishText);
+            ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
 
-        missing = from x in latinSections.Except(englishSections) select x;
-        if (missing.Any()) {
-            logging.Warning($"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
-                + $"contains section(s) '{String.Join(", ", missing)}' "
-                + $"which are not present in the English document '{englishFile.GetPath()}'. "
-                + $"First text: {latinText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
+            /*
+                Apply document changes
+            */
+            var engChangeList = canonLitChanges.Find(ICanonLitChangeEntry.Language.English,
+                englishFile.GetDocumentID());
+            
+            foreach(CanonLitChangeEntry change in engChangeList) {
+                if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Add) {
+                    englishText.ApplyChange(IBookWorm<string>.ChangeType.Add, change.GetKey(),
+                        change.GetContent(), change.GetAfter(), change.GetBefore());
+                } else if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Remove) {
+                    englishText.ApplyChange(IBookWorm<string>.ChangeType.Remove, change.GetKey(),
+                        change.GetContent(), change.GetAfter(), change.GetBefore());
+                }
+            }
+
+            /*
+                Pair sections
+                - Display warning
+                - Keep only the common ones
+            */
+            var englishSections = englishText.GetSectionKeyList();
+            var latinSections = latinText.GetSectionKeyList();
+
+            var missing = from x in englishSections.Except(latinSections) select x;
+            if (missing.Any()) {
+                isExcluded = true;
+                logging.Warning("incomplete", $"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
+                    + $"contains section(s) '{string.Join(", ", missing)}' "
+                    + $"which are not present in the Latin document '{latinFile.GetPath()}'. "
+                    + $"First text: {englishText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
+                
+                return;
+            }
+            englishText.RemoveSections(missing.ToList());
+
+            missing = from x in latinSections.Except(englishSections) select x;
+            if (missing.Any()) {
+                isExcluded = true;
+                logging.Warning("incomplete", $"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
+                    + $"contains section(s) '{string.Join(", ", missing)}' "
+                    + $"which are not present in the English document '{englishFile.GetPath()}'. "
+                    + $"First text: {latinText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
+                
+                return;
+            }
+            latinText.RemoveSections(missing.ToList());
+
+            if (englishSections.Count < 10) {
+                isExcluded = true;
+                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because of the "
+                    + $"low number of sections: {englishSections.Count}");
+                
+                return;
+            }
+
+            logging.Text("complete", $"{latinFile.GetDocumentID()}. "
+                + $"English sections: {englishSections.Count}. Latin sections: {latinSections.Count}. "
+                + string.Join(", ", latinSections));
+        } catch (Exception ex) {
+            lastError = ex;
+            logging.Exception(ex);
         }
-        latinText.RemoveSections(missing.ToList());
     }
 
     public string GetDocumentID() {
@@ -219,9 +246,15 @@ class CanonLitDoc : ICanonLitDoc {
             }
 
             ParseForSection(parser, allowedSectionTypes, out string? sectionType, out string? sectionName);
-            if (sectionType != null && sectionName != null) {
+            
+            if (sectionType != null) {
+                if (sectionName == null || sectionName == "") {
+                    logging.Warning("syntax", "Encountered a milestone that has only 'section type', but no 'section name'. "
+                        + $"Location: {parser.GetDebugInfo()}");
+                }
+                
                 try {
-                    bookworm.IncomingSection(sectionType, sectionName);
+                    bookworm.IncomingSection(sectionType, sectionName ?? "");
                 } catch (Exception ex) {
                     throw new RainbowLatinException($"{parser.GetDebugInfo()}: {ex.Message}", ex);
                 }
@@ -236,7 +269,7 @@ class CanonLitDoc : ICanonLitDoc {
         sectionName = null;
         var attributes = parser.GetAttributes();
         attributes.TryGetValue("type", out string? divType);
-        
+
         // Example: phi0917.phi001.perseus-lat2.xml
         if (divType == "commentary") {
             parser.Skip();
@@ -262,7 +295,7 @@ class CanonLitDoc : ICanonLitDoc {
             }
         }
 
-        if (sectionType == "chapter" && sectionName == "pr") {
+        if (sectionType == "chapter" && (sectionName == "pr" || sectionName == "0")) {
             sectionName = "praef";
         }
 
@@ -316,5 +349,9 @@ class CanonLitDoc : ICanonLitDoc {
 
     public bool IsExcluded() {
         return isExcluded;
+    }
+
+    public Exception? GetLastError() {
+        return lastError;
     }
 }

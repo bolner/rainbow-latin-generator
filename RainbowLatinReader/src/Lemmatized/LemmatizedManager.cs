@@ -16,19 +16,22 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 class LemmatizedManager : ILemmatizedManager {
-    private readonly Dictionary<string, ILemmatizedDoc> library = new();
+    private readonly Dictionary<string, ILemmatizedDoc> library = [];
+    private ILogging logging;
 
     public LemmatizedManager(IDirectoryScanner scanner,
         IScheduler<ILemmatizedDoc> scheduler,
-        IXmlParserFactory xmlParserFactory)
+        IXmlParserFactory xmlParserFactory,
+        ILogging logging)
     {
         ICanonFile? file;
+        this.logging = logging;
 
         /*
             Schedule all parsing tasks
         */
         while((file = scanner.Next()) != null) {
-            scheduler.AddTask(new LemmatizedDoc(file, xmlParserFactory));
+            scheduler.AddTask(new LemmatizedDoc(file, xmlParserFactory, logging));
         }
 
         /*
@@ -37,6 +40,10 @@ class LemmatizedManager : ILemmatizedManager {
         scheduler.Run();
 
         foreach(var doc in scheduler.GetResults()) {
+            if (doc.GetLastError() != null) {
+                continue;
+            }
+
             library[doc.GetDocumentID()] = doc;
         }
     }

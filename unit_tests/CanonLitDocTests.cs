@@ -249,6 +249,5 @@ public class CanonLitDocTests
 
 		var s1 = doc.GetEnglishSection("chapter=2");
         Assert.True(s1 != null, "Chapter '2' not found");
-
     }
 }

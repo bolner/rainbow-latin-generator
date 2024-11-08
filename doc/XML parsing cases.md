@@ -32,6 +32,7 @@
   - `<div1 type="book" n="1"><p>`
 - Other section markers:
   - Segment: `<seg type="section" n="12">...</seg>`
+  - <seg type="section" n="12">
 - Weirdest sections in data/phi0448/phi002/phi0448.phi002.perseus-eng2.xml:
   ```
     <pb id="p.3"/>

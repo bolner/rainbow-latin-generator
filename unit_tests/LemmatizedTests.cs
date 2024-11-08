@@ -303,7 +303,8 @@ public class LemmatizedTests
         var file = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData);
         var xmlParserFactory = new XmlParserFactory();
-        var doc = new LemmatizedDoc(file, xmlParserFactory);
+        using var lemmaLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "lemma");
+        var doc = new LemmatizedDoc(file, xmlParserFactory, lemmaLogging);
         doc.Process();
 
         Assert.True(doc.GetDocumentID() == "phi1348.abo011", "No valid document ID found.");
@@ -317,7 +318,8 @@ public class LemmatizedTests
         var file = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData);
         var xmlParserFactory = new XmlParserFactory();
-        var doc = new LemmatizedDoc(file, xmlParserFactory);
+        using var lemmaLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "lemma");
+        var doc = new LemmatizedDoc(file, xmlParserFactory, lemmaLogging);
         doc.Process();
 
         var section = doc.GetSection("2");

@@ -19,7 +19,19 @@ using RainbowLatinReader;
 namespace unit_tests;
 
 class MockLogging : ILogging {
-    public void Warning(string warning) {
-        // TODO
+    public void Text(string fileName, string text) {
+
+    }
+
+    public void Warning(string fileName, string warning) {
+
+    }
+
+    public void Exception(Exception ex) {
+
+    }
+
+    void IDisposable.Dispose() {
+
     }
 }

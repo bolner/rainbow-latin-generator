@@ -24,7 +24,7 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> first = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> last = [];
     private readonly Dictionary<string, Dictionary<string, string>> traceKeyToValues = [];
-    private readonly List<string> sectionHierarchy = ["book", "letter", "chapter", "poem", "section",
+    private readonly List<string> sectionHierarchy = ["book", "letter", "speech", "chapter", "poem", "section",
         "card", "paragraph", "para"];
     private readonly bool clearLowerLevels;
 
@@ -78,7 +78,9 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
         /*
             Register and validate new section.
         */
-        sections[sectionType] = sectionName;
+        if (sectionName != "") {
+            sections[sectionType] = sectionName;
+        }
         currentSectionKey = GetSectionKey();
 
         if (first.ContainsKey(currentSectionKey)) {

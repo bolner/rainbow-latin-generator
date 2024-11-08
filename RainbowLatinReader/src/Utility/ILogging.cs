@@ -15,6 +15,8 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface ILogging {
-    public void Warning(string warning);
+interface ILogging : IDisposable {
+    public void Text(string fileName, string text);
+    public void Warning(string fileName, string warning);
+    public void Exception(Exception ex);
 }
