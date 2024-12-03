@@ -65,12 +65,20 @@ sealed class XmlParser : IXmlParser {
         return new Dictionary<string, string>(attributes);
     }
 
-    public string? GetText() {
+    /// <summary>
+    /// Returns the accumulated text from the buffer
+    /// and then clears the text buffer.
+    /// </summary>
+    /// <returns>The accumulated text or null if there's none.</returns>
+    public string? FetchTextBuffer() {
         if (content.Length < 1) {
             return null;
         }
-        
-        return whitespaceRegEx.Replace(content.ToString(), " ");
+
+        string response = whitespaceRegEx.Replace(content.ToString(), " ");
+        content.Clear();
+
+        return response;
     }
 
     /// <summary>
@@ -239,7 +247,7 @@ sealed class XmlParser : IXmlParser {
     /// from other nodes.
     /// Stop when the same level is reached again.
     /// </summary>
-    public string? ReadContent() {
+    public string? FetchContent() {
         int baseDepth = reader.Depth;
         if (reader.NodeType == XmlNodeType.Attribute) {
             /*
@@ -282,7 +290,7 @@ sealed class XmlParser : IXmlParser {
         content.Clear();
         content.Append(whitespaceRegEx.Replace(parts.ToString(), " ").Trim());
 
-        return GetText();
+        return FetchTextBuffer();
     }
 
     /// <summary>

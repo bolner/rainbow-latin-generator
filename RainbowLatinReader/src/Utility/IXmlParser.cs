@@ -44,7 +44,7 @@ interface IXmlParser : IDisposable {
     /// <exception cref="RainbowLatinException"></exception>
     public bool Next();
     public Dictionary<string, string> GetAttributes();
-    public string? GetText();
+    public string? FetchTextBuffer();
 
     /// <summary>
     /// Read all text from a one deeper level.
@@ -52,7 +52,7 @@ interface IXmlParser : IDisposable {
     /// from other nodes.
     /// Stop when the same level is reached again.
     /// </summary>
-    public string? ReadContent();
+    public string? FetchContent();
 
     public string? GetNodeName();
     public XmlNodeType? GetNodeType();

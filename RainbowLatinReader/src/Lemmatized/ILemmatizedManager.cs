@@ -17,4 +17,5 @@ namespace RainbowLatinReader;
 
 interface ILemmatizedManager {
     public ILemmatizedDoc GetDocument(string documentID);
+    public List<string> GetDocumentIDs();
 }

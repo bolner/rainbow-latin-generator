@@ -15,27 +15,32 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-class LemmatizedManager : ILemmatizedManager {
-    private readonly Dictionary<string, ILemmatizedDoc> library = [];
-    private ILogging logging;
+class PageManager : IPageManager {
+    private readonly ILogging logging;
+    private readonly Dictionary<string, IPage> library = [];
 
-    public LemmatizedManager(IDirectoryScanner scanner,
-        IScheduler<ILemmatizedDoc> scheduler,
-        IXmlParserFactory xmlParserFactory,
-        ILogging logging)
+    public PageManager(IScheduler<IPage> scheduler, ILogging logging,
+        ICanonLitManager canonLitManager, ILemmatizedManager lemmatizedManager,
+        ITemplateEngine templateEngine)
     {
-        ICanonFile? file;
         this.logging = logging;
+        var ids = lemmatizedManager.GetDocumentIDs();
 
-        /*
-            Schedule all parsing tasks
-        */
-        while((file = scanner.Next()) != null) {
-            scheduler.AddTask(new LemmatizedDoc(file, xmlParserFactory, logging));
+        foreach(string id in ids) {
+            var canonLitDoc = canonLitManager.GetDocument(id);
+            var lemmatizedDoc = lemmatizedManager.GetDocument(id);
+
+            scheduler.AddTask(
+                new Page(
+                    canonLitDoc, lemmatizedDoc, templateEngine,
+                    Path.Join(Directory.GetCurrentDirectory(), "output",
+                    canonLitDoc.GetDocumentID() + ".html" )
+                )
+            );
         }
 
         /*
-            Parse documents and store results, indexed.
+            Generate pages and collect results.
         */
         scheduler.Run();
 
@@ -48,11 +53,11 @@ class LemmatizedManager : ILemmatizedManager {
         }
     }
 
-    public ILemmatizedDoc GetDocument(string documentID) {
-        ILemmatizedDoc? value = null;
+    public IPage GetPage(string documentID) {
+        IPage? value;
         library.TryGetValue(documentID, out value);
         if (value == null) {
-            throw new RainbowLatinException($"Cannot find CanonLit document with ID '{documentID}'.");
+            throw new RainbowLatinException($"Cannot find Page with document ID '{documentID}' in page manager.");
         }
 
         return value;

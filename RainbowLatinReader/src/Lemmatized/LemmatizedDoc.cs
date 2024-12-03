@@ -138,14 +138,14 @@ class LemmatizedDoc : ILemmatizedDoc {
                     + $"'{file.GetPath()}'.");
             }
             
-            title = (parser.ReadContent() ?? "").Trim();
+            title = (parser.FetchContent() ?? "").Trim();
             if (title == "") {
                 throw new RainbowLatinException("Empty 'teiHeader.fileDesc.titleStmt.title' in FILE "
                     + $"'{file.GetPath()}'.");
             }
 
             parser.GoTo("teiHeader.fileDesc.titleStmt.author");
-            author = (parser.ReadContent() ?? "").Trim();
+            author = (parser.FetchContent() ?? "").Trim();
             if (author == "") {
                 throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.author' in FILE "
                     + $"'{file.GetPath()}'.");
@@ -203,7 +203,7 @@ class LemmatizedDoc : ILemmatizedDoc {
                     continue;
                 }
 
-                var value = (parser.ReadContent() ?? "").Trim();
+                var value = (parser.FetchContent() ?? "").Trim();
                 if (value == "") {
                     throw new RainbowLatinException($"Empty 'w' element. " + parser.GetDebugInfo());
                 }

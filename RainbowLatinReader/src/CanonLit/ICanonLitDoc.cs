@@ -16,7 +16,6 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 interface ICanonLitDoc : IProcessable {
-    public string GetDocumentID();
     public string GetEnglishTitle();
     public string GetEnglishAuthor();
     public string GetLatinTitle();
@@ -24,5 +23,5 @@ interface ICanonLitDoc : IProcessable {
     public string GetEnglishSection(string sectionKey);
     public string GetLatinSection(string sectionKey);
     public bool IsExcluded();
-    public Exception? GetLastError();
+    public List<string> GetAllSections();
 }

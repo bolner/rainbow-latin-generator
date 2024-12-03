@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>{{title}}</title>
+        <title>{{short_title}} ({{short_author}})</title>
 
         <style>
             body {
@@ -35,7 +35,7 @@
                 text-align: right;
             }
 
-            table.section td.content {
+            table.section td.latin {
                 width: 50em;
                 background-color: rgb(0, 0, 0);
                 border: 0;
@@ -43,7 +43,7 @@
                 vertical-align: top;
             }
 
-            table.section td.dual {
+            table.section td.english {
                 width: 50em;
                 background-color: rgb(28, 56, 83);
                 border: 0;
@@ -176,7 +176,7 @@
             <div class="word sample pas grey">Passive</div>
             <div class="word sample dep grey">Deponent</div>
 
-            <div class="word title">{{title}} ({{author}})</div>
+            <div class="word title">{{short_title}} ({{short_author}})</div>
 
             <div class="word rainbow">Rainbow Latin Reader</div>
         </div>
@@ -186,23 +186,24 @@
                 <td class="margin">&nbsp;</td>
 
                 <td class="title">
-                    <h2>{{full_title}}</h2>
-                    <div class="author"><i>Author: {{full_author}}</i></div>
+                    <h2>{{title}}</h2>
+                    <div class="author"><i>Author: {{author}}</i></div>
                 </td>
 
-                <td class="dual">&nbsp;</td>
+                <td class="english">&nbsp;</td>
             </tr>
 
         {{#each sections}}
-            <tr id="s{{id}}">
+            <tr id="{{id}}">
                 <td class="margin">{{number}}</td>
 
-                <td class="content">
-                    {{#each words}}<div {{#if id}}id="w{{id}}" {{/if}}class="{{class}}">{{value}}</div>{{#if space_after}} {{/if}}{{/each}}
+                <td class="latin">
+                    {{latin}}
+                    {{!-- {{#each words}}<div {{#if id}}id="w{{id}}" {{/if}}class="{{class}}">{{value}}</div>{{#if space_after}} {{/if}}{{/each}} --}}
                 </td>
 
-                <td class="dual">
-                    {{{dual}}}
+                <td class="english">
+                    {{english}}
                 </td>
             </tr>
         {{/each}}

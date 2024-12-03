@@ -13,10 +13,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using HandlebarsDotNet;
+
 namespace RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
-    public string GetDocumentID();
+class TemplateEngine : ITemplateEngine {
+    private readonly HandlebarsTemplate<TextWriter, object, object> template;
+
+    public TemplateEngine(string filePath) {
+        using var pageTemplateStream = File.OpenText(filePath);
+        template = Handlebars.Compile(pageTemplateStream);        
+    }
+
+    public void Generate(IDictionary<string, object> data, string outputFilePath) {
+        using var outFile = File.CreateText(outputFilePath);
+        template(outFile, data);
+    }
 }

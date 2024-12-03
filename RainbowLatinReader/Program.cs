@@ -37,7 +37,7 @@ var rg = new Regex(@"(stoa|phi)[0-9]{3,5}\.(stoa|phi|abo)[0-9]{3,5}");
 var filter = (string x) => {
     var m = rg.Match(x);
     
-    return !blocklist.Contains(m.Value);
+    return m.Value == "phi0474.phi002"; // !blocklist.Contains(m.Value);
 };
 
 var canonLitChanges = new CanonLitChanges(File.Open(Path.Join(Directory.GetCurrentDirectory(),
@@ -78,3 +78,14 @@ var lemmaScheduler = new Scheduler<ILemmatizedDoc>(44);
 var lemmaParserFactory = new XmlParserFactory();
 var lemmaManager = new LemmatizedManager(lemmaScanner, lemmaScheduler, lemmaParserFactory,
     lemmaLogging);
+
+/*
+    Pages
+*/
+var pageLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "page");
+var pageScheduler = new Scheduler<IPage>(4);
+var templateEngine = new TemplateEngine(
+    Path.Join(Directory.GetCurrentDirectory(), "templates", "page.handlebars")
+);
+var pageManager = new PageManager(pageScheduler, pageLogging, canonLitManager,
+    lemmaManager, templateEngine);

@@ -135,7 +135,6 @@ class CanonLitDoc : ICanonLitDoc {
                 
                 return;
             }
-            englishText.RemoveSections(missing.ToList());
 
             missing = from x in latinSections.Except(englishSections) select x;
             if (missing.Any()) {
@@ -147,7 +146,6 @@ class CanonLitDoc : ICanonLitDoc {
                 
                 return;
             }
-            latinText.RemoveSections(missing.ToList());
 
             if (englishSections.Count < 10) {
                 isExcluded = true;
@@ -186,6 +184,10 @@ class CanonLitDoc : ICanonLitDoc {
         return latinAuthor;
     }
 
+    public List<string> GetAllSections() {
+        return latinText.GetSectionKeyList();
+    }
+
     private HashSet<string> FindSectionTypes(ICanonFile file) {
         HashSet<string> result = [];
         bool eof;
@@ -219,14 +221,14 @@ class CanonLitDoc : ICanonLitDoc {
                 + $"'{file.GetPath()}'.");
         }
 
-        title = (parser.ReadContent() ?? "").Trim();
+        title = (parser.FetchContent() ?? "").Trim();
         if (title == "") {
             throw new RainbowLatinException("Empty 'teiHeader.fileDesc.titleStmt.title' in FILE "
                 + $"'{file.GetPath()}'.");
         }
 
         parser.GoTo("teiHeader.fileDesc.titleStmt.author");
-        author = (parser.ReadContent() ?? "").Trim();
+        author = (parser.FetchContent() ?? "").Trim();
         if (author == "") {
             throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.author' in FILE "
                 + $"'{file.GetPath()}'.");
@@ -240,13 +242,13 @@ class CanonLitDoc : ICanonLitDoc {
         do {
             eof = !parser.Next();
 
-            var text = parser.GetText() ?? "";
+            var text = parser.FetchTextBuffer() ?? "";
             if (!skipText.Any(text.Trim().Equals)) {
                 bookworm.AddElement(text);
             }
 
             ParseForSection(parser, allowedSectionTypes, out string? sectionType, out string? sectionName);
-            
+
             if (sectionType != null) {
                 if (sectionName == null || sectionName == "") {
                     logging.Warning("syntax", "Encountered a milestone that has only 'section type', but no 'section name'. "
@@ -322,10 +324,19 @@ class CanonLitDoc : ICanonLitDoc {
             throw new RainbowLatinException($"Cannot find section '{sectionKey}' in file '{englishFile.GetPath()}'.");
         }
 
+        if (last == null) {
+            throw new RainbowLatinException($"Cannot find section ending for '{sectionKey}' in file '{englishFile.GetPath()}'.");
+        }
+
         do {
             parts.Add(cursor.Value.Trim());
+
+            if (cursor == last) {
+                break;
+            }
+
             cursor = cursor.Next;
-        } while(cursor != null && cursor != last);
+        } while(cursor != null);
 
         return string.Join(' ', parts);
     }
@@ -333,16 +344,25 @@ class CanonLitDoc : ICanonLitDoc {
     public string GetLatinSection(string sectionKey) {
         List<string> parts = [];
         var cursor = latinText.GetFirstNodeBySectionKey(sectionKey);
-        var last = englishText.GetLastNodeBySectionKey(sectionKey);
+        var last = latinText.GetLastNodeBySectionKey(sectionKey);
 
         if (cursor == null) {
             throw new RainbowLatinException($"Cannot find section '{sectionKey}' in file '{latinFile.GetPath()}'.");
         }
 
+        if (last == null) {
+            throw new RainbowLatinException($"Cannot find section ending for '{sectionKey}' in file '{latinFile.GetPath()}'.");
+        }
+
         do {
             parts.Add(cursor.Value.Trim());
+
+            if (cursor == last) {
+                break;
+            }
+
             cursor = cursor.Next;
-        } while(cursor != null && cursor != last);
+        } while(cursor != null);
 
         return string.Join(' ', parts);
     }

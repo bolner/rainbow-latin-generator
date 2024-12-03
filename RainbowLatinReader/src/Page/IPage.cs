@@ -15,8 +15,6 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
-    public string GetDocumentID();
+interface IPage : IProcessable {
+    
 }
