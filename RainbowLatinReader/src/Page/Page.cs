@@ -19,60 +19,113 @@ class Page : IPage {
     private readonly ICanonLitDoc canonLitDoc;
     private readonly ILemmatizedDoc lemmatizedDoc;
     private readonly ITemplateEngine templateEngine;
-    private readonly string outputFilePath;
+    private readonly string outputFolder;
     private Exception? lastError = null;
 
     public Page(ICanonLitDoc canonLitDoc, ILemmatizedDoc lemmatizedDoc,
-        ITemplateEngine templateEngine, string outputFilePath)
+        ITemplateEngine templateEngine, string outputFolder)
     {
         this.canonLitDoc = canonLitDoc;
         this.lemmatizedDoc = lemmatizedDoc;
         this.templateEngine = templateEngine;
-        this.outputFilePath = outputFilePath;
+        this.outputFolder = outputFolder;
     }
 
     public void Process() {
         try {
-            var keys = canonLitDoc.GetAllSections();
-            List<object> sections = [];
+            int pageSize = 30;
+            var keys = canonLitDoc.GetAllSections().ToArray();
+            int count = keys.Length;
+            int pageCount = (int)Math.Ceiling(((double)count) / ((double)pageSize));
             int sectionNumber = 0;
 
-            foreach(string key in keys) {
-                sectionNumber++;
+            /*
+                Generate the section key chunks.
+            */
+            List<string>[] chunks = new List<string>[pageCount];
 
-                sections.Add(new Dictionary<string, object>() {
-                    { "id", key.Replace('=', '-').Replace('|', '_')},
-                    { "number", sectionNumber},
-                    { "latin", canonLitDoc.GetLatinSection(key) },
-                    { "english", canonLitDoc.GetEnglishSection(key) },
-                });
+            for(int page = 0; page < pageCount; page++) {
+                int from = page * pageSize;
+                int to = Math.Min(from + pageSize - 1, count - 1);
+
+                /*
+                    Section key chunks
+                */
+                List<string> sectionKeys = [];
+                for(int i = from; i <= to; i++) {
+                    sectionKeys.Add(keys[i]);
+                }
+
+                chunks[page] = sectionKeys;
             }
 
-            string shortTitle;
-            string shortAuthor;
+            /*
+                Generate each page
+            */
+            for(int page = 0; page < pageCount; page++) {
+                List<object> sections = [];
+                List<string> chunk = chunks[page];
 
-            if (canonLitDoc.GetEnglishTitle().Length > 52) {
-                shortTitle = canonLitDoc.GetEnglishTitle().Left(49) + "...";
-            } else {
-                shortTitle = canonLitDoc.GetEnglishTitle();
+                foreach(string key in chunk) {
+                    sectionNumber++;
+
+                    sections.Add(new Dictionary<string, object>() {
+                        { "number", sectionNumber},
+                        { "latin", canonLitDoc.GetLatinSection(key) },
+                        { "english", canonLitDoc.GetEnglishSection(key) }
+                    });
+                }
+
+                string shortTitle;
+                string shortAuthor;
+
+                if (canonLitDoc.GetEnglishTitle().Length > 52) {
+                    shortTitle = canonLitDoc.GetEnglishTitle().Left(49) + "...";
+                } else {
+                    shortTitle = canonLitDoc.GetEnglishTitle();
+                }
+
+                if (canonLitDoc.GetEnglishAuthor().Length > 21) {
+                    shortAuthor = canonLitDoc.GetEnglishAuthor().Left(18) + "...";
+                } else {
+                    shortAuthor = canonLitDoc.GetEnglishAuthor();
+                }
+
+                /*
+                    Data for the navigation bar
+                */
+                List<object> navigation = [];
+
+                for(int i = 0; i < pageCount; i++) {
+                    int from = i * pageSize;
+                    int to = Math.Min(from + pageSize - 1, count - 1);
+
+                    navigation.Add(
+                        new Dictionary<string, object>() {
+                            {"is_current", i == page},
+                            {"section_from", from + 1},
+                            {"section_to", to + 1},
+                            {"page", i + 1}
+                        }
+                    );
+                }
+
+                var data = new Dictionary<string, object>()
+                {
+                    { "title", canonLitDoc.GetEnglishTitle() },
+                    { "short_title", shortTitle },
+                    { "author", canonLitDoc.GetEnglishAuthor() },
+                    { "short_author", shortAuthor },
+                    { "page_count", pageCount},
+                    { "current_page", page},
+                    { "sections", sections },
+                    { "navigation", navigation },
+                    { "document_id", canonLitDoc.GetDocumentID() }
+                };
+
+                templateEngine.Generate(data, Path.Join(outputFolder, 
+                    $"{canonLitDoc.GetDocumentID()}_{page + 1}.html"));
             }
-
-            if (canonLitDoc.GetEnglishAuthor().Length > 21) {
-                shortAuthor = canonLitDoc.GetEnglishAuthor().Left(18) + "...";
-            } else {
-                shortAuthor = canonLitDoc.GetEnglishAuthor();
-            }
-
-            var data = new Dictionary<string, object>()
-            {
-                { "title", canonLitDoc.GetEnglishTitle() },
-                { "short_title", shortTitle },
-                { "author", canonLitDoc.GetEnglishAuthor() },
-                { "short_author", shortAuthor },
-                { "sections", sections }
-            };
-
-            templateEngine.Generate(data, outputFilePath);
         } catch (Exception ex) {
             lastError = ex;
         }

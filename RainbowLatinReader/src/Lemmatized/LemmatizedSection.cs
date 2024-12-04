@@ -2,7 +2,7 @@ namespace RainbowLatinReader;
 
 class LemmatizedSection : ILemmatizedSection {
     private readonly string sectionNumber;
-    private readonly List<ILemmatizedToken> tokens = new();
+    private readonly List<ILemmatizedToken> tokens = [];
 
     /// <summary>
     /// Constructor

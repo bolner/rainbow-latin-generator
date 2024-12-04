@@ -33,8 +33,7 @@ class PageManager : IPageManager {
             scheduler.AddTask(
                 new Page(
                     canonLitDoc, lemmatizedDoc, templateEngine,
-                    Path.Join(Directory.GetCurrentDirectory(), "output",
-                    canonLitDoc.GetDocumentID() + ".html" )
+                    Path.Join(Directory.GetCurrentDirectory(), "output")
                 )
             );
         }
