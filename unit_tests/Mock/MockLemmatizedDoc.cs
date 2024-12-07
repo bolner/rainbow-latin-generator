@@ -19,10 +19,6 @@ using RainbowLatinReader;
 namespace unit_tests;
 
 class MockLemmatizedDoc : ILemmatizedDoc {
-    public ILemmatizedSection? GetSection(string sectionNumber) {
-        return null;
-    }
-
     public string GetTitle() {
         return "Lemmatized Title";
     }
@@ -41,5 +37,13 @@ class MockLemmatizedDoc : ILemmatizedDoc {
 
     public string GetDocumentID() {
         return "phi1234.phi001";
+    }
+
+    public void Rewind() {
+        
+    }
+
+    public List<LemmatizedToken>? Lemmatize(string section) {
+        return null;
     }
 }

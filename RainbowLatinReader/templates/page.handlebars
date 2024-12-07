@@ -249,8 +249,7 @@
                 <td class="margin"><a href="#s{{number}}">{{number}}</a></td>
 
                 <td class="latin">
-                    {{latin}}
-                    {{!-- {{#each words}}<div {{#if id}}id="w{{id}}" {{/if}}class="{{class}}">{{value}}</div>{{#if space_after}} {{/if}}{{/each}} --}}
+                    {{#each latin}}{{#if is_plain}}{{value}}{{else}}<div class="{{class}}">{{value}}</div>{{/if}}{{/each}}
                 </td>
 
                 <td class="english">

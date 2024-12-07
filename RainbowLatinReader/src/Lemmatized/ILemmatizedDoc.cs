@@ -16,8 +16,8 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 interface ILemmatizedDoc : IProcessable {
-    public ILemmatizedSection? GetSection(string sectionNumber);
-
     public string GetTitle();
     public string GetAuthor();
+    public void Rewind();
+    public List<LemmatizedToken>? Lemmatize(string section);
 }

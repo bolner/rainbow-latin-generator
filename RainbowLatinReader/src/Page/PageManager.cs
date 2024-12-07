@@ -43,12 +43,13 @@ class PageManager : IPageManager {
         */
         scheduler.Run();
 
-        foreach(var doc in scheduler.GetResults()) {
-            if (doc.GetLastError() != null) {
+        foreach(var page in scheduler.GetResults()) {
+            if (page.GetLastError() != null) {
+                logging.Exception(page.GetLastError() ?? (new RainbowLatinException("Page failed")));
                 continue;
             }
 
-            library[doc.GetDocumentID()] = doc;
+            library[page.GetDocumentID()] = page;
         }
     }
 

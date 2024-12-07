@@ -38,6 +38,7 @@ class Page : IPage {
             int count = keys.Length;
             int pageCount = (int)Math.Ceiling(((double)count) / ((double)pageSize));
             int sectionNumber = 0;
+            lemmatizedDoc.Rewind();
 
             /*
                 Generate the section key chunks.
@@ -68,10 +69,16 @@ class Page : IPage {
 
                 foreach(string key in chunk) {
                     sectionNumber++;
+                    string latinText = canonLitDoc.GetLatinSection(key);
+                    var lemmatized = lemmatizedDoc.Lemmatize(latinText);
+                    List<Dictionary<string, object>> latinTokens = [];
+                    if (lemmatized != null) {
+                        latinTokens = TokenListToTemplateArray(lemmatized);
+                    }
 
                     sections.Add(new Dictionary<string, object>() {
                         { "number", sectionNumber},
-                        { "latin", canonLitDoc.GetLatinSection(key) },
+                        { "latin",  latinTokens},
                         { "english", canonLitDoc.GetEnglishSection(key) }
                     });
                 }
@@ -137,5 +144,23 @@ class Page : IPage {
 
     public string GetDocumentID() {
         return canonLitDoc.GetDocumentID();
+    }
+
+    private static List<Dictionary<string, object>> TokenListToTemplateArray(
+        List<LemmatizedToken> tokens
+    ) {
+        List<Dictionary<string, object>> result = [];
+
+        foreach(var token in tokens) {
+            result.Add(
+                new Dictionary<string, object> {
+                    { "class", token.GetTemplateClass() },
+                    { "value", token.GetValue() },
+                    { "is_plain", token.GetTokenType() == "" }
+                }
+            );
+        }
+
+        return result;
     }
 }

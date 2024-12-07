@@ -313,7 +313,7 @@ public class LemmatizedTests
     }
 
     [Fact]
-    public void TestSections1()
+    public void TestLemmatizing1()
     {
         var file = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData);
@@ -322,17 +322,29 @@ public class LemmatizedTests
         var doc = new LemmatizedDoc(file, xmlParserFactory, lemmaLogging);
         doc.Process();
 
-        var section = doc.GetSection("2");
-        Assert.True(section != null, "Cannot find section '2'.");
-        var tokens = section.GetTokens();
-        Assert.True(tokens.Count == 60, $"Invalid token count. Expected 60, received {tokens.Count}.");
-        var token = tokens[1];
-        Assert.True(token.GetTokenType() == "ADJord", "Section 2, Token 2: Expected token "
-            + $"type 'ADJord', received '{token.GetTokenType()}'.");
-        var props = token.GetMsd();
-        Assert.True(props.Count == 4, "Section 2, Token 2: Expected number of 'msd' properties is "
-            + $"4, received '{props.Count}'.");
-        Assert.True(props["Case"] == "Acc", "Section 2, Token 2: Expected 'Case' is 'Acc', "
-            + $"received '{props["Case"]}'.");
+        string text1 = "Annum agens sextum decimum patrem amisit; sequentibusque consulibus "
+            + "flamen Dialis destinatus dimissa Cossutia, quae familia equestri sed admodum "
+            + "diues praetextato desponsata fuerat,";
+
+        var tokens = doc.Lemmatize(text1);
+
+        Assert.True(tokens != null, $"No match found for text: '{text1}'");
+        Assert.True(tokens?.Count == 44, $"Invalid token cound. Expected 45, got {tokens?.Count}.");
+        
+        string text2 = " Corneliam Cinnae quater consulis filiam duxit uxorem, ex qua illi mox "
+            + "Iulia nata est; neque ut repudiaret compelli a dictatore Sulla ullo modo potuit.";
+        tokens = doc.Lemmatize(text2);
+
+        Assert.True(tokens != null, $"No match found for text: '{text2}'");
+        Assert.True(tokens?.Count == 49, $"Invalid token cound. Expected 51, got {tokens?.Count}.");
+
+        if (tokens != null) {
+            Assert.True(tokens[47].GetValue() == "potuit", "The last word is expected to be 'potuit' "
+                + $"but got '{tokens[47].GetValue()}'.");
+
+            // Numb=Sing|Mood=Ind|Tense=Perf|Voice=Act|Person=3
+            var msd = tokens[47].GetMsd();
+            Assert.True(msd.ContainsKey("Numb"), $"Last word 'potuit' has no 'Numb' msb.");
+        }
     }
 }

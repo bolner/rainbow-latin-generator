@@ -17,6 +17,9 @@ namespace RainbowLatinReader;
 
 interface ILemmatizedToken {
     public string GetTokenType();
-    public string GetLemma();
+    public string GetValue();
     public Dictionary<string, string> GetMsd();
+    public string GetTokenTypeReadable();
+    public Dictionary<string, string> GetMsdReadable();
+    public string GetTemplateClass();
 }
