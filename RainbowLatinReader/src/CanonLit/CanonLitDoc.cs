@@ -29,6 +29,7 @@ class CanonLitDoc : ICanonLitDoc {
     private string englishAuthor = "";
     private bool isExcluded = false;
     private Exception? lastError = null;
+    private bool skipUntilNextSection = false;
     
     private readonly List<string> stops = [
         "text.body.div",
@@ -243,7 +244,7 @@ class CanonLitDoc : ICanonLitDoc {
             eof = !parser.Next();
 
             var text = parser.FetchTextBuffer() ?? "";
-            if (!skipText.Any(text.Trim().Equals)) {
+            if (!skipText.Any(text.Trim().Equals) && !skipUntilNextSection) {
                 bookworm.AddElement(text);
             }
 
@@ -257,6 +258,7 @@ class CanonLitDoc : ICanonLitDoc {
                 
                 try {
                     bookworm.IncomingSection(sectionType, sectionName ?? "");
+                    skipUntilNextSection = false;
                 } catch (Exception ex) {
                     throw new RainbowLatinException($"{parser.GetDebugInfo()}: {ex.Message}", ex);
                 }
@@ -281,6 +283,9 @@ class CanonLitDoc : ICanonLitDoc {
         attributes.TryGetValue("n", out sectionName);
         if (skipSections.Any((sectionName ?? "").Equals)) {
             sectionName = null;
+            // Example: <div type="textpart" n="note" subtype="chapter">
+            skipUntilNextSection = true;
+            Console.WriteLine("Asdasdasdasdasd");
             return;
         }
 
@@ -338,7 +343,7 @@ class CanonLitDoc : ICanonLitDoc {
             cursor = cursor.Next;
         } while(cursor != null);
 
-        return string.Join(' ', parts);
+        return string.Join(' ', parts).Replace("()", "");
     }
 
     public string GetLatinSection(string sectionKey) {
@@ -364,7 +369,7 @@ class CanonLitDoc : ICanonLitDoc {
             cursor = cursor.Next;
         } while(cursor != null);
 
-        return string.Join(' ', parts);
+        return string.Join(' ', parts).Replace("()", "");
     }
 
     public bool IsExcluded() {

@@ -42,3 +42,5 @@
   Also the English starts with `p.3` while the Latin by `p.2`.
 - In `phi0631.phi001`:
   - `<div2 type="poem" n="25">`
+- Abbreviations with expansions:
+  - <abbr><expan>suppromus es</expan>suppromu's</abbr>

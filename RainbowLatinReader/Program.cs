@@ -37,7 +37,7 @@ var rg = new Regex(@"(stoa|phi)[0-9]{3,5}\.(stoa|phi|abo)[0-9]{3,5}");
 var filter = (string x) => {
     var m = rg.Match(x);
     
-    return m.Value == "phi0474.phi002"; // !blocklist.Contains(m.Value);
+    return !blocklist.Contains(m.Value); // m.Value == "phi1348.abo014";
 };
 
 var canonLitChanges = new CanonLitChanges(File.Open(Path.Join(Directory.GetCurrentDirectory(),

@@ -39,6 +39,10 @@ sealed class XmlParser : IXmlParser {
     private string? nodeName = null;
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
+    private readonly HashSet<string> choice_accepted = ["abbr", "choice", "expan",
+        "ex", "corr", "sic", "reg", "orig"];
+    private readonly HashSet<string> choice_outer = ["choice", "abbr"];
+    private readonly HashSet<string> choice_inner = ["expan", "corr", "orig"];
 
     /// <summary>
     /// Create an XmlParser object.
@@ -115,7 +119,9 @@ sealed class XmlParser : IXmlParser {
                     Element
                 */
                 if (reader.NodeType == XmlNodeType.Element) {
-                    if (reader.Name.ToLower() == "note") {
+                    string name = reader.Name.ToLower();
+
+                    if (name == "note" || name == "bibl") {
                         reader.Skip();
                         prefetched = true;
                         continue;
@@ -157,6 +163,71 @@ sealed class XmlParser : IXmlParser {
     }
 
     /// <summary>
+    /// Handles these choice structures:
+    /// - ‹abbr›‹expan›suppromus es‹/expan›suppromu's‹/abbr› -
+    /// - ‹abbr›suppromu's‹expan›suppromus es‹/expan›‹/abbr› -
+    /// - ‹abbr›ausu's‹expan›‹ex›ausus es‹/ex›‹/expan› -
+    /// - ‹choice›‹abbr›M.‹/abbr›‹expan›M‹ex›arci‹/ex›‹/expan›‹/choice› -
+    /// - ‹choice›‹corr›ante‹/corr›‹sic›anta‹/sic›‹/choice› -
+    /// - ‹choice›‹reg›aenamque‹/reg›‹orig›ænamque‹/orig›‹/choice› -
+    /// Reader cannot be in prefetched state.
+    /// </summary>
+    /// <returns>Returns true if a choice structure was found, false otherwise.</returns>
+    private bool DetectAndHandleChoices() {
+        if (reader.NodeType == XmlNodeType.EndElement) {
+            return false;
+        }
+
+        Stack<string> ending = [];
+        StringBuilder sb = new();
+
+        if (choice_outer.Contains(reader.Name)) {
+            ending.Push(reader.Name);
+        } else {
+            return false;
+        }
+
+        while (!reader.EOF)
+        {
+            if (!reader.Read()) {
+                break;
+            }
+
+            if (reader.NodeType == XmlNodeType.EndElement
+                && reader.Name == ending.Peek())
+            {
+                ending.Pop();
+
+                if (ending.Count == 0) {
+                    break;
+                }
+
+                continue;
+            }
+
+            if (reader.NodeType == XmlNodeType.Element) {
+                if (!choice_accepted.Contains(reader.Name)) {
+                    throw new RainbowLatinException($"Invalid choice structure. Unexpected tag: {reader.Name}"
+                        + "\n" + GetDebugInfo());
+                }
+
+                if (choice_inner.Contains(reader.Name)) {
+                    ending.Push(reader.Name);
+                }
+            }
+            else if (reader.NodeType == XmlNodeType.Text) {
+                if (choice_inner.Contains(ending.Peek())) {
+                    sb.Append(reader.Value);
+                }
+            }
+        }
+
+        content.Append(sb);
+
+        return true;
+    }
+
+    /// <summary>
     /// Stops at the next destination and pre-fetches all text
     /// after it until either the next destination or until
     /// the end of the document.
@@ -182,9 +253,15 @@ sealed class XmlParser : IXmlParser {
                     Element
                 */
                 if (reader.NodeType == XmlNodeType.Element) {
-                    if (reader.Name.ToLower() == "note") {
+                    string name = reader.Name.ToLower();
+
+                    if (name == "note" || name == "bibl") {
                         reader.Skip();
                         prefetched = true;
+                        continue;
+                    }
+
+                    if (DetectAndHandleChoices()) {
                         continue;
                     }
 
@@ -279,10 +356,16 @@ sealed class XmlParser : IXmlParser {
                 }
             }
             else if (reader.NodeType == XmlNodeType.Element) {
-                if (reader.Name.ToLower() == "note") {
+                string name = reader.Name.ToLower();
+
+                if (name == "note" || name == "bibl") {
                         reader.Skip();
                         prefetched = true;
                         continue;
+                }
+
+                if (DetectAndHandleChoices()) {
+                    continue;
                 }
             }
         }

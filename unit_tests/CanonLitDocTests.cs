@@ -160,7 +160,12 @@ public class CanonLitDocTests
 					although he was suffering from a quartan ague, and having effected his release
 					by bribing the officers who had tracked his footsteps, he at length obtained a
 					pardon through the intercession of the vestal virgins, and of Mamercus AEmilius
-					and Aurelius Cotta, his near relatives. We are assured that when Sylla, having
+					and Aurelius Cotta, his near relatives.
+					
+					This is an <abbr><expan>abbreviation</expan>abbr.</abbr> example.
+					This is another <abbr>abbr.<expan>abbreviation</expan></abbr> example.
+					
+					We are assured that when Sylla, having
 					withstood for a while the entreaties of his own best friends, persons of
 					distinguished rank, at last yielded to their importunity, he exclaimed-either by
 					a divine impulse, or from a shrewd conjecture: ""Your suit is granted, and you
