@@ -18,8 +18,12 @@ using System.Text.RegularExpressions;
 namespace RainbowLatinReader;
 
 class DirectoryScanner : IDirectoryScanner {
-    private readonly Regex rx = new(
+    private readonly Regex analyseIdRegex = new(
         @"([a-z]+[0-9]+\.[a-z]+[0-9]+)\.perseus-(eng|lat)([0-9]+)\.xml$",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase
+    );
+    private readonly Regex docIdRegex = new(
+        @"(stoa|phi)[0-9]{3,5}\.(stoa|phi|abo)[0-9]{3,5}",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
     private readonly string[] files;
@@ -28,11 +32,52 @@ class DirectoryScanner : IDirectoryScanner {
     private readonly IFileChanges? fileChanges;
 
     public DirectoryScanner(IEnumerable<string> paths, ILogging logging,
-        IFileChanges? fileChanges = null)
+        IFileChanges? fileChanges = null, string? blocklistFilePath = null,
+        HashSet<string>? allowedDocumentIDs = null)
     {
-        files = paths.ToArray();
         this.logging = logging;
         this.fileChanges = fileChanges;
+
+        /*
+            Use blocklist if specified
+        */
+        if (blocklistFilePath != null) {
+            HashSet<string> blocklist = [..
+                File.ReadLines(blocklistFilePath)
+                    .Select(line => line.Split('\t').First() ?? "")
+                    .Where(id => id.Trim() != "")
+            ];
+            
+
+            bool filter(string x)
+            {
+                var m = docIdRegex.Match(x);
+                bool blocked = blocklist.Contains(m.Value); // m.Value == "phi1348.abo014";
+
+                if (blocked)
+                {
+                    logging.Text("blocked", x);
+                }
+
+                return !blocked;
+            }
+
+            paths = paths.Where(filter);
+        }
+
+        /*
+            Filtering by allowed document IDs
+            if specified.
+        */
+        if (allowedDocumentIDs != null) {
+            paths = paths.Where((string x) => {
+                var m = docIdRegex.Match(x);
+
+                return allowedDocumentIDs.Contains(m.Value);
+            });
+        }
+        
+        files = paths.ToArray();
     }
 
     public ICanonFile? Next() {
@@ -51,7 +96,7 @@ class DirectoryScanner : IDirectoryScanner {
                 name = fileName;
             }
 
-            var match = rx.Match(name);
+            var match = analyseIdRegex.Match(name);
             if (match.Groups.Count < 4) {
                 continue;
             }
@@ -65,6 +110,9 @@ class DirectoryScanner : IDirectoryScanner {
             }
             int version = int.Parse(match.Groups[3].Value);
 
+            /*
+                Apply file changes if any.
+            */
             List<IFileChangeEntry> changes;
             if (fileChanges == null) {
                 changes = [];

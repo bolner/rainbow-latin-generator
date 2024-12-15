@@ -73,7 +73,7 @@ class CanonLitDoc : ICanonLitDoc {
             var engSecTypes = FindSectionTypes(englishFile);
             var latSecTypes = FindSectionTypes(latinFile);
 
-            HashSet<string> common = new(engSecTypes.Intersect(latSecTypes) ?? []);
+            HashSet<string> common = [.. engSecTypes.Intersect(latSecTypes) ?? []];
 
             /*
                 Check for exclusion

@@ -25,6 +25,7 @@ class CanonFile : ICanonFile {
     private readonly int version;
     private readonly List<IFileChangeEntry> changes;
     private readonly ILogging logging;
+    private byte[]? content = null;
 
     private static readonly Dictionary<string, string> replace = new() {
         { "&aacute;", "á" },
@@ -96,24 +97,33 @@ class CanonFile : ICanonFile {
         return path;
     }
 
+    /// <summary>
+    /// The canonical files are opened twice normally:
+    /// Once for getting the section list and then
+    /// for the real parsing.
+    /// </summary>
     public Stream Open() {
-        string text = File.ReadAllText(path, Encoding.UTF8);
+        if (content == null) {
+            string text = File.ReadAllText(path, Encoding.UTF8);
 
-        foreach(var pair in replace) {
-            if (text.Contains(pair.Key)) {
-                text = text.Replace(pair.Key, pair.Value);
+            foreach(var pair in replace) {
+                if (text.Contains(pair.Key)) {
+                    text = text.Replace(pair.Key, pair.Value);
+                }
             }
+
+            foreach(var change in changes) {
+                if (change.Apply(ref text)) {
+                    logging.Text("changes", $"Change successful: {change}");
+                } else {
+                    logging.Text("changes", $"Change failed, no match: {change}");
+                }
+            }
+
+            content = Encoding.UTF8.GetBytes(text);
         }
 
-        foreach(var change in changes) {
-            if (change.Apply(ref text)) {
-                logging.Text("changes", $"Change successful: {change}");
-            } else {
-                logging.Text("changes", $"Change failed, no match: {change}");
-            }
-        }
-        
-        return new MemoryStream(Encoding.UTF8.GetBytes(text));
+        return new MemoryStream(content);
     }
 
     public string GetDocumentID() {

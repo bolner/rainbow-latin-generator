@@ -1,0 +1,12 @@
+Document	Reason
+stoa0054.stoa006	https://github.com/PerseusDL/canonical-latinLit/issues/572
+stoa0040.stoa011	Weird structure in stoa0040.stoa011.perseus-eng1.xml
+phi0914.phi0011	Issue with chapters: phi0914.phi0011.perseus-eng2.xml
+phi0478.phi003	English document is partial: data/phi0478/phi003/phi0478.phi003.perseus-eng1.xml
+phi0845.phi002	The English doc breaks the text into more sections than the Latin: phi0845.phi002.perseus-eng1.xml
+phi0690.phi002	It is line-based. Lines between English-Latin don't match.
+phi0914.phi001	Too many sections are missing from the English translation
+phi0474.phi056	Irregular section names in the English docs
+phi0474.phi057	Irregular section names in the English docs
+phi0474.phi058	Irregular section names in the English docs
+phi0474.phi059	Irregular section names in the English docs
