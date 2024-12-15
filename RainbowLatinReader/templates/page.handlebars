@@ -4,6 +4,12 @@
         <title>{{short_title}} ({{short_author}})</title>
 
         <style>
+            ::-webkit-scrollbar {
+            width: 6px; 
+            background-color: rgba(0,0,0,0);
+            -webkit-border-radius: 80px;
+            }
+
             html {
                 scroll-padding-top: 3em;
             }
@@ -13,6 +19,7 @@
                 margin-top: 2.5em;
                 margin-bottom: 2em;
                 padding: 0;
+                padding-right: 0.7em;
                 font-size: 1.2vw;
                 color: rgb(209, 209, 209);
                 background-color: rgb(10, 17, 27);
@@ -46,7 +53,6 @@
                 border: 0;
                 padding: 0.5em;
                 vertical-align: top;
-                cursor: pointer;
             }
 
             table.section td.english {

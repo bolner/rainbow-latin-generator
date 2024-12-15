@@ -24,9 +24,15 @@ class DirectoryScanner : IDirectoryScanner {
     );
     private readonly string[] files;
     private int currentFile = 0;
+    private readonly ILogging logging;
+    private readonly IFileChanges? fileChanges;
 
-    public DirectoryScanner(IEnumerable<string> paths) {
+    public DirectoryScanner(IEnumerable<string> paths, ILogging logging,
+        IFileChanges? fileChanges = null)
+    {
         files = paths.ToArray();
+        this.logging = logging;
+        this.fileChanges = fileChanges;
     }
 
     public ICanonFile? Next() {
@@ -59,7 +65,14 @@ class DirectoryScanner : IDirectoryScanner {
             }
             int version = int.Parse(match.Groups[3].Value);
 
-            return new CanonFile(path, docID, lang, version);
+            List<IFileChangeEntry> changes;
+            if (fileChanges == null) {
+                changes = [];
+            } else {
+                changes = fileChanges.Find(fileName).ToList<IFileChangeEntry>();
+            }
+            
+            return new CanonFile(path, docID, lang, version, logging, changes);
         }
 
         return null;

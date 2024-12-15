@@ -40,8 +40,10 @@ var filter = (string x) => {
     return !blocklist.Contains(m.Value); // m.Value == "phi1348.abo014";
 };
 
-var canonLitChanges = new CanonLitChanges(File.Open(Path.Join(Directory.GetCurrentDirectory(),
-    "data", "canonLit_changes.xml"), FileMode.Open));
+string canonFileChangesPath = Path.Join(Directory.GetCurrentDirectory(),
+    "data", "canonLit_changes.txt");
+var canonFileChanges = new FileChanges(File.ReadLines(canonFileChangesPath),
+    canonFileChangesPath);
 
 /*
     Perseus Canonical Literature
@@ -52,11 +54,11 @@ var canonPaths = Directory.EnumerateFiles(
     SearchOption.AllDirectories
 ).Where(filter);
 
-var canonScanner = new DirectoryScanner(canonPaths);
+var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChanges);
 var canonScheduler = new Scheduler<ICanonLitDoc>(44);
 var canonParserFactory = new XmlParserFactory();
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,
-    canonLitChanges, canonLogging);
+    canonLogging);
 
 /*
     Lemmatized Latin documents
@@ -73,7 +75,7 @@ var lemmaPaths = Directory.EnumerateFiles(
     return ids.Contains(m.Value);
 });
 
-var lemmaScanner = new DirectoryScanner(lemmaPaths);
+var lemmaScanner = new DirectoryScanner(lemmaPaths, lemmaLogging);
 var lemmaScheduler = new Scheduler<ILemmatizedDoc>(44);
 var lemmaParserFactory = new XmlParserFactory();
 var lemmaManager = new LemmatizedManager(lemmaScanner, lemmaScheduler, lemmaParserFactory,

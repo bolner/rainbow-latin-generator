@@ -25,7 +25,6 @@ class CanonLitManager : ICanonLitManager {
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         IXmlParserFactory xmlParserFactory,
-        ICanonLitChanges canonLitChanges,
         ILogging logging)
     {
         ICanonFile? file;
@@ -72,7 +71,6 @@ class CanonLitManager : ICanonLitManager {
                     xmlParserFactory,
                     new BookWorm<string>(levelClear),
                     new BookWorm<string>(levelClear),
-                    canonLitChanges,
                     logging
                 )
             );

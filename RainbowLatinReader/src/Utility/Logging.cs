@@ -27,6 +27,12 @@ sealed class Logging : ILogging {
     public Logging(string logDirectory, string prefix) {
         if (!Directory.Exists(logDirectory)) {
             Directory.CreateDirectory(logDirectory);
+        } else {
+            string[] paths = Directory.GetFiles(logDirectory, $"{prefix}_*.log");
+
+            foreach(var path in paths) {
+                File.Delete(path);
+            }
         }
 
         this.logDirectory = logDirectory;

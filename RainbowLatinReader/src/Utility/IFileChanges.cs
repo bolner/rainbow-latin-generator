@@ -15,7 +15,6 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface ICanonLitChanges {
-    public List<CanonLitChangeEntry> Find(ICanonLitChangeEntry.Language language, string documentID,
-        ICanonLitChangeEntry.ChangeType? changeType = null);
+interface IFileChanges {
+    public List<FileChangeEntry> Find(string fileName);
 }

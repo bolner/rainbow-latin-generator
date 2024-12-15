@@ -21,7 +21,6 @@ class CanonLitDoc : ICanonLitDoc {
     private readonly IXmlParserFactory xmlParserFactory;
     private readonly IBookWorm<string> latinText;
     private readonly IBookWorm<string> englishText;
-    private readonly ICanonLitChanges canonLitChanges;
     private readonly ILogging logging;
     private string latinTitle = "";
     private string englishTitle = "";
@@ -45,8 +44,7 @@ class CanonLitDoc : ICanonLitDoc {
 
     public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
         IXmlParserFactory xmlParserFactory, IBookWorm<string> latinText,
-        IBookWorm<string> englishText, ICanonLitChanges canonLitChanges,
-        ILogging logging)
+        IBookWorm<string> englishText, ILogging logging)
     {
         if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
             throw new Exception("CanonLitDoc constructor: The latin and the english "
@@ -58,7 +56,6 @@ class CanonLitDoc : ICanonLitDoc {
         this.xmlParserFactory = xmlParserFactory;
         this.latinText = latinText;
         this.englishText = englishText;
-        this.canonLitChanges = canonLitChanges;
         this.logging = logging;
     }
 
@@ -101,22 +98,6 @@ class CanonLitDoc : ICanonLitDoc {
             */
             ParseDocument(englishFile, common, out englishTitle, out englishAuthor, englishText);
             ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
-
-            /*
-                Apply document changes
-            */
-            var engChangeList = canonLitChanges.Find(ICanonLitChangeEntry.Language.English,
-                englishFile.GetDocumentID());
-            
-            foreach(CanonLitChangeEntry change in engChangeList) {
-                if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Add) {
-                    englishText.ApplyChange(IBookWorm<string>.ChangeType.Add, change.GetKey(),
-                        change.GetContent(), change.GetAfter(), change.GetBefore());
-                } else if (change.GetChangeType() == ICanonLitChangeEntry.ChangeType.Remove) {
-                    englishText.ApplyChange(IBookWorm<string>.ChangeType.Remove, change.GetKey(),
-                        change.GetContent(), change.GetAfter(), change.GetBefore());
-                }
-            }
 
             /*
                 Pair sections

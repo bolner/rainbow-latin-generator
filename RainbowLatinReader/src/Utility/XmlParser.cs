@@ -179,7 +179,6 @@ sealed class XmlParser : IXmlParser {
         }
 
         Stack<string> ending = [];
-        StringBuilder sb = new();
 
         if (choice_outer.Contains(reader.Name)) {
             ending.Push(reader.Name);
@@ -217,12 +216,10 @@ sealed class XmlParser : IXmlParser {
             }
             else if (reader.NodeType == XmlNodeType.Text) {
                 if (choice_inner.Contains(ending.Peek())) {
-                    sb.Append(reader.Value);
+                    content.Append(reader.Value);
                 }
             }
         }
-
-        content.Append(sb);
 
         return true;
     }

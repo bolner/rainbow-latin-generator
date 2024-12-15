@@ -37,7 +37,9 @@ public class DirectoryScannerTests
             ("phi0914.phi0012", ICanonFile.Language.Latin, 3)
         };
 
-        DirectoryScanner scanner = new(paths);
+        MockLogging logging = new();
+
+        DirectoryScanner scanner = new(paths, logging);
         string lang;
 
         for(int i = 0; i < 4; i++) {

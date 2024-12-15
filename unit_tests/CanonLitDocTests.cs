@@ -337,20 +337,6 @@ public class CanonLitDocTests
 </TEI>
     ");
 
-	private readonly byte[] canonLitChangesXML = Encoding.ASCII.GetBytes(@"
-<changes>
-    <add
-        documentID=""phi1348.abo011""
-        language=""english""
-        after=""chapter=2""
-        key=""chapter=2b""
-        before=""chapter=3""
-    >
-    This chapter is coming from the changes XML.
-    </add>
-</changes>
-    ");
-
     [Fact]
     public void TestMetaFields1()
     {
@@ -359,10 +345,9 @@ public class CanonLitDocTests
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
-		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),
-			new BookWorm<string>(), canonLitChanges, new MockLogging());
+			new BookWorm<string>(), new MockLogging());
 		doc.Process();
 
 		Assert.True(doc.GetLastError() == null, "Document processing failed with error: "
@@ -381,12 +366,11 @@ public class CanonLitDocTests
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
         var canonParserFactory = new XmlParserFactory();
-		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
-        
+
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin,
-			english, canonLitChanges, new MockLogging());
+			english, new MockLogging());
 		doc.Process();
 
 		Assert.True(doc.GetLastError() == null, "Document processing failed with error: "
@@ -394,12 +378,6 @@ public class CanonLitDocTests
 
 		var s1 = doc.GetEnglishSection("chapter=2");
         Assert.True(s1 != null, "Chapter '2' not found");
-
-		// 
-		s1 = doc.GetEnglishSection("chapter=2b");
-        Assert.True(s1 != null, "Chapter '2b' not found");
-		Assert.True(s1 == "This chapter is coming from the changes XML.", 
-			$"Chapter '2b' contains '{s1}' instead of 'This chapter is coming from the changes XML.'.");
     }
 
 	[Fact]
@@ -410,12 +388,11 @@ public class CanonLitDocTests
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglishWithExtra);
         var canonParserFactory = new XmlParserFactory();
-		var canonLitChanges =  new CanonLitChanges(new MemoryStream(canonLitChangesXML));
         
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, latin,
-			english, canonLitChanges, new MockLogging());
+			english, new MockLogging());
 		doc.Process();
 
 		Assert.True(doc.GetLastError() == null, "Document processing failed with error: "
