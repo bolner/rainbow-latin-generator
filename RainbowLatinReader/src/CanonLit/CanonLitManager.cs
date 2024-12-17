@@ -79,6 +79,7 @@ class CanonLitManager : ICanonLitManager {
         /*
             Parse documents and store results, indexed.
         */
+        logging.Print("Parsing canonical documents.");
         scheduler.Run();
 
         foreach(var doc in scheduler.GetResults()) {

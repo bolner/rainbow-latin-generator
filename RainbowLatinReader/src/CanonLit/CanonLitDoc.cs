@@ -80,14 +80,14 @@ class CanonLitDoc : ICanonLitDoc {
             */
             if (common.Count == 0) {
                 isExcluded = true;
-                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because the English "
+                logging.Warning("mismatch", $"Document '{englishFile.GetPath()}' is excluded because the English "
                     + "and the Latin versions have no matching sections.");
                 return;
             }
 
             if (common.Count == 1 && common.Contains("book")) {
                 isExcluded = true;
-                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because only the book "
+                logging.Warning("mismatch", $"Document '{englishFile.GetPath()}' is excluded because only the book "
                     + "level is common between the English and the Latin versions.");
                 return;
             }
@@ -110,7 +110,7 @@ class CanonLitDoc : ICanonLitDoc {
             var missing = from x in englishSections.Except(latinSections) select x;
             if (missing.Any()) {
                 isExcluded = true;
-                logging.Warning("incomplete", $"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
+                logging.Warning("mismatch", $"CanonLitDoc constructor: The English document '{englishFile.GetPath()}' "
                     + $"contains section(s) '{string.Join(", ", missing)}' "
                     + $"which are not present in the Latin document '{latinFile.GetPath()}'. "
                     + $"First text: {englishText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
@@ -121,7 +121,7 @@ class CanonLitDoc : ICanonLitDoc {
             missing = from x in latinSections.Except(englishSections) select x;
             if (missing.Any()) {
                 isExcluded = true;
-                logging.Warning("incomplete", $"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
+                logging.Warning("mismatch", $"CanonLitDoc constructor: The Latin document '{latinFile.GetPath()}' "
                     + $"contains section(s) '{string.Join(", ", missing)}' "
                     + $"which are not present in the English document '{englishFile.GetPath()}'. "
                     + $"First text: {latinText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
@@ -131,7 +131,7 @@ class CanonLitDoc : ICanonLitDoc {
 
             if (englishSections.Count < 10) {
                 isExcluded = true;
-                logging.Warning("incomplete", $"Document '{englishFile.GetPath()}' is excluded because of the "
+                logging.Warning("mismatch", $"Document '{englishFile.GetPath()}' is excluded because of the "
                     + $"low number of sections: {englishSections.Count}");
                 
                 return;
@@ -264,9 +264,7 @@ class CanonLitDoc : ICanonLitDoc {
         attributes.TryGetValue("n", out sectionName);
         if (skipSections.Any((sectionName ?? "").Equals)) {
             sectionName = null;
-            // Example: <div type="textpart" n="note" subtype="chapter">
             skipUntilNextSection = true;
-            Console.WriteLine("Asdasdasdasdasd");
             return;
         }
 
@@ -283,7 +281,7 @@ class CanonLitDoc : ICanonLitDoc {
             }
         }
 
-        if (sectionType == "chapter" && (sectionName == "pr" || sectionName == "0")) {
+        if ((sectionType == "chapter" || sectionType == "poem") && (sectionName == "pr" || sectionName == "0")) {
             sectionName = "praef";
         }
 

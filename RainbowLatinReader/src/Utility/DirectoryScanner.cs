@@ -52,7 +52,7 @@ class DirectoryScanner : IDirectoryScanner {
             bool filter(string x)
             {
                 var m = docIdRegex.Match(x);
-                bool blocked = blocklist.Contains(m.Value); // m.Value == "phi1348.abo014";
+                bool blocked = blocklist.Contains(m.Value);
 
                 if (blocked)
                 {

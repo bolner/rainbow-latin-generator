@@ -26,6 +26,8 @@ class LemmatizedToken : ILemmatizedToken {
 
     private readonly Dictionary<string, string> tokenTypes = new() {
         { "", "Unidentified or non-word." },
+        { "UNK", "Unknown." },
+        { "_", "Unknown." },
         { "ADJadv.mul", "Multiplicative numeral adverbial" },
         { "ADJadv.ord", "Ordinal numeral adverb" },
         { "ADJcar", "Cardinal" },

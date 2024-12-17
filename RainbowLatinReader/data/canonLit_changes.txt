@@ -15,3 +15,7 @@ end: </div>
 replace: <div type="textpart" n="49" subtype="chapter">
     (Thomson has omitted this chapter.)
     </div>
+
+document: phi0474.phi052.perseus-lat2.xml
+match: <milestone unit="section" n="90?"/>
+replace: <milestone unit="section" n="90"/>

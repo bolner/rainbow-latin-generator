@@ -41,6 +41,7 @@ class PageManager : IPageManager {
         /*
             Generate pages and collect results.
         */
+        logging.Print("Generating pages.");
         scheduler.Run();
 
         foreach(var page in scheduler.GetResults()) {

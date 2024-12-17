@@ -37,6 +37,7 @@ class LemmatizedManager : ILemmatizedManager {
         /*
             Parse documents and store results, indexed.
         */
+        logging.Print("Parsing lemmatized documents.");
         scheduler.Run();
 
         foreach(var doc in scheduler.GetResults()) {

@@ -40,7 +40,6 @@ sealed class Logging : ILogging {
     }
 
     public void Warning(string fileName, string warning) {
-        Console.Error.WriteLine($"- {DateTime.Now:HH:mm:ss}: {warning}" + Environment.NewLine);
         AddLogEntry($"{fileName}.log", warning);
     }
 
@@ -49,9 +48,7 @@ sealed class Logging : ILogging {
     }
 
     public void Exception(Exception ex) {
-        string text = ex.ToString();
-        Console.Error.WriteLine($"- {DateTime.Now:HH:mm:ss}: {text}" + Environment.NewLine);
-        AddLogEntry("exception.log", text);
+        AddLogEntry("exception.log", ex.ToString());
     }
 
     private void AddLogEntry(string logFile, string text) {
@@ -60,7 +57,6 @@ sealed class Logging : ILogging {
         lock(logFiles) {
             if (!logFiles.ContainsKey(logFile)) {
                 string path = Path.Join(logDirectory, $"{prefix}_{logFile}");
-                File.Delete(path);
                 f = File.AppendText(path);
                 logFiles[logFile] = f;
             } else {
@@ -70,6 +66,10 @@ sealed class Logging : ILogging {
             f.Write($"- {text}\n\n");
             f.Flush();
         }
+    }
+
+    public void Print(string text) {
+        Console.WriteLine("- " + DateTime.Now.ToString("HH:mm:ss") + " - " + text);
     }
 
     /// <summary>

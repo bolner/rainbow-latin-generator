@@ -27,6 +27,8 @@ class Config : IConfig {
     public Config(Stream stream) {
         IConfiguration config;
 
+        Console.WriteLine("- " + DateTime.Now.ToString("HH:mm:ss") + " - Started.");
+
         try {
             config = new ConfigurationBuilder()
                 .AddIniStream(stream)

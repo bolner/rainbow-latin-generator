@@ -66,3 +66,5 @@ var templateEngine = new TemplateEngine(
 );
 var pageManager = new PageManager(pageScheduler, pageLogging, canonLitManager,
     lemmaManager, templateEngine);
+
+pageLogging.Print("Completed.");
