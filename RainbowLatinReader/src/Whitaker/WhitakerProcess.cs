@@ -23,6 +23,46 @@ sealed class WhitakerProcess : IWhitakerProcess {
     private readonly string[] words;
     private readonly ILogging logging;
 
+    private static readonly Dictionary<string, string> replace = new() {
+        { "á", "a" },
+        { "Á", "A" },
+        { "â", "a" },
+        { "æ", "ae" },
+        { "Æ", "AE" },
+        { "à", "a" },
+        { "ä", "a" },
+        { "ç", "c" },
+        { "ċ", "c" },
+        { "é", "e" },
+        { "ê", "e" },
+        { "è", "e" },
+        { "ē", "e" },
+        { "ë", "e" },
+        { "Ë", "E" },
+        { "í", "I" },
+        { "Í", "I" },
+        { "î", "I" },
+        { "ì", "I" },
+        { "ï", "I" },
+        { "Ï", "I" },
+        { "ñ", "n" },
+        { "ó", "o" },
+        { "ô", "o" },
+        { "œ", "oe" },
+        { "Œ", "OE" },
+        { "ò", "o" },
+        { "ö", "o" },
+        { "Ö", "o" },
+        { "ŕ", "r" },
+        { "ú", "u" },
+        { "û", "u" },
+        { "ù", "u" },
+        { "ü", "u" },
+        { "Ü", "U" },
+        { "ý", "y" },
+        { "ÿ", "y" }
+    };
+
     public WhitakerProcess(ISystemProcess process, List<string> words,
         ILogging logging)
     {
@@ -44,7 +84,15 @@ sealed class WhitakerProcess : IWhitakerProcess {
                 To prevent this, the words are separated with an
                 'awawaw' delimiter.
             */
-            process.Start(string.Join(" awawaw ", words));
+            string arguments = string.Join(" awawaw ", words);
+
+            foreach(var pair in replace) {
+                if (arguments.Contains(pair.Key)) {
+                    arguments = arguments.Replace(pair.Key, pair.Value);
+                }
+            }
+            
+            process.Start(arguments);
 
             string response = process.Read().Trim();
             List<string> lines = response.Split("\n").ToList();;
