@@ -16,5 +16,5 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 interface IPage : IProcessable {
-    
+    public string GetDocumentID();
 }

@@ -15,7 +15,6 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
+interface IWhitakerProcess : IProcessable, IDisposable {
+    public List<WhitakerEntry> GetEntries();
 }

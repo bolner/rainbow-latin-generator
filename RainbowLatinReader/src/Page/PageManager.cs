@@ -21,7 +21,7 @@ class PageManager : IPageManager {
 
     public PageManager(IScheduler<IPage> scheduler, ILogging logging,
         ICanonLitManager canonLitManager, ILemmatizedManager lemmatizedManager,
-        ITemplateEngine templateEngine)
+        IWhitakerManager whitakerManager, ITemplateEngine templateEngine)
     {
         this.logging = logging;
         var ids = lemmatizedManager.GetDocumentIDs();
@@ -32,7 +32,7 @@ class PageManager : IPageManager {
 
             scheduler.AddTask(
                 new Page(
-                    canonLitDoc, lemmatizedDoc, templateEngine,
+                    canonLitDoc, lemmatizedDoc, whitakerManager, templateEngine,
                     Path.Join(Directory.GetCurrentDirectory(), "output")
                 )
             );

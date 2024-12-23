@@ -15,7 +15,20 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
+class WhitakerEntry : IWhitakerEntry {
+    private readonly string word;
+    private readonly string rawText;
+
+    public WhitakerEntry(string word, string rawText) {
+        this.word = word;
+        this.rawText = rawText;
+    }
+
+    public string GetWord() {
+        return word;
+    }
+
+    public string GetRawText() {
+        return rawText;
+    }
 }

@@ -13,20 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using System.Text.RegularExpressions;
+
 namespace RainbowLatinReader;
 
 class CanonLitManager : ICanonLitManager {
+    private readonly ILogging logging;
     private readonly Dictionary<string, ICanonLitDoc> library = [];
     private readonly HashSet<string> documentsRequireLevelClear = [
         "phi0975.phi001", "phi0845.phi002", "stoa0054.stoa006", "phi0448.phi001", "phi0914.phi001",
         "phi1056.phi001", "phi0914.phi0015", "phi0959.phi006", "phi0959.phi001", "phi0474.phi011"
     ];
+    private readonly Regex separatorRegex = new(@"[\s\,\.\:\;\(\)\-\!\?—]+",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private readonly Regex latinRegex = new(@"^[a-zA-Z]+$",
+        RegexOptions.Compiled | RegexOptions.Singleline);
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         IXmlParserFactory xmlParserFactory,
         ILogging logging)
     {
+        this.logging = logging;
         ICanonFile? file;
         Dictionary<string, ICanonFile> englishTracker = [];
         Dictionary<string, ICanonFile> latinTracker = [];
@@ -107,5 +115,36 @@ class CanonLitManager : ICanonLitManager {
 
     public List<string> GetDocumentIDs() {
         return library.Keys.ToList();
+    }
+
+    public HashSet<string> GetAllWords() {
+        HashSet<string> ignoredWords = [];
+        HashSet<string> allWords = [];
+
+        logging.Print("Collecting Latin words for the dictionary lookups.");
+
+        foreach(var doc in library.Values) {
+            var sectionIDs = doc.GetAllSections();
+
+            foreach(string sectionID in sectionIDs) {
+                string section = doc.GetLatinSection(sectionID);
+                var words = separatorRegex.Split(section);
+
+                foreach(string word in words) {
+                    if (!latinRegex.IsMatch(word)) {
+                        if (!ignoredWords.Contains(word)) {
+                            logging.Text("skipped_words", word);
+                            ignoredWords.Add(word);
+                        }
+
+                        continue;
+                    }
+
+                    allWords.Add(word);
+                }
+            }
+        }
+
+        return allWords;
     }
 }

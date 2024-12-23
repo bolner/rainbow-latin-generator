@@ -26,7 +26,7 @@ public class PageTests
         MockTemplateEngine engine = new();
 
         var page = new Page(new MockCanonLitDoc(), new MockLemmatizedDoc(),
-            engine, "/etc/output");
+            new MockWhitakerManager(), engine, "/etc/output");
         
         page.Process();
 

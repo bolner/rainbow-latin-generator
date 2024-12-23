@@ -34,4 +34,8 @@ class MockLogging : ILogging {
     void IDisposable.Dispose() {
 
     }
+
+    public void Print(string text) {
+        
+    }
 }

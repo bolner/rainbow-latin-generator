@@ -18,4 +18,5 @@ namespace RainbowLatinReader;
 interface ICanonLitManager {
     public ICanonLitDoc GetDocument(string documentID);
     public List<string> GetDocumentIDs();
+    public HashSet<string> GetAllWords();
 }

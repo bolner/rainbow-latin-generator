@@ -13,9 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
 namespace RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
+interface ISystemProcess : IDisposable {
+    public void Start(string arguments);
+    public string Read();
+    public void Write(string data);
+    public void WaitForExit();
 }

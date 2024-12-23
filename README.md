@@ -20,6 +20,13 @@ Rainbow Latin Reader
 
 - Inside the `RainbowLatinReader` directory: Copy the `config.ini.template` as `config.ini` and fill in the missing paths.
 - Create the output directory that is specified as `output.dir` in the config file. (You can create an `output` folder inside the project directory, as that is already added to the `.gitignore` file.)
+- Before you compile Whitaker's Words, change this setting:
+  - File: `src/support_utils/support_utils-developer_parameters.adb`
+  - Required settings:
+    - `Pause_In_Screen_Output => False,`
+    - `Omit_Archaic => False`
+    - `Omit_Uncommon => False`
+    - `Minimize_Output => False`
 - Then execute:
     ```bash
       cd RainbowLatinReader

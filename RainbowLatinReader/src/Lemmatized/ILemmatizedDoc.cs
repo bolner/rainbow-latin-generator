@@ -20,4 +20,5 @@ interface ILemmatizedDoc : IProcessable {
     public string GetAuthor();
     public void Rewind();
     public List<LemmatizedToken>? Lemmatize(string section);
+    public string GetDocumentID();
 }

@@ -103,6 +103,12 @@
                 margin-left: -0.2em;
             }
 
+            div.ck:hover {
+                cursor: pointer;
+                background-color: #00776b;
+                color: white;
+            }
+
             /*
 				Naviagation
 			*/
@@ -176,8 +182,8 @@
             }
 
             div.acc { /* Accusative */
-                background-color: rgb(131 87 0);
-                color: white;
+                background-color: rgb(255, 155, 0);
+                color: black;
             }
 
             div.gen { /* Genitive */
@@ -189,7 +195,7 @@
             }
 
             div.abl { /* Ablative */
-                background-color: rgb(182 0 167);
+                background-color: rgb(85, 0, 116);
                 color: white;
             }
 
@@ -281,7 +287,7 @@
                 <td class="margin"><a href="#s{{number}}">{{number}}</a></td>
 
                 <td class="latin">
-                    {{#each latin}}{{#if is_plain}}{{value}}{{else}}<div class="{{class}}">{{value}}</div>{{/if}}{{/each}}
+                    {{#each latin}}{{#if is_plain}}{{value}}{{else}}{{#if clickable}}<div class="ck {{class}}" onclick="dict('{{value}}')">{{value}}</div>{{else}}<div class="{{class}}">{{value}}</div>{{/if}}{{/if}}{{/each}}
                 </td>
 
                 <td class="english">
@@ -307,5 +313,15 @@
 			<a href="https://github.com/lascivaroma/latin-lemmatized-texts" target="_blank">Lemmatized Latin texts from Thibault Clérice</a>
 			and <a href="https://mk270.github.io/whitakers-words/dictionary.html" target="_blank">Whitaker's Words</a>.
 		</div>
+
+        <script>
+            var dictionary = {{{dictionary}}};
+        </script>
+
+        <script>
+            function dict(word) {
+                console.log(dictionary[word]);
+            }
+        </script>
     </body>
 </html>

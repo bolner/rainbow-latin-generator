@@ -18,16 +18,20 @@ using Microsoft.Extensions.Configuration;
 namespace RainbowLatinReader;
 
 class Config : IConfig {
+    private readonly int coreCount;
     private readonly string latinLemmatizedTextsDir;
     private readonly string perseusCanonicalLatinLitDir;
     private readonly string whitakerWordsExecutablePath;
+    private readonly string whitakerWordsRootPath;
     private readonly string outputDir;
     private readonly string templatesDir;
 
     public Config(Stream stream) {
         IConfiguration config;
+        coreCount = Environment.ProcessorCount;
 
-        Console.WriteLine("- " + DateTime.Now.ToString("HH:mm:ss") + " - Started.");
+        Console.WriteLine("- " + DateTime.Now.ToString("HH:mm:ss")
+            + $" - Started. Max parallel threads: {GetThreadCount()}.");
 
         try {
             config = new ConfigurationBuilder()
@@ -45,6 +49,7 @@ class Config : IConfig {
 
         latinLemmatizedTextsDir = (section["latin_lemmatized_texts.dir"] ?? "").Trim();
         perseusCanonicalLatinLitDir = (section["perseus_canonical_latinLit.dir"] ?? "").Trim();
+        whitakerWordsRootPath = (section["whitaker_words_root.path"] ?? "").Trim();
         whitakerWordsExecutablePath = (section["whitaker_words_executable.path"] ?? "").Trim();
         outputDir = (section["output.dir"] ?? "").Trim();
         templatesDir = (section["templates.dir"] ?? "").Trim();
@@ -67,6 +72,11 @@ class Config : IConfig {
                 + $"does not contain a valid file path. Value: '{whitakerWordsExecutablePath}'.");
         }
 
+        if (whitakerWordsRootPath == "" || !Directory.Exists(whitakerWordsRootPath)) {
+            throw new RainbowLatinException($"The 'whitaker_words_root.path' setting in config file 'config.ini' "
+                + $"does not contain a valid directory path. Value: '{whitakerWordsRootPath}'.");
+        }
+
         if (outputDir == "" || !Directory.Exists(outputDir)) {
             throw new RainbowLatinException($"The 'output.dir' setting in config file 'config.ini' "
                 + $"does not contain a valid directory path. Value: '{outputDir}'.");
@@ -86,6 +96,10 @@ class Config : IConfig {
         return perseusCanonicalLatinLitDir;
     }
 
+    public string GetWhitakerWordsRootPath() {
+        return whitakerWordsRootPath;
+    }
+
     public string GetWhitakerWordsExecutablePath() {
         return whitakerWordsExecutablePath;
     }
@@ -96,5 +110,13 @@ class Config : IConfig {
 
     public string GetTemplatesDir() {
         return templatesDir;
+    }
+
+    public int GetCoreCount() {
+        return coreCount;
+    }
+
+    public int GetThreadCount() {
+        return Math.Max(coreCount / 2, 1);
     }
 }

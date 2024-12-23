@@ -13,9 +13,13 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-namespace RainbowLatinReader;
+using RainbowLatinReader;
 
-interface IProcessable {
-    public void Process();
-    public Exception? GetLastError();
+namespace unit_tests;
+
+
+sealed class MockWhitakerManager : IWhitakerManager {
+    public WhitakerEntry? GetEntry(string word) {
+        return null;
+    }
 }

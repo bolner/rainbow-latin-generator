@@ -13,27 +13,34 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace RainbowLatinReader;
 
 class Page : IPage {
     private readonly ICanonLitDoc canonLitDoc;
     private readonly ILemmatizedDoc lemmatizedDoc;
+    private readonly IWhitakerManager whitakerManager;
     private readonly ITemplateEngine templateEngine;
     private readonly string outputFolder;
     private Exception? lastError = null;
+    private readonly List<WhitakerEntry> whitakerEntries = [];
 
     public Page(ICanonLitDoc canonLitDoc, ILemmatizedDoc lemmatizedDoc,
-        ITemplateEngine templateEngine, string outputFolder)
+        IWhitakerManager whitakerManager, ITemplateEngine templateEngine,
+        string outputFolder)
     {
         this.canonLitDoc = canonLitDoc;
         this.lemmatizedDoc = lemmatizedDoc;
+        this.whitakerManager = whitakerManager;
         this.templateEngine = templateEngine;
         this.outputFolder = outputFolder;
     }
 
     public void Process() {
         try {
-            int pageSize = 30;
+            int pageSize = 20;
             var keys = canonLitDoc.GetAllSections().ToArray();
             int count = keys.Length;
             int pageCount = (int)Math.Ceiling(((double)count) / ((double)pageSize));
@@ -117,6 +124,15 @@ class Page : IPage {
                     );
                 }
 
+                /*
+                    Whitaker entries
+                */
+                Dictionary<string, string> dict = [];
+
+                foreach(var entry in whitakerEntries) {
+                    dict[entry.GetWord()] = entry.GetRawText();
+                }
+
                 var data = new Dictionary<string, object>()
                 {
                     { "title", canonLitDoc.GetEnglishTitle() },
@@ -127,7 +143,8 @@ class Page : IPage {
                     { "current_page", page},
                     { "sections", sections },
                     { "navigation", navigation },
-                    { "document_id", canonLitDoc.GetDocumentID() }
+                    { "document_id", canonLitDoc.GetDocumentID() },
+                    { "dictionary", JsonSerializer.Serialize(dict) }
                 };
 
                 templateEngine.Generate(data, Path.Join(outputFolder, 
@@ -146,17 +163,28 @@ class Page : IPage {
         return canonLitDoc.GetDocumentID();
     }
 
-    private static List<Dictionary<string, object>> TokenListToTemplateArray(
+    private List<Dictionary<string, object>> TokenListToTemplateArray(
         List<LemmatizedToken> tokens
     ) {
         List<Dictionary<string, object>> result = [];
+        WhitakerEntry? entry;
+        HashSet<string> entryDedup = [];
 
         foreach(var token in tokens) {
+            entry = whitakerManager.GetEntry(token.GetValue());
+            if (entry != null) {
+                if (!entryDedup.Contains(entry.GetWord())) {
+                    whitakerEntries.Add(entry);
+                    entryDedup.Add(entry.GetWord());
+                }
+            }
+
             result.Add(
                 new Dictionary<string, object> {
                     { "class", token.GetTemplateClass() },
                     { "value", token.GetValue() },
-                    { "is_plain", token.GetTokenType() == "" }
+                    { "clickable", entry != null },
+                    { "is_plain", token.GetTokenType() == "" && entry == null }
                 }
             );
         }
