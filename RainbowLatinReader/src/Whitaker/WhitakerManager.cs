@@ -13,7 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-using System.Text.RegularExpressions;
 
 namespace RainbowLatinReader;
 
@@ -28,7 +27,7 @@ class WhitakerManager : IWhitakerManager {
         /*
             Looking up dictionary entries.
         */
-        var chunks = allWords.Chunk(15);
+        var chunks = allWords.Chunk(10);
 
         foreach(var chunk in chunks) {
             SystemProcess sysProc = new(

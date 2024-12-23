@@ -22,7 +22,7 @@ sealed class SystemProcess : ISystemProcess {
     private bool isDisposed = false;
     private readonly Process process;
 
-    public SystemProcess(string execPath, string workDir, string arguments = "") {
+    public SystemProcess(string execPath, string workDir) {
         ProcessStartInfo startInfo = new()
         {
             WorkingDirectory = workDir,

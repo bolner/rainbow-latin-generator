@@ -32,7 +32,7 @@ interface IXmlParser : IDisposable {
     /// <returns>Returns false if no matching element found and the end of
     /// the document is reached, true otherwise.</returns>
     /// <exception cref="RainbowLatinException"></exception>
-    public bool GoTo(string destination);
+    public bool GoTo(string destination, string? stopAt = null);
 
     /// <summary>
     /// Stops at the next destination and pre-fetches all text

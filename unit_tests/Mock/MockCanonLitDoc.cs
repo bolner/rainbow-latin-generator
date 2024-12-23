@@ -35,6 +35,10 @@ class MockCanonLitDoc : ICanonLitDoc {
         return "Latin Author";
     }
 
+    public string GetTranslator() {
+        return "Translator";
+    }
+
     public string GetEnglishSection(string sectionKey) {
         return $"This is a section of the text ({sectionKey}).";
     }

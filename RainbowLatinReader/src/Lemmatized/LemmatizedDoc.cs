@@ -70,7 +70,6 @@ class LemmatizedDoc : ILemmatizedDoc {
             }
 
             while (parser.Next()) {
-                // TODO: XmlParser.ReadProperties not working
                 var attributes = parser.GetAttributes();
                 
                 if (parser.GetNodeName() != "w") {

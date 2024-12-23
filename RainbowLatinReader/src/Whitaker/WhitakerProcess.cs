@@ -54,6 +54,7 @@ sealed class WhitakerProcess : IWhitakerProcess {
             int wordIndex = 0;
             string word;
             string content;
+            bool syncope = false;
 
             foreach(string line in lines) {
                 if (line.Contains("awawaw")) {
@@ -62,10 +63,15 @@ sealed class WhitakerProcess : IWhitakerProcess {
 
                 trLine = line.Trim();
 
-                if (trLine == "") {
+                if (trLine.StartsWith("Syncope")) {
+                    syncope = true;
+                }
+                else if (trLine == "" && syncope == false) {
                     if (entry.Count > 0) {
                         if (wordIndex > words.Length - 1) {
-                            throw new RainbowLatinException("Whitaker's words returned more entries than requested.");
+                            throw new RainbowLatinException($"Whitaker's words returned more entries ({wordIndex + 1}) "
+                                + $"than requested ({words.Length}): "
+                                + string.Join(" ", words) + "\n\n" + response);
                         }
                         word = words[wordIndex];
                         content = string.Join('\n', entry);
@@ -79,9 +85,11 @@ sealed class WhitakerProcess : IWhitakerProcess {
                     }
 
                     continue;
+                } else {
+                    syncope = false;
                 }
 
-                entry.Add(line);
+                entry.Add(trLine);
             }
 
             if (wordIndex < words.Length) {

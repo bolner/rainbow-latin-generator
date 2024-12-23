@@ -26,6 +26,7 @@ class CanonLitDoc : ICanonLitDoc {
     private string englishTitle = "";
     private string latinAuthor = "";
     private string englishAuthor = "";
+    private string translator = "";
     private bool isExcluded = false;
     private Exception? lastError = null;
     private bool skipUntilNextSection = false;
@@ -96,8 +97,12 @@ class CanonLitDoc : ICanonLitDoc {
                 Second pass
                 (Partition the text by the selected section types.)
             */
-            ParseDocument(englishFile, common, out englishTitle, out englishAuthor, englishText);
-            ParseDocument(latinFile, common, out latinTitle, out latinAuthor, latinText);
+            string latinEditor;
+
+            ParseDocument(englishFile, common, out englishTitle, out englishAuthor,
+                out translator, englishText);
+            ParseDocument(latinFile, common, out latinTitle, out latinAuthor,
+                out latinEditor, latinText);
 
             /*
                 Pair sections
@@ -193,7 +198,7 @@ class CanonLitDoc : ICanonLitDoc {
     }
 
     private void ParseDocument(ICanonFile file, HashSet<string> allowedSectionTypes,
-        out string title, out string author, IBookWorm<string> bookworm)
+        out string title, out string author, out string editor, IBookWorm<string> bookworm)
     {
         bool eof;
         using var parser = xmlParserFactory.GetXmlParser(file, stops);
@@ -215,6 +220,9 @@ class CanonLitDoc : ICanonLitDoc {
             throw new RainbowLatinException("Missing 'teiHeader.fileDesc.titleStmt.author' in FILE "
                 + $"'{file.GetPath()}'.");
         }
+
+        parser.GoTo("teiHeader.fileDesc.titleStmt.editor", "text.body");
+        editor = (parser.FetchContent() ?? "").Trim();
 
         if (!parser.GoTo("text.body")) {
             throw new RainbowLatinException("Can't find 'TEI.text.body' in FILE "
@@ -357,5 +365,9 @@ class CanonLitDoc : ICanonLitDoc {
 
     public Exception? GetLastError() {
         return lastError;
+    }
+
+    public string GetTranslator() {
+        return translator;
     }
 }

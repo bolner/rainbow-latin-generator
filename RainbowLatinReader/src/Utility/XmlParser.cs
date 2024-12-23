@@ -96,11 +96,18 @@ sealed class XmlParser : IXmlParser {
     /// </summary>
     /// <param name="destinations">A path pattern to search for.
     /// Stop when it is reached.</param>
+    /// <param name="stopAt">The parsing won't go further than
+    /// this element.</param>
     /// <returns>Returns false if no matching element found and the end of
     /// the document is reached, true otherwise.</returns>
     /// <exception cref="RainbowLatinException"></exception>
-    public bool GoTo(string destination) {
+    public bool GoTo(string destination, string? stopAt = null) {
         Regex dest = new(destination);
+        Regex? stop = null;
+
+        if (stopAt != null) {
+            stop = new(stopAt);
+        }
 
         attributes.Clear();
         content.Clear();
@@ -147,6 +154,13 @@ sealed class XmlParser : IXmlParser {
                         ReadProperties();
                         
                         return true;
+                    }
+
+                    if (stop != null) {
+                        if (stop.IsMatch(path)) {
+                            prefetched = true;
+                            return false;
+                        }
                     }
                 }
                 else if (reader.NodeType == XmlNodeType.Text) {

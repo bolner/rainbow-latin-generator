@@ -33,7 +33,7 @@ string canonFileChangesPath = Path.Join(Directory.GetCurrentDirectory(),
 var canonFileChanges = new FileChanges(File.ReadLines(canonFileChangesPath),
     canonFileChangesPath);
 var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChanges,
-    Path.Join(Directory.GetCurrentDirectory(), "data", "blocklist.tsv"), ["phi0474.phi052"]);
+    Path.Join(Directory.GetCurrentDirectory(), "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
 var canonParserFactory = new XmlParserFactory();
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,

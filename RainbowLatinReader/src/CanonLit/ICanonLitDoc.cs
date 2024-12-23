@@ -18,6 +18,7 @@ namespace RainbowLatinReader;
 interface ICanonLitDoc : IProcessable {
     public string GetEnglishTitle();
     public string GetEnglishAuthor();
+    public string GetTranslator();
     public string GetLatinTitle();
     public string GetLatinAuthor();
     public string GetEnglishSection(string sectionKey);

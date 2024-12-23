@@ -139,6 +139,7 @@ class Page : IPage {
                     { "short_title", shortTitle },
                     { "author", canonLitDoc.GetEnglishAuthor() },
                     { "short_author", shortAuthor },
+                    { "translator", canonLitDoc.GetTranslator() },
                     { "page_count", pageCount},
                     { "current_page", page},
                     { "sections", sections },
