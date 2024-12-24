@@ -15,8 +15,8 @@ limitations under the License.
 */
 using RainbowLatinReader;
 
-var config = new Config(File.Open(Path.Join(Directory.GetCurrentDirectory(),
-    "config.ini"), FileMode.Open));
+string dir = Directory.GetCurrentDirectory();
+var config = new Config(File.Open(Path.Join(dir, "config.ini"), FileMode.Open));
 
 /*
     Perseus Canonical Literature
@@ -27,13 +27,12 @@ var canonPaths = Directory.EnumerateFiles(
     SearchOption.AllDirectories
 );
 
-var canonLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "canon");
-string canonFileChangesPath = Path.Join(Directory.GetCurrentDirectory(),
-    "data", "canonLit_changes.txt");
+var canonLogging = new Logging(Path.Join(dir, "logs"), "canon");
+string canonFileChangesPath = Path.Join(dir, "data", "canonLit_changes.txt");
 var canonFileChanges = new FileChanges(File.ReadLines(canonFileChangesPath),
     canonFileChangesPath);
 var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChanges,
-    Path.Join(Directory.GetCurrentDirectory(), "data", "blocklist.tsv"));
+    Path.Join(dir, "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
 var canonParserFactory = new XmlParserFactory();
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,
@@ -48,18 +47,18 @@ var lemmaPaths = Directory.EnumerateFiles(
     SearchOption.AllDirectories
 );
 
-var lemmaLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "lemma");
+var lemmaLogging = new Logging(Path.Join(dir, "logs"), "lemma");
 var ids = new HashSet<string>(canonLitManager.GetDocumentIDs());
 var lemmaScanner = new DirectoryScanner(lemmaPaths, lemmaLogging, allowedDocumentIDs: ids);
 var lemmaScheduler = new Scheduler<ILemmatizedDoc>(config.GetThreadCount());
 var lemmaParserFactory = new XmlParserFactory();
-var lemmaManager = new LemmatizedManager(lemmaScanner, lemmaScheduler, lemmaParserFactory,
-    lemmaLogging);
+var lemmaManager = new LemmatizedManager(lemmaScanner, lemmaScheduler,
+    lemmaParserFactory, lemmaLogging);
 
 /*
     Whitaker's Words
 */
-var whitakerLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "whitaker");
+var whitakerLogging = new Logging(Path.Join(dir, "logs"), "whitaker");
 var whitakerScheduler = new Scheduler<IWhitakerProcess>(config.GetThreadCount());
 var allWords = canonLitManager.GetAllWords();
 var whitakerManager = new WhitakerManager(whitakerScheduler, allWords,
@@ -68,12 +67,18 @@ var whitakerManager = new WhitakerManager(whitakerScheduler, allWords,
 /*
     Pages
 */
-var pageLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "page");
+var pageLogging = new Logging(Path.Join(dir, "logs"), "page");
 var pageScheduler = new Scheduler<IPage>(config.GetThreadCount());
-var templateEngine = new TemplateEngine(
-    Path.Join(Directory.GetCurrentDirectory(), "templates", "page.handlebars")
+var pageTemplate = new TemplateEngine(
+    Path.Join(dir, "templates", "page.handlebars")
 );
 var pageManager = new PageManager(pageScheduler, pageLogging, canonLitManager,
-    lemmaManager, whitakerManager, templateEngine);
+    lemmaManager, whitakerManager, pageTemplate,
+    Path.Join(dir, "output"));
+var indexTemplate = new TemplateEngine(
+    Path.Join(dir, "templates", "index.handlebars")
+);
+pageManager.GenerateIndexPage(indexTemplate,
+    Path.Join(dir, "output", "index.html"));
 
-pageLogging.Print("Completed.");
+pageLogging.Print($"Completed. Total documents: {pageManager.GetDocumentCount()}.");

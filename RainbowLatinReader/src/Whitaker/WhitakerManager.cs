@@ -58,7 +58,7 @@ class WhitakerManager : IWhitakerManager {
             result.Dispose();
         }
 
-        logging.Print($"Done. Total Latin word count: {allWords.Count}.");
+        logging.Print($"Done. Total unique Latin word count: {allWords.Count}.");
     }
 
     public WhitakerEntry? GetEntry(string word) {

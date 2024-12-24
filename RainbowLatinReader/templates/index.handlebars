@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Rainbow Latin Reader - Index</title>
+        
+        <style>
+            body {
+                background-color: rgb(10, 17, 27);
+                color: #c9cfd6;
+                padding: 0em;
+                margin: 0em;
+                font-size: calc(0.9vw + 0.5vh + 4px);
+            }
+
+            div.content {
+                padding: 0em;
+                padding-top: 1em;
+                padding-bottom: 1em;
+                position: relative;
+                background-color: rgb(13, 34, 53);
+                width: 40em;
+                left: calc(50% - 20em);
+            }
+
+            div.content h1 {
+                margin-top: 0em;
+                padding: 0.3em;
+                padding-left: 1em;
+                font-size: 1.5em;
+                background-color: #18466f;
+            }
+
+            div.content h2 {
+                font-size: 1.2em;
+                padding: 0.2em;
+                padding-left: 1em;
+                background-color: #18466f;
+                color: #bac0c6;
+            }
+
+            div.content h3 {
+                font-size: 1.1em;
+                margin-bottom: 0.1em;
+                padding: 0.2em;
+                padding-left: 1em;
+            }
+
+            div.content p {
+                font-size: 1em;
+                padding-left: 1em;
+                padding-right: 1em;
+            }
+
+            div.content ol {
+                padding-left: 5em;
+            }
+
+            div.content ul {
+                padding-left: 3em;
+                padding-right: 2em;
+            }
+
+            div.content li {
+                font-size: 1em;
+            }
+
+            div.content a {
+                color: #c9cfd6;
+            }
+
+            div.content a:hover {
+                color: white;
+            }
+
+            /*
+                Tables
+            */
+            div.content table {
+                border-collapse: collapse;
+                width: 39em;
+                margin-left: 0.5em;
+            }
+
+            div.content .header td {
+                background-color: #0e1926;
+            }
+
+            div.content td {
+                border: 1px solid #434f5e;
+                padding: 0.3em;
+                font-size: 1em;
+            }
+
+            div.content td.min {
+                width: 1%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="content">
+            <h1>Welcome to Rainbow Latin Reader!</h1>
+
+            <p>This site provides dual-language Latin-English documents with a built-in dictionary.
+                You can find the list of currently available works below. Please note that their number will be
+                continuously increasing in the future.</p>
+            
+            <ol>
+                <li><a href="#document-index">Document Index</a></li>
+                <li><a href="#credits">Credits</a></li>
+                <li><a href="#useful-links">Useful links</a></li>
+            </ol>
+
+            <a name="document-index"></a>
+            <h2>1. Document Index</h2>
+
+            {{#each index}}
+                <h3>{{author}}</h3>
+
+                <table>
+                    <tr class="header">
+                        <td>Title / Link</td>
+                        <td class="min">Perseus&nbsp;code</td>
+                        <td class="min">Latin&nbsp;word&nbsp;count</td>
+                    </tr>
+
+                    {{#each works}}
+                        <tr>
+                            <td><a href="{{link}}">{{title}}</a></td>
+                            <td class="min">{{perseus_code}}</td>
+                            <td class="min">{{word_count}}</td>
+                        </tr>
+                    {{/each}}
+                </table>
+            {{/each}}
+
+            <a name="credits"></a>
+            <h2>2. Credits</h2>
+
+            <p>Rainbow Latin Reader was created by <a href="https://github.com/bolner" target="_blank">Tamas Bolner</a>,
+                and published under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License</a>
+                (Copyright 2024). It is based on the following 3 projects:</p>
+
+            <ul>
+                <li><a href="https://github.com/PerseusDL/canonical-latinLit" target="_blank">Perseus canonical Latin literature</a></li>
+                <li><a href="https://mk270.github.io/whitakers-words/dictionary.html" target="_blank">Whitaker's Words</a>.</li>
+                <li><a href="https://github.com/lascivaroma/latin-lemmatized-texts" target="_blank">Lemmatized Latin texts by Thibault Clérice et al.</a></li>
+            </ul>
+            
+            <a name="useful-links"></a>
+            <h2>3. Useful links</h2>
+
+            <ul>
+                <li><a href="https://www.youtube.com/watch?v=9ufyqLxwcEE" target="_blank">Introductory video</a> for this project.</li>
+                <li>You can download <a href="https://bolner.de/rainbow-latin-reader.zip" target="_blank">all documents in a ZIP file</a>
+                    and open them on a tablet or desktop PC without network connection.</li>
+            </ul>
+        </div>
+    </body>
+</html>

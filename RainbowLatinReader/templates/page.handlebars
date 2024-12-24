@@ -16,6 +16,7 @@
         limitations under the License.
     -->
     <head>
+        <meta charset="UTF-8">
         <title>{{short_title}} ({{short_author}})</title>
 
         <style>
@@ -117,12 +118,6 @@
                 margin-left: -0.2em;
             }
 
-            div.ck:hover {
-                cursor: pointer;
-                background-color: #00776b;
-                color: white;
-            }
-
             /*
 				Naviagation
 			*/
@@ -187,6 +182,7 @@
                 font-size: 0.9em;
                 padding-left: 0.2em;
                 padding-right: 0.2em;
+                cursor: pointer;
             }
 
             .topbar div.word.title {
@@ -196,44 +192,44 @@
             /*
                 Cases
             */
-            div.nom { /* Nominative */
+            .colored div.nom { /* Nominative */
                 background-color: rgb(4 57 4);
             }
 
-            div.acc { /* Accusative */
+            .colored div.acc { /* Accusative */
                 background-color: rgb(255, 155, 0);
                 color: black;
             }
 
-            div.gen { /* Genitive */
+            .colored div.gen { /* Genitive */
                 background-color: rgb(112 0 0);
             }
 
-            div.dat { /* Dative */
+            .colored div.dat { /* Dative */
                 background-color: rgb(26 41 141);
             }
 
-            div.abl { /* Ablative */
+            .colored div.abl { /* Ablative */
                 background-color: rgb(85, 0, 116);
                 color: white;
             }
 
-            div.voc { /* Vocative */
+            .colored div.voc { /* Vocative */
                 background-color: rgb(237, 237, 145);
                 color: black;
             }
 
-            div.loc { /* Locative */
+            .colored div.loc { /* Locative */
                 background-color: rgb(144, 220, 219);
                 color: black;
             }
 
-            div.pas { /* Voice = Passive */
+            .colored div.pas { /* Voice = Passive */
                 text-decoration: underline;
                 text-underline-offset: 0.2em;
             }
 
-            div.dep { /* Voice = Deponent */
+            .colored div.dep { /* Voice = Deponent */
                 text-decoration: underline;
                 text-decoration-style: dashed;
                 text-underline-offset: 0.2em;
@@ -241,6 +237,12 @@
 
             div.grey {
                 background-color: rgb(83 83 83);
+            }
+
+            div.ck:hover {
+                cursor: pointer;
+                background-color: #00776b;
+                color: white;
             }
 
             /*
@@ -284,7 +286,7 @@
 
             div.dictionary div.content {
                 padding: 1em;
-                padding-top: 3.5em;
+                padding-top: 4.2em;
                 font-size: 0.74em;
                 font-family: monospace;
                 white-space: pre-wrap;
@@ -301,20 +303,27 @@
                 background-color: #5fabea;
                 color: rgb(0, 0, 0);
             }
+
+            div.dictionary div#dictword {
+                position: fixed;
+                background-color: #09281b;
+                padding: 0.5em;
+                right: 2vw;
+            }
         </style>
     </head>
 
     <body>
-        <div class="topbar">
-            <div class="word sample nom">Nominative</div>
-            <div class="word sample acc">Accusative</div>
-            <div class="word sample dat">Dative</div>
-            <div class="word sample abl">Ablative</div>
-            <div class="word sample gen">Genitive</div>
-            <div class="word sample voc">Vocative</div>
-            <div class="word sample loc">Locative</div>
-            <div class="word sample pas grey">Passive</div>
-            <div class="word sample dep grey">Deponent</div>
+        <div class="topbar colored">
+            <div class="word sample nom" onclick="topbar_click()">Nominative</div>
+            <div class="word sample acc" onclick="topbar_click()">Accusative</div>
+            <div class="word sample dat" onclick="topbar_click()">Dative</div>
+            <div class="word sample abl" onclick="topbar_click()">Ablative</div>
+            <div class="word sample gen" onclick="topbar_click()">Genitive</div>
+            <div class="word sample voc" onclick="topbar_click()">Vocative</div>
+            <div class="word sample loc" onclick="topbar_click()">Locative</div>
+            <div class="word sample pas grey" onclick="topbar_click()">Passive</div>
+            <div class="word sample dep grey" onclick="topbar_click()">Deponent</div>
 
             <div class="word title">{{short_title}} ({{short_author}})</div>
 
@@ -334,11 +343,11 @@
 
         <div class="dictionary" id="dictwindow">
             <div class="control" onclick="close_dict()">[Close]</div>
-            <div class="content" id="dictcontent">
-            </div>
+            <div id="dictword"></div>
+            <div class="content" id="dictcontent"></div>
         </div>
 
-        <table class="section">
+        <table id="maintable" class="section colored">
             <tr>
                 <td class="margin">&nbsp;</td>
 
@@ -381,7 +390,7 @@
         <div class="footer">
 			<b>Rainbow Latin Reader</b> by <a href="https://github.com/bolner" target="_blank">Tamas Bolner</a>. Based on 3 projects:
 			<a href="https://github.com/PerseusDL/canonical-latinLit" target="_blank">Perseus canonical Latin literature</a>,
-			<a href="https://github.com/lascivaroma/latin-lemmatized-texts" target="_blank">Lemmatized Latin texts from Thibault Clérice</a>
+			<a href="https://github.com/lascivaroma/latin-lemmatized-texts" target="_blank">Lemmatized Latin texts by Thibault Clérice et al.</a>
 			and <a href="https://mk270.github.io/whitakers-words/dictionary.html" target="_blank">Whitaker's Words</a>.
 		</div>
 
@@ -411,6 +420,7 @@
                 }
 
                 document.getElementById('dictcontent').innerHTML = buffer.join('\n');
+                document.getElementById('dictword').innerHTML = word;
                 document.getElementById('dictwindow').style.display = 'block';
             }
 
@@ -420,6 +430,11 @@
 
             function open_github() {
                 window.open('https://bolner.github.io/rainbow-latin-reader', '_blank').focus();
+            }
+
+            function topbar_click() {
+                var element = document.getElementById('maintable');
+                element.classList.toggle('colored');
             }
         </script>
     </body>

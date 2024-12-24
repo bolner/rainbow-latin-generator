@@ -21,7 +21,8 @@ class PageManager : IPageManager {
 
     public PageManager(IScheduler<IPage> scheduler, ILogging logging,
         ICanonLitManager canonLitManager, ILemmatizedManager lemmatizedManager,
-        IWhitakerManager whitakerManager, ITemplateEngine templateEngine)
+        IWhitakerManager whitakerManager, ITemplateEngine pageTemplate,
+        string outputDirectory)
     {
         this.logging = logging;
         var ids = lemmatizedManager.GetDocumentIDs();
@@ -32,8 +33,8 @@ class PageManager : IPageManager {
 
             scheduler.AddTask(
                 new Page(
-                    canonLitDoc, lemmatizedDoc, whitakerManager, templateEngine,
-                    Path.Join(Directory.GetCurrentDirectory(), "output")
+                    canonLitDoc, lemmatizedDoc, whitakerManager, pageTemplate,
+                    outputDirectory
                 )
             );
         }
@@ -51,6 +52,7 @@ class PageManager : IPageManager {
             }
 
             library[page.GetDocumentID()] = page;
+            logging.Text("created", page.GetDocumentID());
         }
     }
 
@@ -66,5 +68,46 @@ class PageManager : IPageManager {
 
     public List<string> GetDocumentIDs() {
         return library.Keys.ToList();
+    }
+
+    public void GenerateIndexPage(ITemplateEngine indexTemplate, string outputPath) {
+        SortedDictionary<string, SortedDictionary<string,
+            Dictionary<string, string>>> index = [];
+
+        logging.Print("Generating index page.");
+
+        foreach(var page in library.Values) {
+            if (!index.ContainsKey(page.GetEnglishAuthor())) {
+                index[page.GetEnglishAuthor()] = [];
+            }
+
+            index[page.GetEnglishAuthor()][page.GetEnglishTitle()] = new Dictionary<string, string> {
+                { "title", page.GetEnglishTitle() },
+                { "link", $"{page.GetDocumentID()}_1.html" },
+                { "perseus_code", page.GetDocumentID() },
+                { "word_count", page.GetLatinWordCount().ToString() }
+            };
+        }
+
+        List<Dictionary<string, object>> data = [];
+
+        foreach(var item in index) {
+            data.Add(new Dictionary<string, object> {
+                { "author", item.Key },
+                { "works", item.Value.Values }
+            });
+        }
+
+        indexTemplate.Generate(
+            new Dictionary<string, object>()
+            {
+                { "index", data }
+            },
+            outputPath
+        );
+    }
+
+    public int GetDocumentCount() {
+        return library.Count;
     }
 }

@@ -126,6 +126,8 @@ sealed class WhitakerProcess : IWhitakerProcess {
 
                         if (!content.Contains("========   UNKNOWN")) {
                             entries.Add(new(word, content));
+                        } else {
+                            logging.Warning("unknown_words", word);
                         }
 
                         entry.Clear();

@@ -17,4 +17,8 @@ namespace RainbowLatinReader;
 
 interface IPage : IProcessable {
     public string GetDocumentID();
+    public string GetEnglishTitle();
+    public string GetEnglishAuthor();
+    public string GetTranslator();
+    public int GetLatinWordCount();
 }

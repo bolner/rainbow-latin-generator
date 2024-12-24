@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace RainbowLatinReader;
 
@@ -25,8 +24,8 @@ class Page : IPage {
     private readonly ITemplateEngine templateEngine;
     private readonly string outputFolder;
     private Exception? lastError = null;
-    private readonly List<WhitakerEntry> whitakerEntries = [];
-
+    private int latinWordCount = 0;
+    
     public Page(ICanonLitDoc canonLitDoc, ILemmatizedDoc lemmatizedDoc,
         IWhitakerManager whitakerManager, ITemplateEngine templateEngine,
         string outputFolder)
@@ -70,7 +69,10 @@ class Page : IPage {
             /*
                 Generate each page
             */
+            List<WhitakerEntry> whitakerEntries = [];
+
             for(int page = 0; page < pageCount; page++) {
+                whitakerEntries.Clear();
                 List<object> sections = [];
                 List<string> chunk = chunks[page];
 
@@ -79,8 +81,10 @@ class Page : IPage {
                     string latinText = canonLitDoc.GetLatinSection(key);
                     var lemmatized = lemmatizedDoc.Lemmatize(latinText);
                     List<Dictionary<string, object>> latinTokens = [];
+
                     if (lemmatized != null) {
-                        latinTokens = TokenListToTemplateArray(lemmatized);
+                        latinWordCount += lemmatized.Count;
+                        latinTokens = TokenListToTemplateArray(lemmatized, whitakerEntries);
                     }
 
                     sections.Add(new Dictionary<string, object>() {
@@ -165,7 +169,7 @@ class Page : IPage {
     }
 
     private List<Dictionary<string, object>> TokenListToTemplateArray(
-        List<LemmatizedToken> tokens
+        List<LemmatizedToken> tokens, List<WhitakerEntry> whitakerEntries
     ) {
         List<Dictionary<string, object>> result = [];
         WhitakerEntry? entry;
@@ -191,5 +195,21 @@ class Page : IPage {
         }
 
         return result;
+    }
+
+    public string GetEnglishTitle() {
+        return canonLitDoc.GetEnglishTitle();
+    }
+
+    public string GetEnglishAuthor() {
+        return canonLitDoc.GetEnglishAuthor();
+    }
+
+    public string GetTranslator() {
+        return canonLitDoc.GetTranslator();
+    }
+
+    public int GetLatinWordCount() {
+        return latinWordCount;
     }
 }

@@ -18,4 +18,5 @@ namespace RainbowLatinReader;
 interface IPageManager {
     public IPage GetPage(string documentID);
     public List<string> GetDocumentIDs();
+    public int GetDocumentCount();
 }

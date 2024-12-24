@@ -152,7 +152,7 @@ class LemmatizedDoc : ILemmatizedDoc {
         }
 
         int baseIndex = index;
-        string[] words = Regex.Split(section, @"([^a-zA-Z\u0370-\u03ff\u1f00-\u1fff\-]+)");
+        string[] words = Regex.Split(section, @"([^a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ\u0370-\u03ff\u1f00-\u1fff\-]+)");
         int limit = 6;
         List<LemmatizedToken> result = [];
 
