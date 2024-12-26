@@ -22,4 +22,5 @@ interface ILemmatizedToken {
     public string GetTokenTypeReadable();
     public Dictionary<string, string> GetMsdReadable();
     public string GetTemplateClass();
+    public bool IsWord();
 }

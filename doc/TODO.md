@@ -1,0 +1,6 @@
+- In the no color mode: Keep focus on clicked word. Show color only of the selected word.
+- Ovid / Epistles: No translator. (template + logging + look it up)
+- Double check the Latin word counts on index page.
+- Have only one instance of the most important regular expressions.
+- If the English is in verse form, then keep the new-lines.
+- Spacing issues in the Latin texts. (Caused by the DIVs.)

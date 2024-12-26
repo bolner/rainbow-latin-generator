@@ -357,7 +357,11 @@
                 </td>
 
                 <td class="english">
-                    <div class="translator"><i>Translator: {{translator}}</i></div>
+                    {{#if translator}}
+                        <div class="translator"><i>Translator: {{translator}}</i></div>
+                    {{else}}
+                        &nbsp;
+                    {{/if}}
                 </td>
             </tr>
 

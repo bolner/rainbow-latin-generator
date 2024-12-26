@@ -223,6 +223,10 @@ class CanonLitDoc : ICanonLitDoc {
 
         parser.GoTo("teiHeader.fileDesc.titleStmt.editor", "text.body");
         editor = (parser.FetchContent() ?? "").Trim();
+        if (editor == "") {
+            logging.Warning("missing", "Missing 'teiHeader.fileDesc.titleStmt.editor' in FILE "
+                + $"'{file.GetPath()}'.");
+        }
 
         if (!parser.GoTo("text.body")) {
             throw new RainbowLatinException("Can't find 'TEI.text.body' in FILE "

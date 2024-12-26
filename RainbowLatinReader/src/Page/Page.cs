@@ -83,7 +83,7 @@ class Page : IPage {
                     List<Dictionary<string, object>> latinTokens = [];
 
                     if (lemmatized != null) {
-                        latinWordCount += lemmatized.Count;
+                        latinWordCount += CountWordsOnly(lemmatized);
                         latinTokens = TokenListToTemplateArray(lemmatized, whitakerEntries);
                     }
 
@@ -158,6 +158,18 @@ class Page : IPage {
         } catch (Exception ex) {
             lastError = ex;
         }
+    }
+
+    private int CountWordsOnly(List<LemmatizedToken> tokens) {
+        int count = 0;
+
+        foreach(LemmatizedToken token in tokens) {
+            if (token.IsWord()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     public Exception? GetLastError() {

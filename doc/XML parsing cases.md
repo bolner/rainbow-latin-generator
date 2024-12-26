@@ -44,3 +44,6 @@
   - `<div2 type="poem" n="25">`
 - Abbreviations with expansions:
   - <abbr><expan>suppromus es</expan>suppromu's</abbr>
+- "del" tags to be removed:
+  - ex<del>eo</del>cogitauit
+  - ciui<del>s</del> uacationem

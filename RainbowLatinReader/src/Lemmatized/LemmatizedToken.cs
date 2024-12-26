@@ -23,6 +23,7 @@ class LemmatizedToken : ILemmatizedToken {
     private readonly string value;
     private readonly Dictionary<string, string> msd = [];
     private readonly Regex numericRegex = new(@"\d+$"); // Numbers at the end
+    private readonly HashSet<string> notWordTypes = ["", "UNK", "_", "OUT", "PUNC"];
 
     private readonly Dictionary<string, string> tokenTypes = new() {
         { "", "Unidentified or non-word." },
@@ -233,5 +234,9 @@ class LemmatizedToken : ILemmatizedToken {
         }
 
         return "word";
+    }
+
+    public bool IsWord() {
+        return !notWordTypes.Contains(tokenType);
     }
 }

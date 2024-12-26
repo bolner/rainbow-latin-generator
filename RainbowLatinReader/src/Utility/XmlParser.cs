@@ -39,6 +39,7 @@ sealed class XmlParser : IXmlParser {
     private string? nodeName = null;
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
+    private readonly HashSet<string> ignoreTags = ["note", "bibl", "del"];
     private readonly HashSet<string> choice_accepted = ["abbr", "choice", "expan",
         "ex", "corr", "sic", "reg", "orig"];
     private readonly HashSet<string> choice_outer = ["choice", "abbr"];
@@ -128,7 +129,7 @@ sealed class XmlParser : IXmlParser {
                 if (reader.NodeType == XmlNodeType.Element) {
                     string name = reader.Name.ToLower();
 
-                    if (name == "note" || name == "bibl") {
+                    if (ignoreTags.Contains(name)) {
                         reader.Skip();
                         prefetched = true;
                         continue;
@@ -266,7 +267,7 @@ sealed class XmlParser : IXmlParser {
                 if (reader.NodeType == XmlNodeType.Element) {
                     string name = reader.Name.ToLower();
 
-                    if (name == "note" || name == "bibl") {
+                    if (ignoreTags.Contains(name)) {
                         reader.Skip();
                         prefetched = true;
                         continue;
@@ -369,7 +370,7 @@ sealed class XmlParser : IXmlParser {
             else if (reader.NodeType == XmlNodeType.Element) {
                 string name = reader.Name.ToLower();
 
-                if (name == "note" || name == "bibl") {
+                if (ignoreTags.Contains(name)) {
                         reader.Skip();
                         prefetched = true;
                         continue;
