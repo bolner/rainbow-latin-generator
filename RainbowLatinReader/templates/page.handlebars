@@ -370,11 +370,11 @@
                 <td class="margin"><a href="#s{{number}}">{{number}}</a></td>
 
                 <td class="latin">
-                    {{#each latin}}{{#if is_plain}}{{value}}{{else}}{{#if clickable}}<div class="ck {{class}}" onclick="dict('{{value}}')">{{value}}</div>{{else}}<div class="{{class}}">{{value}}</div>{{/if}}{{/if}}{{/each}}
+                    {{#each latin}}{{#if is_plain}}{{{value}}}{{else}}{{#if clickable}}<div class="ck {{class}}" onclick="dict('{{value}}')">{{value}}</div>{{else}}<div class="{{class}}">{{value}}</div>{{/if}}{{/if}}{{/each}}
                 </td>
 
                 <td class="english">
-                    {{english}}
+                    {{{english}}}
                 </td>
             </tr>
         {{/each}}

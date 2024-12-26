@@ -39,7 +39,9 @@ sealed class XmlParser : IXmlParser {
     private string? nodeName = null;
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
+    private bool addNewLine = false;
     private readonly HashSet<string> ignoreTags = ["note", "bibl", "del"];
+    private readonly HashSet<string> addNewLineAfterTag = ["l"];
     private readonly HashSet<string> choice_accepted = ["abbr", "choice", "expan",
         "ex", "corr", "sic", "reg", "orig"];
     private readonly HashSet<string> choice_outer = ["choice", "abbr"];
@@ -273,6 +275,10 @@ sealed class XmlParser : IXmlParser {
                         continue;
                     }
 
+                    if (addNewLineAfterTag.Contains(name)) {
+                        addNewLine = true;
+                    }
+
                     if (DetectAndHandleChoices()) {
                         continue;
                     }
@@ -303,6 +309,10 @@ sealed class XmlParser : IXmlParser {
                 }
                 else if (reader.NodeType == XmlNodeType.Text) {
                     if (reader.Value != "") {
+                        if (addNewLine) {
+                            addNewLine = false;
+                            content.Append("<br>");
+                        }
                         content.Append(reader.Value);
                     }
                 }
@@ -364,6 +374,11 @@ sealed class XmlParser : IXmlParser {
 
             if (reader.NodeType == XmlNodeType.Text) {
                 if (reader.Value != "") {
+                    if (addNewLine) {
+                        addNewLine = false;
+                        content.Append("<br>");
+                    }
+
                     parts.Append(reader.Value);
                 }
             }
@@ -371,9 +386,13 @@ sealed class XmlParser : IXmlParser {
                 string name = reader.Name.ToLower();
 
                 if (ignoreTags.Contains(name)) {
-                        reader.Skip();
-                        prefetched = true;
-                        continue;
+                    reader.Skip();
+                    prefetched = true;
+                    continue;
+                }
+
+                if (addNewLineAfterTag.Contains(name)) {
+                    addNewLine = true;
                 }
 
                 if (DetectAndHandleChoices()) {
@@ -383,6 +402,11 @@ sealed class XmlParser : IXmlParser {
         }
 
         content.Clear();
+
+        if (addNewLine) {
+            addNewLine = false;
+            content.Append("<br>");
+        }
         content.Append(whitespaceRegEx.Replace(parts.ToString(), " ").Trim());
 
         return FetchTextBuffer();
