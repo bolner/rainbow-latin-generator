@@ -1,7 +1,7 @@
-Rainbow Latin Reader
-====================
+Rainbow Latin Generator
+=======================
 
-- [Rainbow Latin Reader](#rainbow-latin-reader)
+- [Rainbow Latin Generator](#rainbow-latin-generator)
 - [Introduction](#introduction)
 - [Credits](#credits)
 - [Usage](#usage)
@@ -11,7 +11,7 @@ Rainbow Latin Reader
 
 # Introduction
 
-This software generates Latin-English dual-language documents. Main webpage:
+This software generates Latin-English dual-language documents. See main webpage:
 - https://bolner.github.io/rainbow-latin-reader/index.html
 
 Watch the introduction video on YouTube:
@@ -42,12 +42,26 @@ and published under the [Apache License](http://www.apache.org/licenses/LICENSE-
     - `Omit_Archaic => False`
     - `Omit_Uncommon => False`
     - `Minimize_Output => False`
-- Then execute:
+- Then after you compiled WORDS, execute Rainbow Latin Reader:
     ```bash
       cd RainbowLatinReader
       dotnet run
     ```
-- The results will be generated in the output folder.
+- The results will be generated in the output folder:
+
+```
+$ dotnet run
+- 18:32:16 - Started. Max parallel threads: 44.
+- 18:32:16 - Parsing canonical documents.
+- 18:32:19 - Parsing lemmatized documents.
+- 18:32:28 - Collecting Latin words for the dictionary lookups.
+- 18:32:29 - Starting word lookups in Whitaker's Words.
+- 18:32:34 - Done. Total unique Latin word count: 40462.
+- 18:32:34 - Generating pages.
+- 18:32:39 - Generating index page.
+- 18:32:39 - Completed. Total documents: 21.
+$ 
+```
 
 # Architecture
 
