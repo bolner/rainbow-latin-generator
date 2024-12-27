@@ -21,7 +21,6 @@
   - `<milestone unit="card" n="703"/>`.
 - Line: `<l n="703">Nec vero ipse metus curasque resolvere ductor,</l>`
 - This is part of the text: `<label type="opener">Item eiusdem ad eundem quomodo substantiae in eo quod sint bonae sint cum non sint substantialia bona</label>` (Would be captured, so no problem.)
-- References to source page? `<pb id="p.41"/>`
 - Not part of the text: `<div type="commentary" resp="ed">`, `<div type="commentary">`
 - DIV types:
   - `<div type="textpart" subtype="section" n="1" resp="perseus">`
@@ -32,18 +31,15 @@
   - `<div1 type="book" n="1"><p>`
 - Other section markers:
   - Segment: `<seg type="section" n="12">...</seg>`
-  - <seg type="section" n="12">
-- Weirdest sections in data/phi0448/phi002/phi0448.phi002.perseus-eng2.xml:
+  - `<seg type="section" n="12">`
+- Page numbers (usually different in Latin and English):
   ```
     <pb id="p.3"/>
-    <div1 type="book" n="1"><p>
   ```
-  So the paragraph comes first, then the book. And the paragraph is by a `pb` tag.
-  Also the English starts with `p.3` while the Latin by `p.2`.
 - In `phi0631.phi001`:
   - `<div2 type="poem" n="25">`
 - Abbreviations with expansions:
-  - <abbr><expan>suppromus es</expan>suppromu's</abbr>
+  - `<abbr><expan>suppromus es</expan>suppromu's</abbr>`
 - "del" tags to be removed:
-  - ex<del>eo</del>cogitauit
-  - ciui<del>s</del> uacationem
+  - `ex<del>eo</del>cogitauit`
+  - `ciui<del>s</del> uacationem`
