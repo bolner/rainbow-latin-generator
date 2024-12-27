@@ -22,7 +22,7 @@ namespace RainbowLatinReader;
 /// <summary>
 /// This parser is for the "canonical literature" documents.
 /// </summary>
-sealed class XmlParser : IXmlParser {
+sealed class CanonLitXmlParser : ICanonLitXmlParser {
     private bool isDisposed = false;
     private bool prefetched = false;
     private readonly ICanonFile file;
@@ -39,6 +39,13 @@ sealed class XmlParser : IXmlParser {
     private string? nodeName = null;
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
+    private bool addNewLine = false;
+    private readonly HashSet<string> ignoreTags = ["note", "bibl", "del"];
+    private readonly HashSet<string> addNewLineAfterTag = ["l"];
+    private readonly HashSet<string> choice_accepted = ["abbr", "choice", "expan",
+        "ex", "corr", "sic", "reg", "orig"];
+    private readonly HashSet<string> choice_outer = ["choice", "abbr"];
+    private readonly HashSet<string> choice_inner = ["expan", "corr", "orig"];
 
     /// <summary>
     /// Create an XmlParser object.
@@ -46,7 +53,7 @@ sealed class XmlParser : IXmlParser {
     /// <param name="file">The file to be parsed.</param>
     /// <param name="destinations">List of regular expressions that
     /// are matched against element paths, used by the Next() method.</param>
-    public XmlParser(ICanonFile file, List<string> destinations) {
+    public CanonLitXmlParser(ICanonFile file, List<string> destinations) {
         this.file = file;
         stream = file.Open();
 
@@ -70,7 +77,7 @@ sealed class XmlParser : IXmlParser {
     /// and then clears the text buffer.
     /// </summary>
     /// <returns>The accumulated text or null if there's none.</returns>
-    private string? FetchTextBuffer() {
+    public string? FetchTextBuffer() {
         if (content.Length < 1) {
             return null;
         }
@@ -124,6 +131,12 @@ sealed class XmlParser : IXmlParser {
                 if (reader.NodeType == XmlNodeType.Element) {
                     string name = reader.Name.ToLower();
 
+                    if (ignoreTags.Contains(name)) {
+                        reader.Skip();
+                        prefetched = true;
+                        continue;
+                    }
+
                     /*
                         Update trace
                     */
@@ -167,6 +180,73 @@ sealed class XmlParser : IXmlParser {
     }
 
     /// <summary>
+    /// Handles these choice structures:
+    /// - ‹abbr›‹expan›suppromus es‹/expan›suppromu's‹/abbr› -
+    /// - ‹abbr›suppromu's‹expan›suppromus es‹/expan›‹/abbr› -
+    /// - ‹abbr›ausu's‹expan›‹ex›ausus es‹/ex›‹/expan› -
+    /// - ‹choice›‹abbr›M.‹/abbr›‹expan›M‹ex›arci‹/ex›‹/expan›‹/choice› -
+    /// - ‹choice›‹corr›ante‹/corr›‹sic›anta‹/sic›‹/choice› -
+    /// - ‹choice›‹reg›aenamque‹/reg›‹orig›ænamque‹/orig›‹/choice› -
+    /// Reader cannot be in prefetched state.
+    /// </summary>
+    /// <returns>Returns true if a choice structure was found, false otherwise.</returns>
+    private bool DetectAndHandleChoices() {
+        if (reader.NodeType == XmlNodeType.EndElement) {
+            return false;
+        }
+
+        Stack<string> ending = [];
+
+        if (choice_outer.Contains(reader.Name)) {
+            ending.Push(reader.Name);
+        } else {
+            return false;
+        }
+
+        while (!reader.EOF)
+        {
+            if (!reader.Read()) {
+                break;
+            }
+
+            if (reader.NodeType == XmlNodeType.EndElement
+                && reader.Name == ending.Peek())
+            {
+                ending.Pop();
+
+                if (ending.Count == 0) {
+                    break;
+                }
+
+                continue;
+            }
+
+            if (reader.NodeType == XmlNodeType.Element) {
+                if (ignoreTags.Contains(reader.Name)) {
+                    reader.Skip();
+                    continue;
+                }
+
+                if (!choice_accepted.Contains(reader.Name)) {
+                    throw new RainbowLatinException($"Invalid choice structure. Unexpected tag: {reader.Name}"
+                        + "\n" + GetDebugInfo());
+                }
+
+                if (choice_inner.Contains(reader.Name)) {
+                    ending.Push(reader.Name);
+                }
+            }
+            else if (reader.NodeType == XmlNodeType.Text) {
+                if (choice_inner.Contains(ending.Peek())) {
+                    content.Append(reader.Value);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// Stops at the next destination and pre-fetches all text
     /// after it until either the next destination or until
     /// the end of the document.
@@ -194,6 +274,20 @@ sealed class XmlParser : IXmlParser {
                 if (reader.NodeType == XmlNodeType.Element) {
                     string name = reader.Name.ToLower();
 
+                    if (ignoreTags.Contains(name)) {
+                        reader.Skip();
+                        prefetched = true;
+                        continue;
+                    }
+
+                    if (addNewLineAfterTag.Contains(name)) {
+                        addNewLine = true;
+                    }
+
+                    if (DetectAndHandleChoices()) {
+                        continue;
+                    }
+
                     /*
                         Update trace
                     */
@@ -220,6 +314,10 @@ sealed class XmlParser : IXmlParser {
                 }
                 else if (reader.NodeType == XmlNodeType.Text) {
                     if (reader.Value != "") {
+                        if (addNewLine) {
+                            addNewLine = false;
+                            content.Append("<br>");
+                        }
                         content.Append(reader.Value);
                     }
                 }
@@ -281,12 +379,39 @@ sealed class XmlParser : IXmlParser {
 
             if (reader.NodeType == XmlNodeType.Text) {
                 if (reader.Value != "") {
+                    if (addNewLine) {
+                        addNewLine = false;
+                        content.Append("<br>");
+                    }
+
                     parts.Append(reader.Value);
+                }
+            }
+            else if (reader.NodeType == XmlNodeType.Element) {
+                string name = reader.Name.ToLower();
+
+                if (ignoreTags.Contains(name)) {
+                    reader.Skip();
+                    prefetched = true;
+                    continue;
+                }
+
+                if (addNewLineAfterTag.Contains(name)) {
+                    addNewLine = true;
+                }
+
+                if (DetectAndHandleChoices()) {
+                    continue;
                 }
             }
         }
 
         content.Clear();
+
+        if (addNewLine) {
+            addNewLine = false;
+            content.Append("<br>");
+        }
         content.Append(whitespaceRegEx.Replace(parts.ToString(), " ").Trim());
 
         return FetchTextBuffer();
@@ -316,5 +441,10 @@ sealed class XmlParser : IXmlParser {
 
     public string GetDebugInfo() {
         return $"FILE '{file.GetPath()}', LINE {lineNumber}.";
+    }
+
+    public void Skip() {
+        reader.Skip();
+        prefetched = true;
     }
 }

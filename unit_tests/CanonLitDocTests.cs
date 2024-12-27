@@ -344,7 +344,7 @@ public class CanonLitDocTests
             ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
-        var canonParserFactory = new XmlParserFactory();
+        var canonParserFactory = new CanonLitXmlParserFactory();
         
         var doc = new CanonLitDoc(latinFile, englishFile, canonParserFactory, new BookWorm<string>(),
 			new BookWorm<string>(), new MockLogging());
@@ -365,7 +365,7 @@ public class CanonLitDocTests
             ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglish);
-        var canonParserFactory = new XmlParserFactory();
+        var canonParserFactory = new CanonLitXmlParserFactory();
 
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();
@@ -387,7 +387,7 @@ public class CanonLitDocTests
             ICanonFile.Language.Latin, 2, xmlDataLatin);
         var englishFile = new MockCanonFile("/tmp/example_english.xml", "phi1348.abo011",
             ICanonFile.Language.English, 2, xmlDataEnglishWithExtra);
-        var canonParserFactory = new XmlParserFactory();
+        var canonParserFactory = new CanonLitXmlParserFactory();
         
 		var latin = new BookWorm<string>();
 		var english = new BookWorm<string>();

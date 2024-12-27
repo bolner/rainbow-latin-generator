@@ -17,7 +17,7 @@ using System.Xml;
 
 namespace RainbowLatinReader;
 
-interface IXmlParser : IDisposable {
+interface ICanonLitXmlParser : IDisposable {
     /// <summary>
     /// Starts parsing the document starting from the current location
     /// until the destination is found, then stops and reads to attributes.
@@ -44,6 +44,7 @@ interface IXmlParser : IDisposable {
     /// <exception cref="RainbowLatinException"></exception>
     public bool Next();
     public Dictionary<string, string> GetAttributes();
+    public string? FetchTextBuffer();
 
     /// <summary>
     /// Read all text from a one deeper level.
@@ -54,5 +55,7 @@ interface IXmlParser : IDisposable {
     public string? FetchContent();
 
     public string? GetNodeName();
+    public XmlNodeType? GetNodeType();
     public string GetDebugInfo();
+    public void Skip();
 }

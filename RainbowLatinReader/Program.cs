@@ -34,7 +34,7 @@ var canonFileChanges = new FileChanges(File.ReadLines(canonFileChangesPath),
 var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChanges,
     Path.Join(dir, "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
-var canonParserFactory = new XmlParserFactory();
+var canonParserFactory = new CanonLitXmlParserFactory();
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,
     canonLogging);
 

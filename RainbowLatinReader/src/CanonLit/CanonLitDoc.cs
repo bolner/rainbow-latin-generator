@@ -18,7 +18,7 @@ namespace RainbowLatinReader;
 class CanonLitDoc : ICanonLitDoc {
     private readonly ICanonFile latinFile;
     private readonly ICanonFile englishFile;
-    private readonly IXmlParserFactory xmlParserFactory;
+    private readonly ICanonLitXmlParserFactory xmlParserFactory;
     private readonly IBookWorm<string> latinText;
     private readonly IBookWorm<string> englishText;
     private readonly ILogging logging;
@@ -44,7 +44,7 @@ class CanonLitDoc : ICanonLitDoc {
     private readonly string[] skipTypes = ["", "translation", "edition"];
 
     public CanonLitDoc(ICanonFile latinFile, ICanonFile englishFile,
-        IXmlParserFactory xmlParserFactory, IBookWorm<string> latinText,
+        ICanonLitXmlParserFactory xmlParserFactory, IBookWorm<string> latinText,
         IBookWorm<string> englishText, ILogging logging)
     {
         if (latinFile.GetDocumentID() != englishFile.GetDocumentID()) {
@@ -259,7 +259,7 @@ class CanonLitDoc : ICanonLitDoc {
         } while (!eof);
     }
 
-    private void ParseForSection(IXmlParser parser, HashSet<string>? allowedSectionTypes,
+    private void ParseForSection(ICanonLitXmlParser parser, HashSet<string>? allowedSectionTypes,
         out string? sectionType, out string? sectionName)
     {
         sectionType = null;

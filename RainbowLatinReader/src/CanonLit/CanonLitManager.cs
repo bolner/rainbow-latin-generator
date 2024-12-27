@@ -31,7 +31,7 @@ class CanonLitManager : ICanonLitManager {
 
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
-        IXmlParserFactory xmlParserFactory,
+        ICanonLitXmlParserFactory xmlParserFactory,
         ILogging logging)
     {
         this.logging = logging;

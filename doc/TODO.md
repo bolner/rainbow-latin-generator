@@ -1,3 +1,2 @@
-- In the no color mode: Keep focus on clicked word. Show color only of the selected word.
 - Have only one instance of the most important regular expressions.
 - Spacing issues in the Latin texts. (Caused by the DIVs.)
