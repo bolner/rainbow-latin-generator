@@ -24,9 +24,11 @@ class CanonLitManager : ICanonLitManager {
         "phi0975.phi001", "phi0845.phi002", "stoa0054.stoa006", "phi0448.phi001", "phi0914.phi001",
         "phi1056.phi001", "phi0914.phi0015", "phi0959.phi006", "phi0959.phi001", "phi0474.phi011"
     ];
-    private readonly Regex separatorRegex = new(@"[0-9\s\,\.\:\;\(\)\-\!\?—\'\""†\^]+",
+    private readonly Regex separatorRegex = new(@"[0-9\s\,\.\:\;\(\)\-\!\?—\'\""†\^\>\<]+",
         RegexOptions.Compiled | RegexOptions.Singleline);
     private readonly Regex latinRegex = new(@"^[a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ]+$",
+        RegexOptions.Compiled | RegexOptions.Singleline);
+    private readonly Regex htmlRegex = new(@"\<\/?[a-z]+(\s+[a-z]+\=\""[^\""]*\"")*\s?\/?\>",
         RegexOptions.Compiled | RegexOptions.Singleline);
 
     public CanonLitManager(IDirectoryScanner scanner,
@@ -132,6 +134,7 @@ class CanonLitManager : ICanonLitManager {
 
             foreach(string sectionID in sectionIDs) {
                 string section = doc.GetLatinSection(sectionID);
+                section = htmlRegex.Replace(section, "");
                 var words = separatorRegex.Split(section);
 
                 foreach(string word in words) {
