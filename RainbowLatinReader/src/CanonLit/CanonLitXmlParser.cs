@@ -24,6 +24,15 @@ namespace RainbowLatinReader;
 /// </summary>
 sealed class CanonLitXmlParser : ICanonLitXmlParser {
     private bool isDisposed = false;
+
+    /// <summary>
+    /// The reader's position is already on the next node.
+    /// There can be 2 reasons for the prefetched state:
+    /// - When using the Skip() method, it already reads the node that
+    ///     comes after the skipped one.
+    /// - When a destination is detected we wish to re-execute the
+    ///     whole logic without stepping over the destination tag.
+    /// </summary>
     private bool prefetched = false;
     private readonly ICanonFile file;
     private readonly Stream stream;
@@ -116,15 +125,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
         content.Clear();
 
         try {
-            while(!reader.EOF || prefetched) {
-                if (!prefetched) {
-                    if (!reader.Read()) {
-                        break;
-                    }
-                } else {
-                    prefetched = false;
-                }
-
+            while(Read()) {
                 /*
                     Element
                 */
@@ -187,7 +188,6 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
     /// - ‹choice›‹abbr›M.‹/abbr›‹expan›M‹ex›arci‹/ex›‹/expan›‹/choice› -
     /// - ‹choice›‹corr›ante‹/corr›‹sic›anta‹/sic›‹/choice› -
     /// - ‹choice›‹reg›aenamque‹/reg›‹orig›ænamque‹/orig›‹/choice› -
-    /// Reader cannot be in prefetched state.
     /// </summary>
     /// <returns>Returns true if a choice structure was found, false otherwise.</returns>
     private bool DetectAndHandleChoices() {
@@ -203,12 +203,8 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
             return false;
         }
 
-        while (!reader.EOF)
+        while (Read())
         {
-            if (!reader.Read()) {
-                break;
-            }
-
             if (reader.NodeType == XmlNodeType.EndElement
                 && reader.Name == ending.Peek())
             {
@@ -224,12 +220,14 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
             if (reader.NodeType == XmlNodeType.Element) {
                 if (ignoreTags.Contains(reader.Name)) {
                     reader.Skip();
+                    prefetched = true;
                     continue;
                 }
 
                 if (!choice_accepted.Contains(reader.Name)) {
                     throw new RainbowLatinException($"Invalid choice structure. Unexpected tag: {reader.Name}"
-                        + "\n" + GetDebugInfo());
+                        + "\n" + GetDebugInfo() + "\nChoice stack content: " +
+                        string.Join(", ", ending));
                 }
 
                 if (choice_inner.Contains(reader.Name)) {
@@ -259,15 +257,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
         content.Clear();
 
         try {
-            while(!reader.EOF || prefetched) {
-                if (!prefetched) {
-                    if (!reader.Read()) {
-                        break;
-                    }
-                } else {
-                    prefetched = false;
-                }
-
+            while(Read()) {
                 /*
                     Element
                 */
@@ -345,6 +335,23 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
         return attributes.Count > 0;
     }
 
+    private bool Read() {
+        if (!prefetched) {
+            if (reader.EOF) {
+                return false;
+            }
+
+            bool ret = reader.Read();
+            lineNumber = ((IXmlLineInfo)reader).LineNumber;
+
+            return ret;
+        }
+
+        prefetched = false;
+
+        return true;
+    }
+
     /// <summary>
     /// Read all text from a one deeper level.
     /// Ignore the 'note' elements, but get the text
@@ -363,15 +370,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
         }
         StringBuilder parts = new();
         
-        while(!reader.EOF || prefetched) {
-            if (!prefetched) {
-                if (!reader.Read()) {
-                    break;
-                }
-            } else {
-                prefetched = false;
-            }
-
+        while(Read()) {
             if (reader.Depth <= baseDepth) {
                 prefetched = true;
                 break;

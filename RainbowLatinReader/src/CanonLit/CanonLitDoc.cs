@@ -30,7 +30,8 @@ class CanonLitDoc : ICanonLitDoc {
     private bool isExcluded = false;
     private Exception? lastError = null;
     private bool skipUntilNextSection = false;
-    
+    private int totalSize = 0;
+
     private readonly List<string> stops = [
         "text.body.div",
         "text.body.div1",
@@ -144,7 +145,7 @@ class CanonLitDoc : ICanonLitDoc {
 
             logging.Text("complete", $"{latinFile.GetDocumentID()}. "
                 + $"English sections: {englishSections.Count}. Latin sections: {latinSections.Count}. "
-                + string.Join(", ", latinSections));
+                + $"Total size: {totalSize}.");
         } catch (Exception ex) {
             lastError = ex;
             logging.Exception(ex);
@@ -239,6 +240,7 @@ class CanonLitDoc : ICanonLitDoc {
             var text = parser.FetchTextBuffer() ?? "";
             if (!skipText.Any(text.Trim().Equals) && !skipUntilNextSection) {
                 bookworm.AddElement(text);
+                totalSize += text.Length;
             }
 
             ParseForSection(parser, allowedSectionTypes, out string? sectionType, out string? sectionName);
@@ -309,6 +311,11 @@ class CanonLitDoc : ICanonLitDoc {
                 sectionType = null;
             }
         }
+
+        if (sectionName == "" || sectionName == null) {
+            sectionType = null;
+            sectionName = null;
+        }
     }
 
     public string GetEnglishSection(string sectionKey) {
@@ -373,5 +380,14 @@ class CanonLitDoc : ICanonLitDoc {
 
     public string GetTranslator() {
         return translator;
+    }
+
+    /// <summary>
+    /// Returns the sum of the total lenghts (in characters) of
+    /// the Latin and English texts.
+    /// (Required statistics for pagination.)
+    /// </summary>
+    public int GetTotalSize() {
+        return totalSize;
     }
 }

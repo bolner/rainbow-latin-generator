@@ -81,4 +81,4 @@ var indexTemplate = new TemplateEngine(
 pageManager.GenerateIndexPage(indexTemplate,
     Path.Join(dir, "output", "index.html"));
 
-pageLogging.Print($"Completed. Total documents: {pageManager.GetDocumentCount()}.");
+pageLogging.Print($"Completed. Total pages: {pageManager.GetDocumentCount()}.");

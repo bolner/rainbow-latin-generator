@@ -89,8 +89,9 @@ class CanonLitManager : ICanonLitManager {
         */
         logging.Print("Parsing canonical documents.");
         scheduler.Run();
+        var results = scheduler.GetResults();
 
-        foreach(var doc in scheduler.GetResults()) {
+        foreach(var doc in results) {
             if (doc.GetLastError() != null) {
                 continue;
             }
@@ -101,6 +102,9 @@ class CanonLitManager : ICanonLitManager {
             
             library[doc.GetDocumentID()] = doc;
         }
+
+        logging.Print($"Successfully parsed {library.Count * 2} Canonical documents. "
+            + $"(Out of {results.Count * 2})");
     }
 
     public ICanonLitDoc GetDocument(string documentID) {

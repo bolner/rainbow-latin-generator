@@ -27,7 +27,7 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     private readonly List<string> sectionHierarchy = ["book", "letter", "speech", "chapter", "poem", "section",
         "card", "paragraph", "para"];
     private readonly bool clearLowerLevels;
-
+    
     /// <summary>
     /// Constructor.
     /// </summary>
@@ -85,7 +85,8 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
 
         if (first.ContainsKey(currentSectionKey)) {
             throw new RainbowLatinException("Invalid section structure. Section trace found twice: "
-                + currentSectionKey);
+                + $"{currentSectionKey}. The old one starts with: '{first[currentSectionKey].Value}'. "
+                + $"Incoming section type: '{sectionType}'.");
         }
 
         traceKeyToValues[currentSectionKey] = new Dictionary<string, string>(sections);

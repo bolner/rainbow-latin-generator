@@ -102,7 +102,7 @@ sealed class WhitakerProcess : IWhitakerProcess {
             int wordIndex = 0;
             string word;
             string content;
-            bool syncope = false;
+            bool omitNewline = false;
 
             foreach(string line in lines) {
                 if (line.Contains("awawaw")) {
@@ -111,10 +111,10 @@ sealed class WhitakerProcess : IWhitakerProcess {
 
                 trLine = line.Trim();
 
-                if (trLine.StartsWith("Syncope")) {
-                    syncope = true;
+                if (trLine.StartsWith("Syncope") || trLine.StartsWith("Bad Roman Numeral?")) {
+                    omitNewline = true;
                 }
-                else if (trLine == "" && syncope == false) {
+                else if (trLine == "" && omitNewline == false) {
                     if (entry.Count > 0) {
                         if (wordIndex > words.Length - 1) {
                             throw new RainbowLatinException($"Whitaker's words returned more entries ({wordIndex + 1}) "
@@ -136,7 +136,7 @@ sealed class WhitakerProcess : IWhitakerProcess {
 
                     continue;
                 } else {
-                    syncope = false;
+                    omitNewline = false;
                 }
 
                 entry.Add(trLine);

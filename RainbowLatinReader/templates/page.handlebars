@@ -35,7 +35,7 @@
                 padding: 0;
                 padding-right: 0.7em;
                 font-size: calc(1vw + 0.3em);
-                color: rgb(209, 209, 209);
+                color: rgb(197, 203, 211);
                 background-color: rgb(10, 17, 27);
             }
 
@@ -333,10 +333,18 @@
         <div class="navigation">
             <a href="index.html">Index</a>
             {{#each navigation}}
-                {{#if is_current}}
-                    <div class="current-page">{{section_from}} - {{section_to}}</div>
+                {{#if is_single_section}}
+                    {{#if is_current}}
+                        <div class="current-page">{{section_from}}</div>
+                    {{else}}
+                        <a href="{{../document_id}}_{{page}}.html">{{section_from}}</a>
+                    {{/if}}
                 {{else}}
-                    <a href="{{../document_id}}_{{page}}.html">{{section_from}} - {{section_to}}</a>
+                    {{#if is_current}}
+                        <div class="current-page">{{section_from}} - {{section_to}}</div>
+                    {{else}}
+                        <a href="{{../document_id}}_{{page}}.html">{{section_from}} - {{section_to}}</a>
+                    {{/if}}
                 {{/if}}
             {{/each}}
         </div>
@@ -383,10 +391,18 @@
         <div class="navigation">
             <a href="index.html">Index</a>
             {{#each navigation}}
-                {{#if is_current}}
-                    <div class="current-page">{{section_from}} - {{section_to}}</div>
+                {{#if is_single_section}}
+                    {{#if is_current}}
+                        <div class="current-page">{{section_from}}</div>
+                    {{else}}
+                        <a href="{{../document_id}}_{{page}}.html">{{section_from}}</a>
+                    {{/if}}
                 {{else}}
-                    <a href="{{../document_id}}_{{page}}.html">{{section_from}} - {{section_to}}</a>
+                    {{#if is_current}}
+                        <div class="current-page">{{section_from}} - {{section_to}}</div>
+                    {{else}}
+                        <a href="{{../document_id}}_{{page}}.html">{{section_from}} - {{section_to}}</a>
+                    {{/if}}
                 {{/if}}
             {{/each}}
         </div>
@@ -396,6 +412,8 @@
 			<a href="https://github.com/PerseusDL/canonical-latinLit" target="_blank">Perseus canonical Latin literature</a>,
 			<a href="https://github.com/lascivaroma/latin-lemmatized-texts" target="_blank">Lemmatized Latin texts by Thibault Clérice et al.</a>
 			and <a href="https://mk270.github.io/whitakers-words/dictionary.html" target="_blank">Whitaker's Words</a>.
+            <br>
+            Generated on {{date}}
 		</div>
 
         <script>

@@ -106,4 +106,50 @@ public class XmlParserTests
             $"The extracted text is not what is expected.\nGot:\n{text}\n\n"
             + $"Expected:\n{expected}\n");
     }
+
+    [Fact]
+    public void TestChoiceStructureWithDel() {
+        byte[] data = Encoding.ASCII.GetBytes(@"
+<xml>
+    <div n=""1"">
+        patres nostri
+        <choice>
+            <sic>cumr</sic>
+            <corr>cum</corr>
+        </choice>
+        in Hispania Carthaginiensium et imperatores
+    </div>
+
+    <div n=""2"">
+        <choice>
+            <sic>ibij</sic>
+            <corr><del>ibi</del></corr>
+        </choice>
+        et exercitus essent,
+        <choice>
+            <sic>ippsi</sic>
+            <corr>ipsi</corr>
+        </choice>
+        nullum
+    </div>
+</xml>
+        ");
+
+        var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
+            ICanonFile.Language.Latin, 2, data);
+        using CanonLitXmlParser xml = new(canonFile, [ "xml.div" ]);
+        
+        xml.Next();
+        bool found = xml.Next();
+
+        Assert.True(found, "Wasn't able to find the second 'xml.div'.");
+        xml.Next();
+
+        string text = (xml.FetchTextBuffer() ?? "").Trim();
+        string expected = "et exercitus essent, ipsi nullum";
+
+        Assert.True(text == expected,
+            $"The extracted text is not what is expected.\nGot:\n{text}\n\n"
+            + $"Expected:\n{expected}\n");
+    }
 }

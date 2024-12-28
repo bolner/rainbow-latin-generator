@@ -25,7 +25,7 @@ class PageManager : IPageManager {
         string outputDirectory)
     {
         this.logging = logging;
-        var ids = lemmatizedManager.GetDocumentIDs();
+        var ids = lemmatizedManager.GetDocumentIDs().ToHashSet();
 
         foreach(string id in ids) {
             var canonLitDoc = canonLitManager.GetDocument(id);
@@ -39,6 +39,23 @@ class PageManager : IPageManager {
             );
         }
 
+        /*
+            Log Perseus documents for which no lemmatized doc exists.
+        */
+        var canonIDs = canonLitManager.GetDocumentIDs();
+        int missingCount = 0;
+        foreach(string canonID in canonIDs) {
+            if (!ids.Contains(canonID)) {
+                missingCount++;
+                logging.Warning("missing_lemmatized", canonID);
+            }
+        }
+
+        if (missingCount > 0) {
+            logging.Print($"There are {missingCount} Canonical document pairs for which "
+                + "no lemmatized version exists.");
+        }
+        
         /*
             Generate pages and collect results.
         */
@@ -101,7 +118,9 @@ class PageManager : IPageManager {
         indexTemplate.Generate(
             new Dictionary<string, object>()
             {
-                { "index", data }
+                { "index", data },
+                { "date", DateTime.Now.ToString("yyyy-MM-dd") },
+                { "document_count", library.Count }
             },
             outputPath
         );

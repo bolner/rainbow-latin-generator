@@ -26,4 +26,11 @@ interface ICanonLitDoc : IProcessable {
     public bool IsExcluded();
     public List<string> GetAllSections();
     public string GetDocumentID();
+
+    /// <summary>
+    /// Returns the sum of the total lenghts (in characters) of
+    /// the Latin and English texts.
+    /// (Required statistics for pagination.)
+    /// </summary>
+    public int GetTotalSize();
 }

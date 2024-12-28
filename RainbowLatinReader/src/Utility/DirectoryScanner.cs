@@ -48,7 +48,6 @@ class DirectoryScanner : IDirectoryScanner {
                     .Where(id => id.Trim() != "")
             ];
             
-
             bool filter(string x)
             {
                 var m = docIdRegex.Match(x);

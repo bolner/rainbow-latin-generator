@@ -39,8 +39,15 @@ class Page : IPage {
 
     public void Process() {
         try {
-            int pageSize = 20;
             var keys = canonLitDoc.GetAllSections().ToArray();
+            // Expected: 1500 words (English+Latin) per section. 20 sections per page.
+            double multiplier = (
+                (double)1500 / 
+                (
+                    (double)canonLitDoc.GetTotalSize() / (double)keys.Length
+                )
+            );
+            int pageSize = Math.Max((int)((double)20 * multiplier), 1);
             int count = keys.Length;
             int pageCount = (int)Math.Ceiling(((double)count) / ((double)pageSize));
             int sectionNumber = 0;
@@ -123,7 +130,8 @@ class Page : IPage {
                             {"is_current", i == page},
                             {"section_from", from + 1},
                             {"section_to", to + 1},
-                            {"page", i + 1}
+                            {"page", i + 1},
+                            {"is_single_section", from == to}
                         }
                     );
                 }
@@ -149,7 +157,8 @@ class Page : IPage {
                     { "sections", sections },
                     { "navigation", navigation },
                     { "document_id", canonLitDoc.GetDocumentID() },
-                    { "dictionary", JsonSerializer.Serialize(dict) }
+                    { "dictionary", JsonSerializer.Serialize(dict) },
+                    { "date", DateTime.Now.ToString("yyyy-MM-dd") }
                 };
 
                 templateEngine.Generate(data, Path.Join(outputFolder, 
@@ -160,7 +169,7 @@ class Page : IPage {
         }
     }
 
-    private int CountWordsOnly(List<LemmatizedToken> tokens) {
+    private static int CountWordsOnly(List<LemmatizedToken> tokens) {
         int count = 0;
 
         foreach(LemmatizedToken token in tokens) {
