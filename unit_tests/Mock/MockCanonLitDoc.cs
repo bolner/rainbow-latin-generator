@@ -67,4 +67,8 @@ class MockCanonLitDoc : ICanonLitDoc {
     public string GetDocumentID() {
         return "phi1234.phi001";
     }
+
+    public int GetTotalSize() {
+        return 1000;
+    }
 }
