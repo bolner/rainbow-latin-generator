@@ -287,11 +287,11 @@ class CanonLitDoc : ICanonLitDoc {
             attributes.TryGetValue("unit", out string? unit);
 
             if (divSubType != null) {
-                sectionType = divSubType;
+                sectionType = divSubType.ToLower();
             } else if (unit != null) {
-                sectionType = unit;
-            } else {
-                sectionType = divType;
+                sectionType = unit.ToLower();
+            } else if (divType != null) {
+                sectionType = divType.ToLower();
             }
         }
 

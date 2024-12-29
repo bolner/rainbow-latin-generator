@@ -26,7 +26,4 @@ interface IBookWorm<ELEMENT_TYPE> {
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey);
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey);
     public Dictionary<string, string>? GetSectionValuesForTraceKey(string sectionKey);
-    public void ApplyChange(ChangeType changeType, string key, ELEMENT_TYPE content,
-        string? after = null, string? before = null);
-    public void RemoveSections(List<string> sectionKeys);
 }

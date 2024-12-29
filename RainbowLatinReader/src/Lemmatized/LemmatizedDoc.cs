@@ -27,6 +27,9 @@ class LemmatizedDoc : ILemmatizedDoc {
     private readonly ILogging logging;
     private Exception? lastError = null;
     private int index = 0;
+    private readonly Regex letterRegex = new(
+        @"([^a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ\u0370-\u03ff\u1f00-\u1fff\-]+)",
+        RegexOptions.Compiled | RegexOptions.Singleline);
     
     public LemmatizedDoc(ICanonFile file, IXmlParserFactory xmlParserFactory,
         ILogging logging)
@@ -152,12 +155,12 @@ class LemmatizedDoc : ILemmatizedDoc {
         }
 
         int baseIndex = index;
-        string[] words = Regex.Split(section, @"([^a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ\u0370-\u03ff\u1f00-\u1fff\-]+)");
-        int limit = 6;
+        string[] words = letterRegex.Split(section);
+        int window = 8;
         List<LemmatizedToken> result = [];
 
         for(int sectionIndex = 0; sectionIndex < words.Length; sectionIndex++) {
-            int end = Math.Min(baseIndex + limit, tokens.Length - 1);
+            int end = Math.Min(baseIndex + window, tokens.Length - 1);
             bool found = false;
 
             for (int cursor = baseIndex; cursor < end; cursor++) {

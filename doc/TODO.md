@@ -1,3 +1,2 @@
 - Have only one instance of the most important regular expressions.
 - Spacing issues in the Latin texts. (Caused by the DIVs.)
-- Move documentsRequireLevelClear into a config file.

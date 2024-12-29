@@ -73,3 +73,13 @@ document: phi0430.phi001.perseus-lat1.xml
 match: <p>Hic etsi virtute nostri antecedebat, adversarii loco superiore
 replace: </div1><div1 type="chapter" n="31">
     <p>Hic etsi virtute nostri antecedebat, adversarii loco superiore
+
+document: phi0474.phi011.perseus-eng2.xml
+start: <div type="textpart" subtype="section" n="4fr" resp="perseus">
+end: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1" resp="perseus">
+replace: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1" resp="perseus">
+
+document: phi0474.phi011.perseus-lat2.xml
+start: <div type="textpart" subtype="section" n="1f">
+end: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1">
+replace: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1">

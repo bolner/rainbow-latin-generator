@@ -20,10 +20,6 @@ namespace RainbowLatinReader;
 class CanonLitManager : ICanonLitManager {
     private readonly ILogging logging;
     private readonly Dictionary<string, ICanonLitDoc> library = [];
-    private readonly HashSet<string> documentsRequireLevelClear = [
-        "phi0975.phi001", "phi0845.phi002", "stoa0054.stoa006", "phi0448.phi001", "phi0914.phi001",
-        "phi1056.phi001", "phi0914.phi0015", "phi0959.phi006", "phi0959.phi001", "phi0474.phi011"
-    ];
     private readonly Regex separatorRegex = new(@"[0-9\s\,\.\:\;\(\)\-\!\?—\'\""†\^\>\<]+",
         RegexOptions.Compiled | RegexOptions.Singleline);
     private readonly Regex latinRegex = new(@"^[a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ]+$",
@@ -34,7 +30,8 @@ class CanonLitManager : ICanonLitManager {
     public CanonLitManager(IDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         ICanonLitXmlParserFactory xmlParserFactory,
-        ILogging logging)
+        ILogging logging,
+        HashSet<string> documentsRequireLevelClear)
     {
         this.logging = logging;
         ICanonFile? file;

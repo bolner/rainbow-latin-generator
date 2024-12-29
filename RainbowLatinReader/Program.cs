@@ -35,8 +35,10 @@ var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChang
     Path.Join(dir, "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
 var canonParserFactory = new CanonLitXmlParserFactory();
+HashSet<string> levelClear = [.. File.ReadAllLines(Path.Join(dir, "data",
+    "documents_require_level_clear.txt"))];
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,
-    canonLogging);
+    canonLogging, levelClear);
 
 /*
     Lemmatized Latin documents
@@ -48,8 +50,12 @@ var lemmaPaths = Directory.EnumerateFiles(
 );
 
 var lemmaLogging = new Logging(Path.Join(dir, "logs"), "lemma");
+string lemmaFileChangesPath = Path.Join(dir, "data", "lemmatized_changes.txt");
+var lemmaFileChanges = new FileChanges(File.ReadLines(lemmaFileChangesPath),
+    lemmaFileChangesPath);
 var ids = new HashSet<string>(canonLitManager.GetDocumentIDs());
-var lemmaScanner = new DirectoryScanner(lemmaPaths, lemmaLogging, allowedDocumentIDs: ids);
+var lemmaScanner = new DirectoryScanner(lemmaPaths, lemmaLogging, fileChanges: lemmaFileChanges,
+    allowedDocumentIDs: ids);
 var lemmaScheduler = new Scheduler<ILemmatizedDoc>(config.GetThreadCount());
 var lemmaParserFactory = new XmlParserFactory();
 var lemmaManager = new LemmatizedManager(lemmaScanner, lemmaScheduler,
