@@ -13,45 +13,29 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
+using System.Text;
 using RainbowLatinReader;
 
 namespace unit_tests;
 
-class MockLogging : ILogging {
-    public void Text(string fileName, string text) {
+sealed class MockFileChangeScanner : ICanonDirectoryScanner {
+    private readonly string content;
+    private readonly string path;
+    private bool finished = false;
 
+    public MockFileChangeScanner(string content, string path) {
+        this.content = content;
+        this.path = path;
     }
 
-    public void Warning(string fileName, string warning) {
+    public ICanonFile? Next() {
+        if (!finished) {
+            finished = true;
 
-    }
-
-    public void Exception(Exception ex) {
-
-    }
-
-    void IDisposable.Dispose() {
-
-    }
-
-    public void Print(string text) {
+            return new MockCanonFile(path, "docid", ICanonFile.Language.Latin, 1,
+                Encoding.ASCII.GetBytes(content));
+        }
         
-    }
-
-    public void RegisterUnchangedOutputFile() {
-
-    }
-
-    public void RegisterChangedOutputFile() {
-
-    }
-
-    public int GetUnchangedOutputFileCount() {
-        return 0;
-    }
-
-    public int GetChangedOutputFileCount() {
-        return 0;
+        return null;
     }
 }

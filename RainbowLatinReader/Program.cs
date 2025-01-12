@@ -17,6 +17,12 @@ using RainbowLatinReader;
 
 string dir = Directory.GetCurrentDirectory();
 var config = new Config(File.Open(Path.Join(dir, "config.ini"), FileMode.Open));
+var fileChangesPaths = Directory.EnumerateFiles(
+    Path.Join(dir, "data"), "*.txt", SearchOption.AllDirectories
+);
+var canonLogging = new Logging(Path.Join(dir, "logs"), "canon");
+var fileChangeScanner = new CanonDirectoryScanner(fileChangesPaths, canonLogging);
+var fileChanges = new FileChanges(fileChangeScanner);
 
 /*
     Perseus Canonical Literature
@@ -27,11 +33,7 @@ var canonPaths = Directory.EnumerateFiles(
     SearchOption.AllDirectories
 );
 
-var canonLogging = new Logging(Path.Join(dir, "logs"), "canon");
-string canonFileChangesPath = Path.Join(dir, "data", "canonLit_changes.txt");
-var canonFileChanges = new FileChanges(File.ReadLines(canonFileChangesPath),
-    canonFileChangesPath);
-var canonScanner = new DirectoryScanner(canonPaths, canonLogging, canonFileChanges,
+var canonScanner = new CanonDirectoryScanner(canonPaths, canonLogging, fileChanges,
     Path.Join(dir, "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
 var canonParserFactory = new CanonLitXmlParserFactory();
@@ -50,11 +52,8 @@ var lemmaPaths = Directory.EnumerateFiles(
 );
 
 var lemmaLogging = new Logging(Path.Join(dir, "logs"), "lemma");
-string lemmaFileChangesPath = Path.Join(dir, "data", "lemmatized_changes.txt");
-var lemmaFileChanges = new FileChanges(File.ReadLines(lemmaFileChangesPath),
-    lemmaFileChangesPath);
 var ids = new HashSet<string>(canonLitManager.GetDocumentIDs());
-var lemmaScanner = new DirectoryScanner(lemmaPaths, lemmaLogging, fileChanges: lemmaFileChanges,
+var lemmaScanner = new CanonDirectoryScanner(lemmaPaths, lemmaLogging, fileChanges: fileChanges,
     allowedDocumentIDs: ids);
 var lemmaScheduler = new Scheduler<ILemmatizedDoc>(config.GetThreadCount());
 var lemmaParserFactory = new XmlParserFactory();
@@ -76,15 +75,13 @@ var whitakerManager = new WhitakerManager(whitakerScheduler, allWords,
 var pageLogging = new Logging(Path.Join(dir, "logs"), "page");
 var pageScheduler = new Scheduler<IPage>(config.GetThreadCount());
 var pageTemplate = new TemplateEngine(
-    Path.Join(dir, "templates", "page.handlebars")
+    Path.Join(dir, "templates", "page.handlebars"), pageLogging
 );
 var pageManager = new PageManager(pageScheduler, pageLogging, canonLitManager,
     lemmaManager, whitakerManager, pageTemplate,
     Path.Join(dir, "output"));
 var indexTemplate = new TemplateEngine(
-    Path.Join(dir, "templates", "index.handlebars")
+    Path.Join(dir, "templates", "index.handlebars"), pageLogging
 );
 pageManager.GenerateIndexPage(indexTemplate,
     Path.Join(dir, "output", "index.html"));
-
-pageLogging.Print($"Completed. Total pages: {pageManager.GetDocumentCount()}.");

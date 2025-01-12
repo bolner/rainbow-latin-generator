@@ -1,0 +1,16 @@
+# Add missing section divisions and missing sections.
+
+document: phi0430.phi001.perseus-lat1.xml
+match: <p>Postero die equites cum levi armatura ex adversariorum
+replace: </div1><div1 type="chapter" n="21">
+    <p>Postero die equites cum levi armatura ex adversariorum
+
+document: phi0430.phi001.perseus-lat1.xml
+match: <p>Hoc praeterito tempore, qui in oppido Ategua Ursaonenses
+replace: </div1><div1 type="chapter" n="22">
+    <p>Hoc praeterito tempore, qui in oppido Ategua Ursaonenses
+
+document: phi0430.phi001.perseus-lat1.xml
+match: <p>Hic etsi virtute nostri antecedebat, adversarii loco superiore
+replace: </div1><div1 type="chapter" n="31">
+    <p>Hic etsi virtute nostri antecedebat, adversarii loco superiore

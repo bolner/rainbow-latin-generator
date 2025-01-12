@@ -39,7 +39,7 @@ public class DirectoryScannerTests
 
         MockLogging logging = new();
 
-        DirectoryScanner scanner = new(paths, logging);
+        CanonDirectoryScanner scanner = new(paths, logging);
         string lang;
 
         for(int i = 0; i < 4; i++) {

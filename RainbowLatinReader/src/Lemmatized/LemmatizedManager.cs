@@ -19,7 +19,7 @@ class LemmatizedManager : ILemmatizedManager {
     private readonly Dictionary<string, ILemmatizedDoc> library = [];
     private ILogging logging;
 
-    public LemmatizedManager(IDirectoryScanner scanner,
+    public LemmatizedManager(ICanonDirectoryScanner scanner,
         IScheduler<ILemmatizedDoc> scheduler,
         IXmlParserFactory xmlParserFactory,
         ILogging logging)

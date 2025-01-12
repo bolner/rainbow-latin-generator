@@ -1,0 +1,5 @@
+# Fix typo
+
+document: phi0474.phi002.perseus-eng2.xml
+match: trifling affairs be who neglects a commission
+replace: trifling affairs he who neglects a commission

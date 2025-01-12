@@ -124,6 +124,11 @@ class PageManager : IPageManager {
             },
             outputPath
         );
+
+        logging.Print($"Completed. Total HTML pages generated: {logging.GetChangedOutputFileCount()
+            + logging.GetUnchangedOutputFileCount()}.");
+        logging.Print($"Changed: {logging.GetChangedOutputFileCount()}, "
+            + $"unchanged: {logging.GetUnchangedOutputFileCount()}.");
     }
 
     public int GetDocumentCount() {

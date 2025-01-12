@@ -1,7 +1,5 @@
 # Canonical Literature: Special cases
 
-- Don't auto-fetch text at destinations. (Can't capture attributes if we re-position.)
-- Capture text since the last position.
 - Rendering markup:
   - `<quote>new man</quote>`
   - `<hi rend="sup">2</hi>`
@@ -20,7 +18,7 @@
   - `<milestone unit="line" ed="exclude" n="365"/>`
   - `<milestone unit="card" n="703"/>`.
 - Line: `<l n="703">Nec vero ipse metus curasque resolvere ductor,</l>`
-- This is part of the text: `<label type="opener">Item eiusdem ad eundem quomodo substantiae in eo quod sint bonae sint cum non sint substantialia bona</label>` (Would be captured, so no problem.)
+- This is part of the text: `<label type="opener">Item eiusdem ad eundem quomodo substantiae in eo quod sint bonae sint cum non sint substantialia bona</label>`
 - Not part of the text: `<div type="commentary" resp="ed">`, `<div type="commentary">`
 - DIV types:
   - `<div type="textpart" subtype="section" n="1" resp="perseus">`

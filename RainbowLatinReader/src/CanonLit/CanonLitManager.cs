@@ -27,7 +27,7 @@ class CanonLitManager : ICanonLitManager {
     private readonly Regex htmlRegex = new(@"\<\/?[a-z]+(\s+[a-z]+\=\""[^\""]*\"")*\s?\/?\>",
         RegexOptions.Compiled | RegexOptions.Singleline);
 
-    public CanonLitManager(IDirectoryScanner scanner,
+    public CanonLitManager(ICanonDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         ICanonLitXmlParserFactory xmlParserFactory,
         ILogging logging,

@@ -56,7 +56,8 @@ replace: XXXXXXXXXXXXXXXXXXX
     [Fact]
     public void TestParsing1()
     {
-        var changes = new FileChanges(fileChanges.Split('\n'), "/tmp/canonLit_changes.txt");
+        var scanner = new MockFileChangeScanner(fileChanges, "/tmp/canonLit_changes.txt");
+        var changes = new FileChanges(scanner);
         var list = changes.Find("phi0631.phi001.perseus-eng2.xml");
 
         Assert.True(list.Count == 2, "Cannot find 2 changes for document 'phi0631.phi001.perseus-eng2.xml'.");
@@ -65,7 +66,8 @@ replace: XXXXXXXXXXXXXXXXXXX
     [Fact]
     public void TestStringReplace1()
     {
-        var changes = new FileChanges(simpleChanges.Split('\n'), "/tmp/canonLit_changes.txt");
+        var scanner = new MockFileChangeScanner(simpleChanges, "/tmp/canonLit_changes.txt");
+        var changes = new FileChanges(scanner);
         var list = changes.Find("string_replace.xml");
 
         Assert.True(list.Count == 1, "Cannot find simple string replace example.");
@@ -87,7 +89,8 @@ Sphinx of black quartz, judge my vow.
     [Fact]
     public void TestSectionReplace1()
     {
-        var changes = new FileChanges(simpleChanges.Split('\n'), "/tmp/canonLit_changes.txt");
+        var scanner = new MockFileChangeScanner(simpleChanges, "/tmp/canonLit_changes.txt");
+        var changes = new FileChanges(scanner);
         var list = changes.Find("section_replace.xml");
 
         Assert.True(list.Count == 1, "Cannot find section replace example.");

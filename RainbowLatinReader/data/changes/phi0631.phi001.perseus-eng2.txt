@@ -1,0 +1,12 @@
+# Add missing section boundaries.
+
+document: phi0631.phi001.perseus-eng2.xml
+match: XXXV. "Lucius Catiline to Quintus Catulus
+replace: </p></div>
+    <div type="textpart" subtype="chapter" n="35">
+    <p>XXXV. "Lucius Catiline to Quintus Catulus
+
+document: phi0631.phi001.perseus-eng2.xml
+match: <p>LVII When it was reported in his camp, however, that the conspiracy
+replace: </div><div type="textpart" subtype="chapter" n="57">
+    <p>LVII When it was reported in his camp, however, that the conspiracy

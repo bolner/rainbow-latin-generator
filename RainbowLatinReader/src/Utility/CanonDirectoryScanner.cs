@@ -17,9 +17,9 @@ using System.Text.RegularExpressions;
 
 namespace RainbowLatinReader;
 
-class DirectoryScanner : IDirectoryScanner {
+class CanonDirectoryScanner : ICanonDirectoryScanner {
     private readonly Regex analyseIdRegex = new(
-        @"([a-z]+[0-9]+\.[a-z]+[0-9]+)\.perseus-(eng|lat)([0-9]+)\.xml$",
+        @"([a-z]+[0-9]+\.[a-z]+[0-9]+)\.perseus-(eng|lat)([0-9]+)\.(xml|txt)$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
     private readonly Regex docIdRegex = new(
@@ -31,7 +31,7 @@ class DirectoryScanner : IDirectoryScanner {
     private readonly ILogging logging;
     private readonly IFileChanges? fileChanges;
 
-    public DirectoryScanner(IEnumerable<string> paths, ILogging logging,
+    public CanonDirectoryScanner(IEnumerable<string> paths, ILogging logging,
         IFileChanges? fileChanges = null, string? blocklistFilePath = null,
         HashSet<string>? allowedDocumentIDs = null)
     {

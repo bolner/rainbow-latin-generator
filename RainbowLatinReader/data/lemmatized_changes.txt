@@ -1,4 +1,0 @@
-document: urn:cts:latinLit:phi0474.phi011.perseus-lat2.xml
-start: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1f">
-end: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1">
-replace: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1">

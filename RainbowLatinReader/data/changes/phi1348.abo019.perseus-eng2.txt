@@ -1,0 +1,15 @@
+# Fix section boundaries.
+
+document: phi1348.abo019.perseus-eng2.xml
+start: On the other hand, the generality of writers
+end: It is certain, however, that Publius Vitellius
+replace: </p></div>
+    <div type="textpart" n="2" subtype="chapter">
+    On the other hand, the generality of writers say that the founder of the
+    family was a freedman. Cassius Severus and
+    some others relate that he was likewise a cobbler, whose son having made a
+    considerable fortune by agencies and dealings in confiscated property, begot, by
+    a common strumpet, daughter of one Antiochus, a baker, a child, who afterwards
+    became a Roman knight. Of these different accounts the reader is left to take
+    his choice.
+    <p>It is certain, however, that Publius Vitellius

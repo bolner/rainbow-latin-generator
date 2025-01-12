@@ -15,6 +15,6 @@ limitations under the License.
 */
 namespace RainbowLatinReader;
 
-interface IDirectoryScanner {
+interface ICanonDirectoryScanner {
     public ICanonFile? Next();
 }

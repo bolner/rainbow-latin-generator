@@ -1,0 +1,5 @@
+# Fix section name.
+
+document: phi0474.phi052.perseus-lat2.xml
+match: <milestone unit="section" n="90?"/>
+replace: <milestone unit="section" n="90"/>

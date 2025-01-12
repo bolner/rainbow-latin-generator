@@ -26,13 +26,13 @@ class FileChanges : IFileChanges {
     /// </summary>
     /// <param name="lines">The file content to parse.</param>
     /// <param name="filePath">Used only for error messages.</param>
-    public FileChanges(IEnumerable<string> lines, string filePath) {
+    public FileChanges(ICanonDirectoryScanner scanner) {
         string? lastLabel = null;
         Dictionary<string, string> state = [];
         List<string> parts = [];
-        int lineNum = 0;
+        int lineNum;
 
-        void SectionEnded() {
+        void SectionEnded(string filePath) {
             if (lastLabel != null) {
                 state[lastLabel] = string.Join(' ', parts);
                 parts.Clear();
@@ -68,29 +68,43 @@ class FileChanges : IFileChanges {
             state.Clear();
         }
 
-        foreach(string line in lines) {
-            lineNum++;
+        ICanonFile? file;
+        string? line;
 
-            if (line.Trim() == "") {
-                SectionEnded();
-                continue;
-            }
+        while((file = scanner.Next()) != null) {
+            using var stream = file.Open();
+            using StreamReader reader = new(stream);
+            lineNum = 0;
+            
+            while((line = reader.ReadLine()) != null) {
+                lineNum++;
 
-            Match match = labelRegex.Match(line);
-            if (match.Groups.Count < 3) {
-                parts.Add(line.Trim());
-            } else {
-                if (lastLabel != null) {
-                    state[lastLabel] = string.Join(' ', parts);
+                if (line.StartsWith('#')) {
+                    // Comment lines start with #.
+                    continue;
                 }
-                
-                parts.Clear();
-                lastLabel = match.Groups[1].Value;
-                parts.Add(match.Groups[2].Value);
-            }
-        }
 
-        SectionEnded();
+                if (line.Trim() == "") {
+                    SectionEnded(file.GetPath());
+                    continue;
+                }
+
+                Match match = labelRegex.Match(line);
+                if (match.Groups.Count < 3) {
+                    parts.Add(line.Trim());
+                } else {
+                    if (lastLabel != null) {
+                        state[lastLabel] = string.Join(' ', parts);
+                    }
+                    
+                    parts.Clear();
+                    lastLabel = match.Groups[1].Value;
+                    parts.Add(match.Groups[2].Value);
+                }
+            }
+
+            SectionEnded(file.GetPath());
+        }
     }
 
     public List<FileChangeEntry> Find(string fileName) {

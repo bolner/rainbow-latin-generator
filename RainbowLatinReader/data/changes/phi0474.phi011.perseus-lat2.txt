@@ -1,0 +1,12 @@
+# Remove the introductory sections from the beginning
+# which have mismatching names in the English and Latin documents.
+
+document: urn:cts:latinLit:phi0474.phi011.perseus-lat2.xml
+start: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1f">
+end: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1">
+replace: <ab type="section" n="urn:cts:latinLit:phi0474.phi011.perseus-lat2:1.1">
+
+document: phi0474.phi011.perseus-lat2.xml
+start: <div type="textpart" subtype="section" n="1f">
+end: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1">
+replace: <milestone n="1" unit="chapter"/><div type="textpart" subtype="section" n="1">

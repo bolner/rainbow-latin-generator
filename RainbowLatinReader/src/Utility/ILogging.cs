@@ -20,4 +20,8 @@ interface ILogging : IDisposable {
     public void Warning(string fileName, string warning);
     public void Exception(Exception ex);
     public void Print(string text);
+    public void RegisterUnchangedOutputFile();
+    public void RegisterChangedOutputFile();
+    public int GetUnchangedOutputFileCount();
+    public int GetChangedOutputFileCount();
 }

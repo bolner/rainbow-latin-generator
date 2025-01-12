@@ -1,0 +1,5 @@
+# Add the names of the editors.
+document: phi0959.phi002.perseus-eng2.xml
+match: <author xml:lang="lat">P. Ovidius Naso</author>
+replace: <author xml:lang="lat">P. Ovidius Naso</author>
+    <editor>J. Nunn, R. Priestly, R. Lea, J. Rodwell</editor>

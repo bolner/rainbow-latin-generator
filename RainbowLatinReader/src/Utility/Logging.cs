@@ -23,6 +23,8 @@ sealed class Logging : ILogging {
     private readonly string logDirectory;
     private readonly string prefix;
     private readonly Dictionary<string, StreamWriter> logFiles = [];
+    private int unchangedOutputFileCount = 0;
+    private int changedOutputFileCount = 0;
 
     public Logging(string logDirectory, string prefix) {
         if (!Directory.Exists(logDirectory)) {
@@ -87,5 +89,21 @@ sealed class Logging : ILogging {
             logFiles.Clear();
             isDisposed = true;
         }
+    }
+
+    public void RegisterUnchangedOutputFile() {
+        Interlocked.Increment(ref unchangedOutputFileCount);
+    }
+
+    public void RegisterChangedOutputFile() {
+        Interlocked.Increment(ref changedOutputFileCount);
+    }
+
+    public int GetUnchangedOutputFileCount() {
+        return unchangedOutputFileCount;
+    }
+
+    public int GetChangedOutputFileCount() {
+        return changedOutputFileCount;
     }
 }

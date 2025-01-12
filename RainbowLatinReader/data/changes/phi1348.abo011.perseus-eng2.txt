@@ -1,0 +1,12 @@
+# Convert the note to normal text
+document: phi1348.abo011.perseus-eng2.xml
+start: <div type="textpart" n="49" subtype="chapter">
+end: </div>
+replace: <div type="textpart" n="49" subtype="chapter">
+    (Thomson has omitted this chapter.)
+    </div>
+
+# Typo
+document: phi1348.abo011.perseus-eng2.xml
+match: (Edipus
+replace: Oedipus
