@@ -1,0 +1,9 @@
+document: phi1348.abo018.perseus-eng2.xml
+start: </l></quote> He governed
+end: <p>As soon as an opportunity
+replace: </l></quote>
+    </p></div>
+    <div type="textpart" n="4" subtype="chapter">
+    <p>He governed the province in quality of quaestor for ten years,
+    with singular moderation and justice.</p>
+    <p>As soon as an opportunity

@@ -1,5 +1,4 @@
 # Fix section boundaries.
-
 document: phi1348.abo015.perseus-eng2.xml
 start: their exertions.</p>
 end: to one who had only the
@@ -15,3 +14,8 @@ replace: their exertions. During a scarcity of provisions, occasioned by bad cro
 	<div type="textpart" n="19" subtype="chapter">
 		<p>To a citizen of Rome he gave an exemption from the penalty of the
         Papia-Poppaean law; to one who had only the
+
+# Convert from strange format to readable
+document: phi1348.abo015.perseus-eng2.xml
+match: <title xml:lang="grc">*mwrw=n a)nasta/sis</title>
+replace: Anastasis

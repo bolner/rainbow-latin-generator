@@ -1,0 +1,13 @@
+document: phi1348.abo014.perseus-lat2.xml
+match: Sic imperium adeptus, p(opulum) R(omanum),
+replace: Sic imperium adeptus, populum Romanum,
+
+document: urn:cts:latinLit:phi1348.abo014.perseus-lat2.xml
+start: <w rend="chapter" n="13" pos="NOMcom" msd="Case=Acc|Numb=Plur" lemma="pondo">p</w>
+end: <w rend="chapter" n="13" pos="PUNC" msd="MORPH=empty" lemma=")">)</w>
+replace: <w rend="chapter" n="13" pos="NOMcom" msd="Case=Acc|Numb=Sing" lemma="populus">populum</w>
+
+document: urn:cts:latinLit:phi1348.abo014.perseus-lat2.xml
+start: <w rend="chapter" n="13" pos="ADJqua" msd="Case=Nom|Numb=Sing|Gend=Masc|Deg=Pos" lemma="Roman">R</w>
+end: <w rend="chapter" n="13" pos="PUNC" msd="MORPH=empty" lemma=")">)</w>
+replace: <w rend="chapter" n="13" pos="ADJqua" msd="Case=Acc|Numb=Sing|Gend=Masc" lemma="romanus">Romanum</w>
