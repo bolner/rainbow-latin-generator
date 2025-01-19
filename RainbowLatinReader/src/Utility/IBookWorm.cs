@@ -22,6 +22,7 @@ interface IBookWorm<ELEMENT_TYPE> {
 
     public void IncomingSection(string sectionType, string sectionName);
     public void AddElement(ELEMENT_TYPE element);
+    public void EndOfDocument();
     public List<string> GetSectionKeyList();
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey);
     public LinkedListNode<ELEMENT_TYPE>? GetLastNodeBySectionKey(string sectionKey);

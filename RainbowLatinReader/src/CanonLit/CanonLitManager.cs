@@ -30,8 +30,7 @@ class CanonLitManager : ICanonLitManager {
     public CanonLitManager(ICanonDirectoryScanner scanner,
         IScheduler<ICanonLitDoc> scheduler,
         ICanonLitXmlParserFactory xmlParserFactory,
-        ILogging logging,
-        HashSet<string> documentsRequireLevelClear)
+        ILogging logging)
     {
         this.logging = logging;
         ICanonFile? file;
@@ -69,15 +68,13 @@ class CanonLitManager : ICanonLitManager {
                 continue;
             }
 
-            bool levelClear = documentsRequireLevelClear.Contains(docID);
-
             scheduler.AddTask(
                 new CanonLitDoc(
                     latinTracker[docID],
                     englishTracker[docID],
                     xmlParserFactory,
-                    new BookWorm<string>(levelClear),
-                    new BookWorm<string>(levelClear),
+                    new BookWorm<string>(),
+                    new BookWorm<string>(),
                     logging
                 )
             );

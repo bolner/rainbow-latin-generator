@@ -1,0 +1,77 @@
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: <reg>non</reg> enim, cum primum fingerentur homines,
+replace: </p></div>
+    <div n="16" type="textpart" subtype="section"><p>
+    <reg>non</reg> enim, cum primum fingerentur homines,
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: postea accesserit. <reg>quorum</reg> si nihil erit, licet tamen dicere
+replace: postea accesserit.</p></div>
+    <div n="4" type="textpart" subtype="section"><p>
+    <reg>quorum</reg> si nihil erit, licet tamen dicere
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: <reg>ipsas</reg> autem argumentorum velut sedes non me
+replace: </p>
+    </div>
+    <div n="17" type="textpart" subtype="section"><p>
+    <reg>ipsas</reg> autem argumentorum velut sedes non me
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: de quibus brevissime praelocutus, quid ipse sentiam
+replace: </p>
+    </div>
+    <div n="61" type="textpart" subtype="section"><p>
+    de quibus brevissime praelocutus, quid ipse sentiam
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: persuadere; hos ad perturbationem, illos ad benivolentiam praevalere.
+replace: persuadere; hos ad perturbationem, illos ad benivolentiam praevalere.
+    </p>
+    </div>
+    <div n="10" type="textpart" subtype="section"><p>
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: revolutaque pensa? </hi> — <hi rend="italic">
+replace: revolutaque pensa? </hi>
+    </p></div>
+    <div n="33" type="textpart" subtype="section"><p>
+    <hi rend="italic">
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: in eodem libro dicat fuisse in multis
+replace: </p>
+    </div>
+    <div n="105" type="textpart" subtype="section"><p>
+    in eodem libro dicat fuisse in multis
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: <reg>interim</reg> proprie, quod est varium
+replace: </p>
+    </div>
+    <div n="32" type="textpart" subtype="section"><p>
+    <reg>interim</reg> proprie, quod est varium
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: 28 Eadem fere est ratio minuendi.
+replace: </p>
+    </div>
+    <div n="28" type="textpart" subtype="section"><p>
+    Eadem fere est ratio minuendi.
+
+# Missing section boundary
+document: phi1002.phi001.perseus-lat2.xml
+match: alienorum, quae <foreign xml:lang="grc">
+replace: alienorum,</p>
+    </div>
+    <div n="58" type="textpart" subtype="section"><p>
+    quae <foreign xml:lang="grc">

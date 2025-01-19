@@ -19,7 +19,7 @@ namespace RainbowLatinReader;
 
 class FileChanges : IFileChanges {
     private readonly Dictionary<string, List<FileChangeEntry>> changes = [];
-    private readonly Regex labelRegex = new(@"^(document|match|replace|start|end)\: (.*)$");
+    private readonly Regex labelRegex = new(@"^(document|match|regex|replace|start|end)\: (.*)$");
 
     /// <summary>
     /// Constructor. Parses a file with change requests.
@@ -58,6 +58,16 @@ class FileChanges : IFileChanges {
 
                 changes[state["document"]].Add(new(IFileChangeEntry.ChangeType.SectionReplace,
                     state["document"], "", state["start"], state["end"], state["replace"]));
+            }
+            else if (state.ContainsKey("document") && state.ContainsKey("regex")
+                && state.ContainsKey("replace"))
+            {
+                if (!changes.ContainsKey(state["document"])) {
+                    changes[state["document"]] = [];
+                }
+                
+                changes[state["document"]].Add(new(IFileChangeEntry.ChangeType.RegEx,
+                    state["document"], state["regex"], "", "", state["replace"]));
             }
             else if (state.Count > 0)
             {

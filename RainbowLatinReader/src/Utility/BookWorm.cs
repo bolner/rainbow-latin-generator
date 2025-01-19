@@ -17,30 +17,37 @@ limitations under the License.
 namespace RainbowLatinReader;
 
 class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
-    private readonly Dictionary<string, string> sections = [];
-    private string currentSectionKey = "na";
-    private readonly List<string> sectionList = [];
+    private readonly Dictionary<string, string> pivotSection = [];
+    private readonly Dictionary<string, string> floatingSection = [];
+    private readonly List<ELEMENT_TYPE> floatingElements = [];
     private readonly LinkedList<ELEMENT_TYPE> elementChain = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> first = [];
     private readonly Dictionary<string, LinkedListNode<ELEMENT_TYPE>> last = [];
     private readonly Dictionary<string, Dictionary<string, string>> traceKeyToValues = [];
-    private readonly List<string> sectionHierarchy = ["book", "letter", "speech", "chapter", "poem", "section",
-        "card", "paragraph", "para"];
-    private readonly bool clearLowerLevels;
+    private readonly List<string> sectionHierarchy = ["book", "letter", "speech", "act", "chapter", "actio",
+        "scene", "poem", "section", "alternatesection", "card", "paragraph", "para"];
+    private readonly Dictionary<string, int> sectionHierarchyNumeric = [];
     
     /// <summary>
     /// Constructor.
     /// </summary>
-    public BookWorm(bool clearLowerLevels = false) {
-        this.clearLowerLevels = clearLowerLevels;
+    public BookWorm() {
+        int i = sectionHierarchy.Count;
+
+        foreach(string sectionType in sectionHierarchy) {
+            sectionHierarchyNumeric[sectionType] = i;
+            i--;
+        }
     }
 
     /// <summary>
     /// Reached a milestone or a div/textpart, etc.
+    /// See: "doc/BookWorm cases.md"
     /// </summary>
     /// <param name="sectionType">Examples: "section", "chapter", "para", ...</param>
     /// <param name="sectionName">Examples: "1", "2", ...</param>
-    public void IncomingSection(string sectionType, string sectionName) {
+    public void IncomingSection(string sectionType, string sectionName)
+    {
         if (sectionType.Contains('=') || sectionType.Contains('|')) {
             throw new RainbowLatinException("The section type is not allowed to contain the "
                 + $"characters: '=', '|'. Received: '{sectionType}'");
@@ -51,72 +58,103 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
                 + $"characters: '=', '|'. Received: '{sectionName}'");
         }
 
-        sections.TryGetValue(sectionType, out string? oldName);
+        if (!sectionHierarchyNumeric.TryGetValue(sectionType, out int newLevel)) {
+            throw new RainbowLatinException($"Unknown section type: {sectionType}.");
+        }
+
+        floatingSection.TryGetValue(sectionType, out string? oldName);
         if (oldName == sectionName) {
-            // No change (Mostly a repetition of a section mark.)
+            // No change (Mostly a repetition of a section marker.)
             return;
         }
 
         /*
-            If a higher level is encountered, then clear the lower levels.
+            "We encounter a section marker which is already present
+            in 'floating section' and would set the level to a new value."
         */
-        if (clearLowerLevels) {
-            bool clear = false;
+        if (oldName != null && oldName != sectionName) {
+            SectionCompletion();
+            floatingSection[sectionType] = sectionName;
+            return;
+        }
 
-            foreach(var level in sectionHierarchy) {
-                if (level == sectionType) {
-                    clear = true;
-                    continue;
-                }
+        /*
+            "A newly encountered marker has higher level than any previous markers in 'floating section',
+            AND that marker is persent in the pivot (meaning: not reverse-floating.)
+            AND at least one element (text) appeared in the current section."
+        */
+        if (pivotSection.ContainsKey(sectionType) && floatingElements.Count > 0) {
+            bool foundHigher = false;
 
-                if (clear) {
-                    sections.Remove(level);
+            foreach(string key in floatingSection.Keys) {
+                if (sectionHierarchyNumeric[key] > newLevel) {
+                    foundHigher = true;
+                    break;
                 }
+            }
+
+            if (!foundHigher) {
+                SectionCompletion();
+                floatingSection[sectionType] = sectionName;
+                return;
             }
         }
 
         /*
-            Register and validate new section.
+            No completion. Just add the new marker to
+            the floating section.
         */
-        if (sectionName != "") {
-            sections[sectionType] = sectionName;
-        }
-        currentSectionKey = GetSectionKey();
-
-        if (first.ContainsKey(currentSectionKey)) {
-            throw new RainbowLatinException("Invalid section structure. Section trace found twice: "
-                + $"{currentSectionKey}. The old one starts with: '{first[currentSectionKey].Value}'. "
-                + $"Incoming section type: '{sectionType}'.");
-        }
-
-        traceKeyToValues[currentSectionKey] = new Dictionary<string, string>(sections);
+        floatingSection[sectionType] = sectionName;
     }
 
     public void AddElement(ELEMENT_TYPE element) {
-        if (currentSectionKey == "na") {
-            return;
-        }
-
-        var node = new LinkedListNode<ELEMENT_TYPE>(element);
-
-        // is it the first element after a new section?
-        if (!first.ContainsKey(currentSectionKey)) {
-            first[currentSectionKey] = node;
-            last[currentSectionKey] = node;
-
-            sectionList.Add(currentSectionKey);
-        } else {
-            // Always overwrite the "last", so the last will stay there.
-            last[currentSectionKey] = node;
-        }
-
-        elementChain.AddLast(node);
+        floatingElements.Add(element);
     }
 
-    private string GetSectionKey() {
+    public void EndOfDocument() {
+        SectionCompletion();
+    }
+
+    private void SectionCompletion() {
+        foreach(var item in floatingSection) {
+            pivotSection[item.Key] = item.Value;
+        }
+
+        floatingSection.Clear();
+        string currentSectionKey = GetPivotSectionKey();
+
+        if (first.ContainsKey(currentSectionKey)) {
+            throw new RainbowLatinException("Invalid section structure. Section trace found twice: "
+                + $"{currentSectionKey}. The old one starts with: '{first[currentSectionKey].Value}'. ");
+        }
+
+        traceKeyToValues[currentSectionKey] = new Dictionary<string, string>(pivotSection);
+
+        /*
+            Store the floating elements under the new pivot section.
+        */
+        foreach(ELEMENT_TYPE element in floatingElements) {
+            var node = new LinkedListNode<ELEMENT_TYPE>(element);
+
+            // is it the first element after a new section?
+            if (!first.ContainsKey(currentSectionKey)) {
+                first[currentSectionKey] = node;
+                last[currentSectionKey] = node;
+            } else {
+                // Always overwrite the "last", so the last will stay there.
+                last[currentSectionKey] = node;
+            }
+
+            elementChain.AddLast(node);
+        }
+
+        floatingElements.Clear();
+    }
+
+    private string GetPivotSectionKey() {
         List<string> parts = [];
 
-        foreach(var item in sections) {
+        foreach(var item in pivotSection) {
             parts.Add($"{item.Key}={item.Value}");
         }
 
@@ -126,7 +164,7 @@ class BookWorm<ELEMENT_TYPE> : IBookWorm<ELEMENT_TYPE> {
     }
 
     public List<string> GetSectionKeyList() {
-        return new List<string>(first.Keys);
+        return [.. first.Keys];
     }
 
     public LinkedListNode<ELEMENT_TYPE>? GetFirstNodeBySectionKey(string sectionKey) {

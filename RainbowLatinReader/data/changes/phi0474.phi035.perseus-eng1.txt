@@ -1,0 +1,5 @@
+# Missing section marker
+document: phi0474.phi035.perseus-eng1.xml
+match: <p >Moreover, I also, when Pompeius
+replace: <milestone n="24" unit="section"/>
+    <p >Moreover, I also, when Pompeius

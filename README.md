@@ -51,18 +51,18 @@ and published under the [Apache License](http://www.apache.org/licenses/LICENSE-
 
 ```
 $ dotnet run
-- 18:12:47 - Started. Max parallel threads: 44.
-- 18:12:47 - Parsing canonical documents.
-- 18:12:51 - Successfully parsed 56 Canonical documents. (Out of 336)
-- 18:12:51 - Parsing lemmatized documents.
-- 18:13:02 - Collecting Latin words for the dictionary lookups.
-- 18:13:02 - Starting word lookups in Whitaker's Words.
-- 18:13:06 - Done. Total unique Latin word count: 46884.
-- 18:13:06 - There are 2 Canonical document pairs for which no lemmatized version exists.
-- 18:13:06 - Generating pages.
-- 18:13:13 - Generating index page.
-- 18:13:13 - Completed. Total HTML pages generated: 160.
-- 18:13:13 - Changed: 1, unchanged: 159.
+- 16:56:14 - Started. Max parallel threads: 44.
+- 16:56:14 - Parsing canonical documents.
+- 16:56:18 - Successfully parsed 68 Canonical documents. (Out of 336)
+- 16:56:19 - Parsing lemmatized documents.
+- 16:56:53 - Collecting Latin words for the dictionary lookups.
+- 16:56:53 - Starting word lookups in Whitaker's Words.
+- 16:56:59 - Done. Total unique Latin word count: 76533.
+- 16:57:00 - There are 2 Canonical document pairs for which no lemmatized version exists.
+- 16:57:00 - Generating pages.
+- 16:57:23 - Generating index page.
+- 16:57:23 - Completed. Total HTML pages generated: 381.
+- 16:57:23 - Changed: 296, unchanged: 85.
 $ 
 ```
 

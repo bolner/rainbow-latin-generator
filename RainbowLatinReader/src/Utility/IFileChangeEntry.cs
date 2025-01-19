@@ -17,7 +17,7 @@ namespace RainbowLatinReader;
 
 interface IFileChangeEntry {
     public enum ChangeType {
-        StringReplace, SectionReplace
+        StringReplace, SectionReplace, RegEx
     };
 
     /// <summary>

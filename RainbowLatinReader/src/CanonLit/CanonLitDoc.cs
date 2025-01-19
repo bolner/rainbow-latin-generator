@@ -40,7 +40,7 @@ class CanonLitDoc : ICanonLitDoc {
         "text.body.milestone",
         "text.body.seg"
     ];
-    private readonly string[] skipSections = ["note", "intro", "chronology"];
+    private readonly string[] skipSections = ["note", "intro", "chronology", "arg"];
     private readonly string[] skipText = ["", "* * *"];
     private readonly string[] skipTypes = ["", "translation", "edition"];
 
@@ -113,6 +113,9 @@ class CanonLitDoc : ICanonLitDoc {
             var englishSections = englishText.GetSectionKeyList();
             var latinSections = latinText.GetSectionKeyList();
 
+            logging.Text("latin_sections", $"{latinFile.GetPath()}: {string.Join(", ", latinSections)}");
+            logging.Text("english_sections", $"{englishFile.GetPath()}: {string.Join(", ", englishSections)}");
+
             var missing = from x in englishSections.Except(latinSections) select x;
             if (missing.Any()) {
                 isExcluded = true;
@@ -120,7 +123,7 @@ class CanonLitDoc : ICanonLitDoc {
                     + $"contains section(s) '{string.Join(", ", missing)}' "
                     + $"which are not present in the Latin document '{latinFile.GetPath()}'. "
                     + $"First text: {englishText.GetFirstNodeBySectionKey(missing.First() ?? "")?.Value}");
-                
+
                 return;
             }
 
@@ -249,16 +252,19 @@ class CanonLitDoc : ICanonLitDoc {
                 if (sectionName == null || sectionName == "") {
                     logging.Warning("syntax", "Encountered a milestone that has only 'section type', but no 'section name'. "
                         + $"Location: {parser.GetDebugInfo()}");
+                    continue;
                 }
                 
                 try {
-                    bookworm.IncomingSection(sectionType, sectionName ?? "");
+                    bookworm.IncomingSection(sectionType, sectionName);
                     skipUntilNextSection = false;
                 } catch (Exception ex) {
                     throw new RainbowLatinException($"{parser.GetDebugInfo()}: {ex.Message}", ex);
                 }
             }
         } while (!eof);
+
+        bookworm.EndOfDocument();
     }
 
     private void ParseForSection(ICanonLitXmlParser parser, HashSet<string>? allowedSectionTypes,
@@ -284,6 +290,13 @@ class CanonLitDoc : ICanonLitDoc {
 
         if (sectionType == null) {
             attributes.TryGetValue("subtype", out string? divSubType);
+
+            if (divSubType == "commentary") {
+                sectionName = null;
+                skipUntilNextSection = true;
+                return;
+            }
+
             attributes.TryGetValue("unit", out string? unit);
 
             if (divSubType != null) {

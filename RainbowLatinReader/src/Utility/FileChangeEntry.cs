@@ -36,8 +36,11 @@ class FileChangeEntry : IFileChangeEntry {
         this.start = start;
         this.end = end;
         this.replace = replace;
-        
-        if (changeType == IFileChangeEntry.ChangeType.SectionReplace) {
+
+        if (changeType == IFileChangeEntry.ChangeType.RegEx) {
+            pattern = new Regex(match, RegexOptions.Singleline | RegexOptions.Compiled);
+        }
+        else if (changeType == IFileChangeEntry.ChangeType.SectionReplace) {
             string escStart = Regex.Escape(start);
             string escEnd = Regex.Escape(end);
 
@@ -105,12 +108,18 @@ class FileChangeEntry : IFileChangeEntry {
     /// <returns>True if the pattern matches, false otherwise.</returns>
     public bool Apply(ref string text) {
         bool found = false;
+        string tmp;
 
-        string tmp = pattern.Replace(text, (match) => {
-            found = true;
-            return replace;
-        } , 1);
-
+        if (changeType == IFileChangeEntry.ChangeType.RegEx) {
+            tmp = pattern.Replace(text, replace);
+            found = text != tmp;
+        } else {
+            tmp = pattern.Replace(text, (match) => {
+                found = true;
+                return replace;
+            } , 1);
+        }
+        
         if (found) {
             text = tmp;
         }
@@ -123,7 +132,11 @@ class FileChangeEntry : IFileChangeEntry {
     /// and error messages.
     /// </summary>
     public override string ToString() {
-        if (changeType == IFileChangeEntry.ChangeType.StringReplace) {
+        if (changeType == IFileChangeEntry.ChangeType.RegEx) {
+            return $"Document: '{document}', Type: RegEx, Match: '{match}', "
+                + $"Replace: '{replace}'.";
+        }
+        else if (changeType == IFileChangeEntry.ChangeType.StringReplace) {
             return $"Document: '{document}', Type: StringReplace, Match: '{match}', "
                 + $"Replace: '{replace}'.";
         }

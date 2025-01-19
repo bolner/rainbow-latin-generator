@@ -37,10 +37,8 @@ var canonScanner = new CanonDirectoryScanner(canonPaths, canonLogging, fileChang
     Path.Join(dir, "data", "blocklist.tsv"));
 var canonScheduler = new Scheduler<ICanonLitDoc>(config.GetThreadCount());
 var canonParserFactory = new CanonLitXmlParserFactory();
-HashSet<string> levelClear = [.. File.ReadAllLines(Path.Join(dir, "data",
-    "documents_require_level_clear.txt"))];
 var canonLitManager = new CanonLitManager(canonScanner, canonScheduler, canonParserFactory,
-    canonLogging, levelClear);
+    canonLogging);
 
 /*
     Lemmatized Latin documents

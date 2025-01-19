@@ -7,7 +7,7 @@ You may obtain a copy of the License at
 
     http://www.apache.org/licenses/LICENSE-2.0
 
-Unless required by applicable law or agreed to in writing, software
+Unless required by applicable law or agreed to in writingoftware
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
@@ -45,12 +45,13 @@ public class BookWormTests
         b.IncomingSection("section", "1");
         b.IncomingSection("paragraph", "1");
         b.AddElement("This is a sentence. 2.1.1.");
+        b.EndOfDocument();
 
         return b;
     }
 
     private static BookWorm<string> GetSampleClearingObject() {
-        var b = new BookWorm<string>(true);
+        var b = new BookWorm<string>();
         b.IncomingSection("book", "1");
         b.IncomingSection("section", "1");
         b.IncomingSection("paragraph", "1");
@@ -74,6 +75,7 @@ public class BookWormTests
         b.IncomingSection("section", "1");
         b.IncomingSection("paragraph", "1");
         b.AddElement("This is a sentence. 2.1.1.");
+        b.EndOfDocument();
 
         return b;
     }
@@ -126,5 +128,28 @@ public class BookWormTests
         Assert.True(first != null, "Cannot find first node in section book=2|section=1|paragraph=1.");
         Assert.True(first.Value == "This is a sentence. 2.1.1.", $"First node has value '{first.Value}' "
             + " instead of 'This is a sentence. 2.1.1.'.");
+    }
+
+    [Fact]
+    public void TestOverlap() {
+        // Example from: data/phi0474/phi035/phi0474.phi035.perseus-lat2.xml
+        var b = new BookWorm<string>();
+        b.IncomingSection("speech", "2");
+        b.AddElement("This is a sentence. 2");
+        b.IncomingSection("chapter", "9");
+        b.AddElement("This is a sentence. 2.9");
+        b.IncomingSection("section", "23");
+        b.AddElement("This is a sentence. 2.9.23");
+        b.IncomingSection("chapter", "10");
+        b.AddElement("This is a sentence. 2.10.23");
+        b.IncomingSection("section", "24");
+        b.AddElement("This is a sentence. 2.10.24");
+        b.EndOfDocument();
+
+        var first = b.GetFirstNodeBySectionKey("chapter=10|section=23|speech=2");
+
+        Assert.True(first != null, "Cannot find first node in section chapter=10|section=23|speech=2.");
+        Assert.True(first.Value == "This is a sentence. 2.10.23", $"First node has value '{first.Value}' "
+            + " instead of 'This is a sentence. 2.10.23'.");
     }
 }

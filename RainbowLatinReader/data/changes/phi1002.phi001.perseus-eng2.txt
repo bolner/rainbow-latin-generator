@@ -1,0 +1,92 @@
+# Fix typos (Many chapters are called sections)
+document: phi1002.phi001.perseus-eng2.xml
+regex: (<div n="[0-9]+" type="textpart" subtype=")(section)(">[\s\r\n]+<div n="[0-9]+" type="textpart" subtype="section">)
+replace: $1chapter$3
+
+document: phi1002.phi001.perseus-eng2.xml
+start: <head>Preface</head>
+end: <div n="pr" type="textpart" subtype="chapter">
+replace: <head>Preface</head>
+    <div n="1" type="textpart" subtype="chapter">
+
+# Remove extra section boundary
+document: phi1002.phi001.perseus-eng2.xml
+start: 10 is the same as that of 10 to certainly involves similarity
+end: <div n="35" type="textpart" subtype="section">
+replace: 10 is the same as that of 10 to certainly involves similarity, </p>
+        <p> just as does the statement that a bad citizen may be compared to an
+            actual enemy. But arguments of this kind are carried still further:
+                <quote> If connexion with a male <pb n="v4-6 p.293"/> slave is
+                disgraceful to the mistress of the house, so is the connexion of the
+                master with a female slave. If pleasure is an end sought by dumb
+                animals, so also must it be with men. </quote>
+        </p>
+    </div>
+    <div n="35" type="textpart" subtype="section">
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: that I think that even delivery owes much to it. I say this
+replace: that I think that even delivery owes much to it.</p>
+    </div>
+    <div n="7" type="textpart" subtype="section"><p>
+    I say this
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+start: thought that will immediately occur to my reader
+end: or think it right?</quote> Cicero
+replace: thought that will immediately occur to my reader: "Do you then
+    teach that this should be done
+    </p></div>
+    <div n="42" type="textpart" subtype="section"><p>
+    or think it right?" Cicero
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: Even in the <hi rend="italic">proof</hi>
+replace: </p></div>
+    <div n="75" type="textpart" subtype="section"><p>
+    Even in the <hi rend="italic">proof</hi>
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: At this the wife of Xenophon not unnaturally
+replace: </p></div>
+    <div n="29" type="textpart" subtype="section"><p>
+    At this the wife of Xenophon not unnaturally
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: <pb n="v4-6 p.453"/> gesture, provided always
+replace: <pb n="v4-6 p.453"/> gesture,</p></div>
+    <div n="27" type="textpart" subtype="section"><p>
+    provided always
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: Arguments may also be drawn from contraries
+replace: </p></div>
+    <div n="30" type="textpart" subtype="section"><p>
+    Arguments may also be drawn from contraries
+
+# Missing section boundary
+document: phi1002.phi001.perseus-eng2.xml
+match: There are some even who classify them under ten
+replace: </p></div>
+    <div n="5" type="textpart" subtype="section"><p>
+    There are some even who classify them under ten
+
+# Missing section
+document: phi1002.phi001.perseus-eng2.xml
+start: structural grace have carried the day. However
+end: All combination, arrangement and connexion of words involves
+replace: structural grace have carried the day. However, let us pass to the
+            consideration of <hi rend="italic">rhythm.</hi>
+        </p>
+    </div>
+    <div n="45" type="textpart" subtype="section"><p>
+        (This section is missing.)
+    </p></div>
+    <div n="46" type="textpart" subtype="section">
+        <p> All combination, arrangement and connexion of words involves

@@ -76,7 +76,8 @@ class CanonFile : ICanonFile {
         { "&Uuml;", "Ü" },
         { "&yacute;", "ý" },
         { "&yuml;", "ÿ" },
-        { "&Perseus.publish;", "" }
+        { "&Perseus.publish;", "" },
+        { "<gap reason=\"lost\"/>", "(... lost text ...)"}
     };
     
     public CanonFile(string path, string documentID,
