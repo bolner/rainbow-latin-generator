@@ -41,7 +41,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
     private readonly StringBuilder content = new();
     private readonly Stack<string> trace = new();
     private readonly Regex whitespaceRegEx = new(
-        @"[\s]+",
+        @"[\s\r\n]+",
         RegexOptions.Compiled | RegexOptions.IgnoreCase
     );
     private readonly List<Regex> destinations = [];
@@ -49,8 +49,12 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
     private XmlNodeType? nodeType = null;
     private int lineNumber = 0;
     private bool addNewLine = false;
+    private bool wasPreviousNewLine = false;
+    private bool openingQuote = false;
+    private bool closingQuote = false;
+    private bool capitalizeNextText = false;
     private readonly HashSet<string> ignoreTags = ["note", "bibl", "del"];
-    private readonly HashSet<string> addNewLineAfterTag = ["l"];
+    private readonly HashSet<string> onePerLine = ["l", "head", "speaker"];
     private readonly HashSet<string> choice_accepted = ["abbr", "choice", "expan",
         "ex", "corr", "sic", "reg", "orig"];
     private readonly HashSet<string> choice_outer = ["choice", "abbr"];
@@ -91,7 +95,14 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
             return null;
         }
 
-        string response = whitespaceRegEx.Replace(content.ToString(), " ");
+        if (closingQuote) {
+            openingQuote = false;
+            closingQuote = false;
+
+            content.Append("\" ");
+        }
+
+        string response = whitespaceRegEx.Replace(content.ToString(), " ").Trim();
         content.Clear();
 
         return response;
@@ -169,7 +180,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
                 }
                 else if (reader.NodeType == XmlNodeType.Text) {
                     if (reader.Value != "") {
-                        content.Append(reader.Value);
+                        AppendToContent(reader.Value);
                     }
                 }
             }
@@ -236,7 +247,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
             }
             else if (reader.NodeType == XmlNodeType.Text) {
                 if (choice_inner.Contains(ending.Peek())) {
-                    content.Append(reader.Value);
+                    AppendToContent(reader.Value);
                 }
             }
         }
@@ -262,22 +273,10 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
                     Element
                 */
                 if (reader.NodeType == XmlNodeType.Element) {
-                    string name = reader.Name.ToLower();
-
-                    if (ignoreTags.Contains(name)) {
-                        reader.Skip();
-                        prefetched = true;
+                    if (DetectAndHandleSpecialElements()) {
                         continue;
                     }
-
-                    if (addNewLineAfterTag.Contains(name)) {
-                        addNewLine = true;
-                    }
-
-                    if (DetectAndHandleChoices()) {
-                        continue;
-                    }
-
+                    
                     /*
                         Update trace
                     */
@@ -304,11 +303,12 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
                 }
                 else if (reader.NodeType == XmlNodeType.Text) {
                     if (reader.Value != "") {
-                        if (addNewLine) {
-                            addNewLine = false;
-                            content.Append("<br>");
-                        }
-                        content.Append(reader.Value);
+                        AppendToContent(reader.Value);
+                    }
+                }
+                else if (reader.NodeType == XmlNodeType.EndElement) {
+                    if (DetectAndHandleSpecialElements()) {
+                        continue;
                     }
                 }
             }
@@ -368,7 +368,7 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
             */
             baseDepth--;
         }
-        StringBuilder parts = new();
+        content.Clear();
         
         while(Read()) {
             if (reader.Depth <= baseDepth) {
@@ -378,42 +378,57 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
 
             if (reader.NodeType == XmlNodeType.Text) {
                 if (reader.Value != "") {
-                    if (addNewLine) {
-                        addNewLine = false;
-                        content.Append("<br>");
-                    }
-
-                    parts.Append(reader.Value);
+                    AppendToContent(reader.Value);
                 }
             }
-            else if (reader.NodeType == XmlNodeType.Element) {
-                string name = reader.Name.ToLower();
-
-                if (ignoreTags.Contains(name)) {
-                    reader.Skip();
-                    prefetched = true;
-                    continue;
-                }
-
-                if (addNewLineAfterTag.Contains(name)) {
-                    addNewLine = true;
-                }
-
-                if (DetectAndHandleChoices()) {
+            else if (reader.NodeType == XmlNodeType.Element
+                || reader.NodeType == XmlNodeType.EndElement)
+            {
+                if (DetectAndHandleSpecialElements()) {
                     continue;
                 }
             }
         }
-
-        content.Clear();
-
-        if (addNewLine) {
-            addNewLine = false;
-            content.Append("<br>");
-        }
-        content.Append(whitespaceRegEx.Replace(parts.ToString(), " ").Trim());
 
         return FetchTextBuffer();
+    }
+
+    private void AppendToContent(string value) {
+        if (closingQuote) {
+            openingQuote = false;
+            closingQuote = false;
+
+            content.Append("\" ");
+        }
+
+        if (addNewLine && !wasPreviousNewLine) {
+            content.Append("<br>");
+            wasPreviousNewLine = true;
+            addNewLine = false;
+        }
+
+        if (openingQuote) {
+            openingQuote = false;
+            closingQuote = false;
+
+            content.Append(" \"");
+        }
+
+        if (capitalizeNextText) {
+            capitalizeNextText = false;
+            value = value.TrimStart().FirstCharToUpper();
+        }
+
+        content.Append(value);
+
+        if (addNewLine) {
+            content.Append("<br>");
+
+            wasPreviousNewLine = true;
+            addNewLine = false;
+        } else {
+            wasPreviousNewLine = false;
+        }
     }
 
     /// <summary>
@@ -445,5 +460,53 @@ sealed class CanonLitXmlParser : ICanonLitXmlParser {
     public void Skip() {
         reader.Skip();
         prefetched = true;
+    }
+
+    /// <returns>True if the read cycle should be "continued".</returns>
+    private bool DetectAndHandleSpecialElements() {
+        string name = reader.Name.ToLower();
+
+        if (onePerLine.Contains(name)) {
+            addNewLine = true;
+            return false;
+        }
+
+        if (reader.NodeType == XmlNodeType.EndElement) {
+            if (name == "quote") {
+                openingQuote = false;
+                closingQuote = true;
+            }
+
+            return true;
+        }
+
+        if (name == "quote") {
+            openingQuote = true;
+            closingQuote = false;
+
+            return true;
+        }
+
+        if (name == "reg") {
+            /*
+                The text in these <reg> tags
+                has to be capitalized.
+            */
+            capitalizeNextText = true;
+            
+            return true;
+        }
+
+        if (ignoreTags.Contains(name)) {
+            reader.Skip();
+            prefetched = true;
+            return true;
+        }
+
+        if (DetectAndHandleChoices()) {
+            return true;
+        }
+
+        return false;
     }
 }

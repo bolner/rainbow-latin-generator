@@ -154,19 +154,22 @@ class LemmatizedDoc : ILemmatizedDoc {
             return null;
         }
 
-        int baseIndex = index;
+        int localIndex = index;
         string[] words = letterRegex.Split(section);
         int window = 8;
         List<LemmatizedToken> result = [];
 
-        for(int sectionIndex = 0; sectionIndex < words.Length; sectionIndex++) {
-            int end = Math.Min(baseIndex + window, tokens.Length - 1);
+        for(int sectionIndex = 0; sectionIndex < words.Length; sectionIndex++) { // Canonical
+            int end = Math.Min(localIndex + window, tokens.Length - 1);
             bool found = false;
 
-            for (int cursor = baseIndex; cursor < end; cursor++) {
-                if (words[sectionIndex] == tokens[cursor].GetValue()) {
-                    result.Add(tokens[cursor]);
-                    baseIndex = cursor + 1;
+            for (int cursor = localIndex; cursor < end; cursor++) { // Lemmatized
+                if (words[sectionIndex].ToLower() == tokens[cursor].GetValue().ToLower()) {
+                    var token = tokens[cursor];
+                    token.SetValue(words[sectionIndex]);
+
+                    result.Add(token);
+                    localIndex = cursor + 1;
                     found = true;
                     break;
                 }
@@ -179,7 +182,7 @@ class LemmatizedDoc : ILemmatizedDoc {
             }
         }
 
-        index = baseIndex;
+        index = localIndex;
         
         return result;
     }

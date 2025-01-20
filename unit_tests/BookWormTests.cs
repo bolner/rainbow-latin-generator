@@ -146,9 +146,9 @@ public class BookWormTests
         b.AddElement("This is a sentence. 2.10.24");
         b.EndOfDocument();
 
-        var first = b.GetFirstNodeBySectionKey("chapter=10|section=23|speech=2");
+        var first = b.GetFirstNodeBySectionKey("chapter=10|section=24|speech=2");
 
-        Assert.True(first != null, "Cannot find first node in section chapter=10|section=23|speech=2.");
+        Assert.True(first != null, "Cannot find first node in section chapter=10|section=24|speech=2.");
         Assert.True(first.Value == "This is a sentence. 2.10.23", $"First node has value '{first.Value}' "
             + " instead of 'This is a sentence. 2.10.23'.");
     }

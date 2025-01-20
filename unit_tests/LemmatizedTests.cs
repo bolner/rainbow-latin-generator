@@ -297,6 +297,140 @@ public class LemmatizedTests
 </TEI>
 ");
 
+    private readonly byte[] xmlOverJump = Encoding.ASCII.GetBytes(@"
+<TEI xmlns=""http://www.tei-c.org/ns/1.0"">
+    <teiHeader n=""urn:cts:latinLit:phi1002.phi001.perseus-lat2"">
+    
+        <fileDesc>
+            <titleStmt>
+                <title>Institutio Oratoria</title>
+                <author>Quintilian</author>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>
+                    <persName>Thibault Clérice</persName>
+                </publisher>
+            </publicationStmt>
+            <sourceDesc>
+                <bibl>
+                    <idno>urn:cts:latinLit:phi1002.phi001.perseus-lat2</idno>
+                    <link target=""https://github.com/PerseusDL/canonical-latinLit/archive/0.0.843.zip""/>
+                    <dim source=""xml"" type=""md5-checksum"">c575d57e6dea32a3538b4b9c6e207b6c</dim>
+                    <dim source=""plaintext-transformation"" type=""md5-checksum"">6cc17281b5a51123741ff60c71794245</dim>
+                    <dim source=""xsl"" type=""md5-checksum"">22f0c529b7ecf86f9fc04cc8de63d204</dim>
+                </bibl>
+            </sourceDesc>
+        </fileDesc>
+    </teiHeader>
+    <text n=""urn:cts:latinLit:phi1002.phi001.perseus-lat2"">
+        <body>
+            <ab type=""section"" n=""urn:cts:latinLit:phi1002.phi001.perseus-lat2:7.2.52"">
+                <w rend=""section"" n=""7.2.52"" pos=""PROrel"" msd=""Case=Acc|Numb=Sing"" lemma=""quod1"">quod</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADV"" msd=""Deg=Pos"" lemma=""plerumque"">plerumque</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADJcar"" msd=""Case=Gen|Numb=Plur|Gend=MascNeut"" lemma=""duo"">duorum</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""crimen"">crimen</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Mood=Inf|Tense=Pres|Voice=Act"" lemma=""sum1"">esse</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""adulterium"">adulterium</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADVneg"" msd=""MORPH=empty"" lemma=""non"">non</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADV"" msd=""Deg=Pos"" lemma=""semper"">semper</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Numb=Sing|Mood=Sub|Tense=Perf|Voice=Act|Person=1"" lemma=""dico2"">dixerim</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="":"">:</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Pres|Voice=Act|Person=3"" lemma=""possum1"">potest</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Mood=Inf|Tense=Pres|Voice=Pass"" lemma=""accuso"">accusari</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PROind"" msd=""Case=Nom|Numb=Sing|Gend=Fem"" lemma=""solus"">sola</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""mulier"">mulier</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADJqua"" msd=""Case=Gen|Numb=Sing|Gend=MascNeut|Deg=Pos"" lemma=""incertus"">incerti</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Gen|Numb=Sing"" lemma=""adulterium"">adulterii</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="":"">:</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Nom|Numb=Plur"" lemma=""munus"">munera</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Loc|Numb=Sing"" lemma=""domus"">domi</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Case=Nom|Numb=Plur|Gend=Neut|Mood=Par|Tense=Perf|Voice=Pass"" lemma=""inuenio"">inventa</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Numb=Plur|Mood=Ind|Tense=Pres|Voice=Act|Person=3"" lemma=""sum1"">sunt</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="";"">;</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""pecunia"">pecunia</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PROrel"" msd=""Case=Gen|Numb=Sing|Gend=Com"" lemma=""qui1"">cuius</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""auctor"">auctor</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADVneg"" msd=""MORPH=empty"" lemma=""non"">non</w>
+                <w rend=""section"" n=""7.2.52"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Pres|Voice=Act|Person=3"" lemma=""exsto"">exstat</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="";"">;</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Gen|Numb=Sing"" lemma=""codicillus"">codicilli</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADJqua"" msd=""Case=Nom|Numb=Sing|Gend=Neut|Deg=Pos"" lemma=""dubius"">dubium</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PRE"" msd=""MORPH=empty"" lemma=""ad2"">ad</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PROrel"" msd=""Case=Acc|Numb=Sing|Gend=Masc"" lemma=""qui1"">quem</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Numb=Plur|Gend=Masc|Mood=Par|Tense=Perf|Voice=Pass"" lemma=""scribo"">scripti</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PRE"" msd=""MORPH=empty"" lemma=""in"">In</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Abl|Numb=Sing"" lemma=""falsum"">falso</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADV"" msd=""Numb=Sing"" lemma=""quoque"">quoque</w>
+                <w rend=""section"" n=""7.2.52"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""ratio"">ratio</w>
+                <w rend=""section"" n=""7.2.52"" pos=""ADJqua"" msd=""Case=Nom|Numb=Sing|Gend=MascFem|Deg=Pos"" lemma=""similis"">similis</w>
+                <w rend=""section"" n=""7.2.52"" pos=""PUNC"" msd=""MORPH=empty"" lemma="";"">;</w>
+            </ab>
+            <ab type=""section"" n=""urn:cts:latinLit:phi1002.phi001.perseus-lat2:7.2.53"">
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""aut"">aut</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""enim2"">enim</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADJqua"" msd=""Case=Nom|Numb=Plur|Gend=MascFem|Deg=Comp"" lemma=""multus"">plures</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PRE"" msd=""MORPH=empty"" lemma=""in"">in</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""culpa"">culpam</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Numb=Plur|Mood=Ind|Tense=Pres|Voice=Pass|Person=3"" lemma=""uoco"">vocantur</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""aut"">aut</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADJcar"" msd=""Case=Nom|Numb=Sing|Gend=Masc"" lemma=""unus"">unus</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma=""."">.</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""et2"">Et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""scriptor"">scriptor</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADV"" msd=""Deg=Pos"" lemma=""quidem"">quidem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADV"" msd=""Deg=Pos"" lemma=""semper"">semper</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Mood=Inf|Tense=Pres|Voice=Dep"" lemma=""tueor"">tueri</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""signator"">signatorem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADJqua"" msd=""Case=Ind|Deg=Pos"" lemma=""necesse"">necesse</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Pres|Voice=Act|Person=3"" lemma=""habeo"">habet</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""signator"">signator</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""scriptor"">scriptorem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADVneg"" msd=""MORPH=empty"" lemma=""non"">non</w>
+                <w rend=""section"" n=""7.2.53"" pos=""ADV"" msd=""Deg=Pos"" lemma=""semper"">semper</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""nam"">nam</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""Deg=Pos"" lemma=""et2"">et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Mood=Inf|Tense=Pres|Voice=Pass"" lemma=""decipio"">decipi</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Perf|Voice=Act|Person=3"" lemma=""possum1"">potuit</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma=""."">.</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROdem"" msd=""Case=Nom|Numb=Sing|Gend=Masc"" lemma=""is"">is</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""autem"">autem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROrel"" msd=""Case=Nom|Numb=Sing|Gend=Masc"" lemma=""qui1"">qui</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROdem"" msd=""Case=Acc|Numb=Plur|Gend=Masc"" lemma=""hic1"">hos</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Mood=Inf|Tense=Perf|Voice=Act"" lemma=""adhibeo"">adhibuisse</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""et2"">et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROrel"" msd=""Case=Dat|Numb=Sing|Gend=Com"" lemma=""qui1"">cui</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROdem"" msd=""Case=Nom|Numb=Sing|Gend=Neut"" lemma=""is"">id</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Case=Nom|Numb=Sing|Gend=MascNeut|Mood=Par|Tense=Perf|Voice=Pass"" lemma=""facio"">factum</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Pres|Voice=Pass|Person=3"" lemma=""dico2"">dicitur</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma="","">,</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""et2"">et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Acc|Numb=Sing"" lemma=""scriptor"">scriptorem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""et2"">et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Acc|Numb=Plur"" lemma=""signator"">signatores</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Numb=Sing|Mood=Ind|Tense=Fut|Voice=Act|Person=3"" lemma=""defendo"">defendet</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma=""."">.</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PROdem"" msd=""Case=Nom|Numb=Plur|Gend=Masc"" lemma=""idem"">iidem</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Gen|Numb=Plur"" lemma=""argumentum"">argumentorum</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Gen|Numb=Sing"" lemma=""locus"">loci</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PRE"" msd=""MORPH=empty"" lemma=""in"">in</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Abl|Numb=Plur"" lemma=""causa"">causis</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Gen|Numb=Sing"" lemma=""proditio1"">proditionis</w>
+                <w rend=""section"" n=""7.2.53"" pos=""CONcoo"" msd=""MORPH=empty"" lemma=""et2"">et</w>
+                <w rend=""section"" n=""7.2.53"" pos=""VER"" msd=""Case=Gen|Numb=Sing|Gend=Fem|Mood=Par|Tense=Perf|Voice=Pass"" lemma=""affecto"">adfectatae</w>
+                <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Gen|Numb=Sing"" lemma=""tyrannis"">tyrannidis</w>
+                <w rend=""section"" n=""7.2.53"" pos=""PUNC"" msd=""MORPH=empty"" lemma=""."">.</w>
+                </ab>
+        </body>
+    </text>
+</TEI>
+");
+
     [Fact]
     public void TestMetaFields()
     {
@@ -345,6 +479,42 @@ public class LemmatizedTests
             // Numb=Sing|Mood=Ind|Tense=Perf|Voice=Act|Person=3
             var msd = tokens[47].GetMsd();
             Assert.True(msd.ContainsKey("Numb"), $"Last word 'potuit' has no 'Numb' msb.");
+        }
+    }
+
+    [Fact]
+    public void TestOverjump() {
+        var file = new MockCanonFile("/tmp/example.xml", "phi1002.phi001",
+            ICanonFile.Language.Latin, 2, xmlOverJump);
+        var xmlParserFactory = new XmlParserFactory();
+        using var lemmaLogging = new Logging(Path.Join(Directory.GetCurrentDirectory(), "logs"), "lemma");
+        var doc = new LemmatizedDoc(file, xmlParserFactory, lemmaLogging);
+        doc.Process();
+
+        doc.Lemmatize("quod plerumque duorum crimen esse adulterium, non semper dixerim: potest "
+            + "accusari sola mulier incerti adulterii: munera domi inventa sunt; pecunia, cuius "
+            + "auctor non exstat; codicilli, dubium ad quem scripti In falso quoque ratio similis;");
+        
+        List<LemmatizedToken>? tokens = doc.Lemmatize("aut enim plures in culpam vocantur aut unus. et scriptor quidem semper "
+            + "tueri signatorem necesse habet, signator scriptorem non semper, nam et decipi "
+            + "potuit. is autem, qui hos adhibuisse et cui id factum dicitur, et scriptorem "
+            + "et signatores defendet. iidem argumentorum loci in causis proditionis et "
+            + "adfectatae tyrannidis.");
+        
+        Assert.True(tokens != null, "LemmatizedDoc.Lemmatize() returned NULL on the second call.");
+        if (tokens != null) {
+            // The real cause of the original issue was an "Et" "et" case difference, because
+            //  of the <reg> tag.
+
+            // 18: <w rend=""section"" n=""7.2.53"" pos=""NOMcom"" msd=""Case=Nom|Numb=Sing"" lemma=""scriptor"">scriptor</w>
+            // After: "unus. et scriptor"
+
+            var msd = tokens[18].GetMsd();
+            Assert.True(msd.Count > 0, "Empty msd for the word 'scriptor'.");
+
+            if (msd.Count > 0) {
+                Assert.True(msd["Case"] == "Nom", "Expected nominative case for the word 'scriptor'.");
+            }
         }
     }
 }

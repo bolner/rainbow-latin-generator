@@ -20,7 +20,7 @@ namespace RainbowLatinReader;
 class LemmatizedToken : ILemmatizedToken {
     private readonly string tokenType;
     private readonly string lemma;
-    private readonly string value;
+    private string value;
     private readonly Dictionary<string, string> msd = [];
     private readonly Regex numericRegex = new(@"\d+$"); // Numbers at the end
     private readonly HashSet<string> notWordTypes = ["", "UNK", "_", "OUT", "PUNC"];
@@ -182,6 +182,10 @@ class LemmatizedToken : ILemmatizedToken {
 
     public string GetValue() {
         return value;
+    }
+
+    public void SetValue(string value) {
+        this.value = value;
     }
 
     public Dictionary<string, string> GetMsd() {

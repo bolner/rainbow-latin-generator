@@ -20,7 +20,7 @@ namespace RainbowLatinReader;
 class CanonLitManager : ICanonLitManager {
     private readonly ILogging logging;
     private readonly Dictionary<string, ICanonLitDoc> library = [];
-    private readonly Regex separatorRegex = new(@"[0-9\s\,\.\:\;\(\)\-\!\?—\'\""†\^\>\<]+",
+    private readonly Regex separatorRegex = new(@"[0-9\s\,\.\:\;\(\)\[\]\-\!\?—\'\""†\^\>\<“”‘’«]+",
         RegexOptions.Compiled | RegexOptions.Singleline);
     private readonly Regex latinRegex = new(@"^[a-zA-ZáÁâæÆàäçċéêèēëËíÍîìïÏñóôœŒòöÖŕúûùüÜýÿ]+$",
         RegexOptions.Compiled | RegexOptions.Singleline);

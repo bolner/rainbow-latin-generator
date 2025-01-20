@@ -34,6 +34,7 @@ public class XmlParserTests
             <p>1 First sentence.</p>
             <p>1 Second sentence.</p>
             <p>1 Third sentence.</p>
+            <p><some><reg>this</reg> has to be capital.</some></p>
         </section>
 
         <section number=""1.1.2"">
@@ -58,9 +59,9 @@ public class XmlParserTests
     {
         var canonFile = new MockCanonFile("/tmp/example.xml", "phi1348.abo011",
             ICanonFile.Language.Latin, 2, xmlData1);
-        using CanonLitXmlParser xml = new(canonFile, new List<string>{
+        using CanonLitXmlParser xml = new(canonFile, [
             "body.section.p"
-        });
+        ]);
         bool found = xml.Next();
         string text = xml.FetchContent() ?? "";
 
@@ -68,6 +69,14 @@ public class XmlParserTests
         Assert.True(text == "1 First sentence.",
             "Wasn't able to read text '1 First sentence.' from the "
             + $"first 'body.section.p' node. Got '{text}' instead.");
+        
+        xml.Next();
+        xml.Next();
+        found = xml.Next();
+        text = xml.FetchContent() ?? "";
+
+        Assert.True(found, "Wasn't able to find the 4th 'body.section.p'.");
+        Assert.True(text.Contains("This"), "The 'this' text in the <reg> tag was not made capital.");
     }
 
     [Fact]

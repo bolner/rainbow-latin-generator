@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace RainbowLatinReader;
 
@@ -25,6 +26,7 @@ class Page : IPage {
     private readonly string outputFolder;
     private Exception? lastError = null;
     private int latinWordCount = 0;
+    private readonly Regex spacingRegex = new(@"(\s*[\""\(\)\[\]\']+\s*)");
     
     public Page(ICanonLitDoc canonLitDoc, ILemmatizedDoc lemmatizedDoc,
         IWhitakerManager whitakerManager, ITemplateEngine templateEngine,
@@ -85,7 +87,10 @@ class Page : IPage {
 
                 foreach(string key in chunk) {
                     sectionNumber++;
-                    string latinText = canonLitDoc.GetLatinSection(key);
+                    string latinText = spacingRegex.Replace(
+                        canonLitDoc.GetLatinSection(key),
+                        " $1 ");
+
                     var lemmatized = lemmatizedDoc.Lemmatize(latinText);
                     List<Dictionary<string, object>> latinTokens = [];
 
