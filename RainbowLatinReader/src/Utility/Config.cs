@@ -49,7 +49,7 @@ class Config : IConfig {
 
         latinLemmatizedTextsDir = (section["latin_lemmatized_texts.dir"] ?? "").Trim();
         perseusCanonicalLatinLitDir = (section["perseus_canonical_latinLit.dir"] ?? "").Trim();
-        whitakerWordsRootPath = (section["whitaker_words_root.path"] ?? "").Trim();
+        whitakerWordsRootPath = (section["whitaker_words_root.dir"] ?? "").Trim();
         whitakerWordsExecutablePath = (section["whitaker_words_executable.path"] ?? "").Trim();
         outputDir = (section["output.dir"] ?? "").Trim();
         templatesDir = (section["templates.dir"] ?? "").Trim();
@@ -73,7 +73,7 @@ class Config : IConfig {
         }
 
         if (whitakerWordsRootPath == "" || !Directory.Exists(whitakerWordsRootPath)) {
-            throw new RainbowLatinException($"The 'whitaker_words_root.path' setting in config file 'config.ini' "
+            throw new RainbowLatinException($"The 'whitaker_words_root.dir' setting in config file 'config.ini' "
                 + $"does not contain a valid directory path. Value: '{whitakerWordsRootPath}'.");
         }
 

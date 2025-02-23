@@ -11,7 +11,7 @@ Rainbow Latin Generator
 
 # Introduction
 
-This software generates Latin-English dual-language documents. See main webpage:
+This software generates Latin-English dual language documents. See main webpage:
 - https://bolner.github.io/rainbow-latin-reader/index.html
 
 Watch the introduction video on YouTube:

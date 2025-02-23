@@ -1,7 +1,7 @@
 [Paths]
 latin_lemmatized_texts.dir = ""
 perseus_canonical_latinLit.dir = ""
-whitaker_words_root.path = ""
+whitaker_words_root.dir = ""
 whitaker_words_executable.path = ""
 output.dir = ""
 templates.dir = ""
